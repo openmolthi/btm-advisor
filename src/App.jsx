@@ -1427,7 +1427,18 @@ Return ONLY the JSON array, nothing else.`;
               <ChatInterface 
                 messages={chatMessages} 
                 onSendMessage={handleChat} 
-                isTyping={isChatTyping} 
+                isTyping={isChatTyping}
+                suggestions={(() => {
+                  const s = [];
+                  const scores = calculateMeddicScores({ selectedIndustry, selectedProcess, selectedValue, selectedCapability, additionalContext, isRise, erpSystem, adoptionRelated, stakeholders, coachingContent, briefContent });
+                  if (scores.economicBuyer?.score < 50) s.push({ icon: '👔', label: 'Help me identify and approach the Economic Buyer', prompt: 'Based on my deal context, help me identify who the Economic Buyer likely is, how to get access, and what messaging would resonate with them.' });
+                  if (scores.champion?.score < 50) s.push({ icon: '🏆', label: 'How do I find and develop a Champion?', prompt: 'I need to find an internal champion for this deal. What characteristics should I look for, and how do I develop them into an advocate?' });
+                  if (scores.metrics?.score < 50) s.push({ icon: '📊', label: 'What metrics should I quantify?', prompt: 'Help me identify the key business metrics and KPIs I should quantify to build a compelling business case for this deal.' });
+                  if (scores.decisionProcess?.score < 50) s.push({ icon: '🗺️', label: 'Map out the likely decision process', prompt: 'Based on this deal context, what does the typical decision process look like? Who are the approvers, what are the stages, and what could stall it?' });
+                  if (scores.identifyPain?.score < 50) s.push({ icon: '🎯', label: 'Sharpen the pain points', prompt: 'Help me articulate the customer pain points more sharply. What questions should I ask to uncover deeper pain?' });
+                  if (s.length === 0) s.push({ icon: '🚀', label: 'What should my next move be?', prompt: 'Based on everything in my deal context, what should my next strategic move be to advance this deal?' });
+                  return s.slice(0, 4);
+                })()}
               />
             )}
 

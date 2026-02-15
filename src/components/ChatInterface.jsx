@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, User, Sparkles, Bot } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
-const ChatInterface = ({ messages, onSendMessage, isTyping }) => {
+const ChatInterface = ({ messages, onSendMessage, isTyping, suggestions = [] }) => {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef(null);
   
@@ -24,7 +24,22 @@ const ChatInterface = ({ messages, onSendMessage, isTyping }) => {
         {messages.length === 0 && (
           <div className="text-center text-slate-400 py-10">
             <Bot size={40} className="mx-auto mb-2 opacity-50" />
-            <p className="text-sm font-medium">Ask me anything about the strategy.</p>
+            <p className="text-sm font-medium mb-4">Ask me anything about the strategy.</p>
+            {suggestions.length > 0 && (
+              <div className="space-y-2 max-w-md mx-auto">
+                <p className="text-[10px] font-bold uppercase tracking-wide text-slate-500">💡 Suggested based on your deal gaps</p>
+                {suggestions.map((s, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => onSendMessage(s.prompt)}
+                    className="w-full text-left px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-700 hover:border-blue-400 hover:bg-blue-50 transition-colors shadow-sm"
+                  >
+                    <span className="mr-1.5">{s.icon}</span>
+                    <span className="font-medium">{s.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
         {messages.map((msg, idx) => (
