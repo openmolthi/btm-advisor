@@ -332,8 +332,9 @@ Only include stakeholders explicitly mentioned by name. If no names found, retur
   };
 
   const handleIncreaseValue = () => {
-    setShowValuePanel(prev => !prev);
-    if (!showValuePanel) {
+    const willShow = !showValuePanel;
+    setShowValuePanel(willShow);
+    if (willShow) {
       // Auto-generate all 3 strategies
       const ctx = getContextString();
       const sysInstr = constructSystemInstruction("Sales Strategist");
