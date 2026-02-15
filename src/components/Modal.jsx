@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { getApiKey, setApiKey as saveApiKey } from '../lib/api';
 import { 
   XCircle, RefreshCw, Download, FileJson, AlertTriangle, 
   Settings, Lock, Calendar, Sparkles, Network, Maximize2 
@@ -41,12 +42,13 @@ export const AdminModal = ({ isOpen, onClose, config, onSave, addToast, selected
   const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [localConfig, setLocalConfig] = useState(config);
-  const [activeTab, setActiveTab] = useState("guardrails");
+  const [activeTab, setActiveTab] = useState("apikey");
+  const [apiKeyInput, setApiKeyInput] = useState("");
   
   useEffect(() => { 
     if(isOpen) {
-      // Sync local config when modal opens - batched after mount
       const timer = setTimeout(() => setLocalConfig(config), 0);
+      setApiKeyInput(getApiKey());
       return () => clearTimeout(timer);
     }
   }, [isOpen, config]);
@@ -101,6 +103,12 @@ export const AdminModal = ({ isOpen, onClose, config, onSave, addToast, selected
             <div className="flex h-full gap-4">
               <div className="w-48 border-r space-y-1">
                 <button 
+                  onClick={()=>setActiveTab("apikey")} 
+                  className={`w-full text-left px-2 py-1 rounded ${activeTab==="apikey" ? "bg-blue-50 text-blue-700" : ""}`}
+                >
+                  🔑 API Key
+                </button>
+                <button 
                   onClick={()=>setActiveTab("guardrails")} 
                   className={`w-full text-left px-2 py-1 rounded ${activeTab==="guardrails" ? "bg-blue-50 text-blue-700" : ""}`}
                 >
@@ -114,6 +122,25 @@ export const AdminModal = ({ isOpen, onClose, config, onSave, addToast, selected
                 </button>
               </div>
               <div className="flex-grow space-y-4">
+                {activeTab === "apikey" && (
+                  <div>
+                    <label className="font-bold block mb-1">Gemini API Key</label>
+                    <p className="text-sm text-slate-500 mb-3">Get a free key from <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Google AI Studio</a>. Stored locally in your browser only.</p>
+                    <input 
+                      type="password" 
+                      className="w-full border p-2 rounded text-sm font-mono" 
+                      value={apiKeyInput} 
+                      onChange={e=>setApiKeyInput(e.target.value)}
+                      placeholder="AIzaSy..."
+                    />
+                    <button 
+                      onClick={() => { saveApiKey(apiKeyInput); addToast("API key saved!", "success"); }} 
+                      className="bg-blue-600 text-white px-4 py-2 rounded font-bold mt-3"
+                    >
+                      Save API Key
+                    </button>
+                  </div>
+                )}
                 {activeTab === "guardrails" && (
                   <div>
                     <label className="font-bold block mb-1">AI Guardrails</label>

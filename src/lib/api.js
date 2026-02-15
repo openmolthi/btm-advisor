@@ -1,5 +1,12 @@
+// API key management — stored in localStorage, never in source
+export const getApiKey = () => localStorage.getItem('btm_gemini_api_key') || '';
+export const setApiKey = (key) => localStorage.setItem('btm_gemini_api_key', key);
+export const hasApiKey = () => !!getApiKey();
+
 export const generateGeminiResponse = async (prompt, systemInstruction, attachments = []) => {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || ""; 
+  const apiKey = getApiKey();
+  if (!apiKey) return "⚠️ No API key set. Go to Settings (⚙️) to enter your Gemini API key.";
+  
   const parts = [{ text: prompt }];
   
   if (attachments && attachments.length > 0) {
@@ -23,18 +30,22 @@ export const generateGeminiResponse = async (prompt, systemInstruction, attachme
       }
     );
     
-    if (!response.ok) throw new Error(`Text API failed: ${response.statusText}`);
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err?.error?.message || `API failed: ${response.statusText}`);
+    }
     
     const result = await response.json();
     return result.candidates?.[0]?.content?.parts?.[0]?.text || "No response.";
   } catch (error) {
     console.error("Text Gen Error:", error);
-    return "Error generating content. Please try again. Ensure API Key is set.";
+    return `LLM error: ${error.message}`;
   }
 };
 
 export const generateImagenImage = async (prompt) => {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
+  const apiKey = getApiKey();
+  if (!apiKey) return null;
   
   try {
     const response = await fetch(
