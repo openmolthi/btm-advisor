@@ -360,7 +360,7 @@ Based on public knowledge about this company, return ONLY valid JSON (no markdow
     setActiveTab('coaching'); 
     setCoachingContent(""); 
     scrollToOutput();
-    const prompt = `CONTEXT: ${getContextString()}\nTASK: Generate 3 high-impact coaching ideas for this deal. For each idea:\n- Bold headline (1 line)\n- Why it matters (1-2 sentences)\n- Suggested talk track (2-3 sentences)\n\nBe concise and actionable. No lengthy preambles. No filler. Total response under 400 words.\n${config.aiGuardrails}`;
+    const prompt = `CONTEXT: ${getContextString()}\nTASK: Generate 3 high-impact coaching ideas for this deal. Use this exact markdown format for each:\n\n## 1. [Bold Headline]\n\n**Why it matters:** 1-2 sentences.\n\n**Talk track:** 2-3 sentences of what to actually say.\n\n---\n\n(repeat for ideas 2 and 3)\n\nUse --- between ideas. Use **bold** for key terms. Keep total under 400 words. No preamble before idea 1.\n${config.aiGuardrails}`;
     const text = await generateGeminiResponse(prompt, constructSystemInstruction("Expert Solution Advisor Coach"), attachments);
     setCoachingContent(text); 
     setIsGenerating(false);
