@@ -1080,7 +1080,7 @@ Only include stakeholders explicitly mentioned by name. If no names found, retur
               className={`flex-1 py-3 px-4 text-sm font-bold flex items-center justify-center gap-2 transition-colors whitespace-nowrap ${
                 activeTab === 'visual' 
                   ? 'bg-white text-orange-800 border-b-4 border-orange-700 shadow-sm' 
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border-b border-slate-300'
+                  : 'bg-orange-50 text-slate-600 hover:bg-orange-100 border-b border-slate-300'
               }`}
             >
               <Network size={16} /> {t(selectedLanguage, "tabs", "visual")}
@@ -1090,7 +1090,7 @@ Only include stakeholders explicitly mentioned by name. If no names found, retur
               className={`flex-1 py-3 px-4 text-sm font-bold flex items-center justify-center gap-2 transition-colors whitespace-nowrap ${
                 activeTab === 'dealScore' 
                   ? 'bg-white text-purple-800 border-b-4 border-purple-700 shadow-sm' 
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border-b border-slate-300'
+                  : 'bg-orange-50 text-slate-600 hover:bg-orange-100 border-b border-slate-300'
               }`}
             >
               <BarChart2 size={16} /> {t(selectedLanguage, "tabs", "dealScore")}
