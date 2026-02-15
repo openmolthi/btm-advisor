@@ -145,6 +145,42 @@ export default function App() {
   const [isModalLoading, setIsModalLoading] = useState(false);
   const [modalMedia, setModalMedia] = useState(null);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [smartStartInput, setSmartStartInput] = useState('');
+  const [smartStartLoading, setSmartStartLoading] = useState(false);
+
+  const handleSmartStart = async () => {
+    if (!smartStartInput.trim()) return;
+    setSmartStartLoading(true);
+    const prompt = `Research this company/context and suggest the best SAP deal positioning: "${smartStartInput}"
+
+Based on public knowledge about this company, return ONLY valid JSON (no markdown, no code fences):
+{
+  "industries": ["pick 1-2 from: Automotive, Banking, Chemicals, Consumer Products, Healthcare, High Tech, Industrial Manufacturing, Insurance, Life Sciences, Logistics, Media, Mining, Oil & Gas, Pharmaceuticals, Professional Services, Public Sector, Retail, Telecommunications, Transportation, Utilities"],
+  "processes": ["pick 2-3 from: Acquire to Retire, Campaign to Lead, Claims to Resolution, Forecast to Fulfill, Hire to Retire, Idea to Market, Incident to Resolution, Lead to Cash, Meter to Cash, Order to Cash, Plan to Produce, Procure to Pay, Quote to Cash, Record to Report, Service to Cash"],
+  "valueDrivers": ["pick 2-3 from: Reduce Days Sales Outstanding, Improve Net Working Capital, Reduce Total Logistics Cost, Reduce Finance Cost, Reduce Sales Cost, Reduce Manufacturing Cost, Reduce Asset Maintenance Cost, Reduce Unplanned Downtime, Reduce Waste Generation Cost, Reduce Service & Support Cost, Improve Procurement FTE Productivity, Reduce Uncollectible Accounts Receivable, Improve On-Time Delivery, Improve Customer Satisfaction, Increase Forecast Accuracy, Improve Compliance, Increase First-Time-Right, Reduce Cycle Time, Increase Automation Rate"],
+  "capabilities": ["pick 2-3 from: SAP Signavio - all, SAP LeanIX - all, WalkMe - all, Process Modeling, Process Mining, Journey Modeling, Application Portfolio Mgmt, Tech Risk Mgmt, Digital Adoption, Guided Workflows"],
+  "additionalContext": "2-3 sentences about this company's key challenges, digital transformation status, and relevant SAP opportunities",
+  "isRise": true/false,
+  "erpSystem": {"s4": true/false, "ecc": true/false, "nonSap": true/false}
+}`;
+    const text = await generateGeminiResponse(prompt, constructSystemInstruction("SAP Industry Research Analyst"), []);
+    try {
+      const cleaned = text.replace(/```json?\n?/g, '').replace(/```/g, '').trim();
+      const result = JSON.parse(cleaned);
+      if (result.industries) setSelectedIndustry(result.industries);
+      if (result.processes) setSelectedProcess(result.processes);
+      if (result.valueDrivers) setSelectedValue(result.valueDrivers);
+      if (result.capabilities) setSelectedCapability(result.capabilities);
+      if (result.additionalContext) setAdditionalContext(result.additionalContext);
+      if (result.isRise !== undefined) setIsRise(result.isRise);
+      if (result.erpSystem) setErpSystem({ s4: result.erpSystem.s4 || false, ecc: result.erpSystem.ecc || false, nonSap: result.erpSystem.nonSap || false });
+      setSmartStartInput('');
+      addToast(`Smart Start: ${smartStartInput} — context loaded!`, "success");
+    } catch {
+      addToast("Couldn't parse research results. Try again.", "error");
+    }
+    setSmartStartLoading(false);
+  };
   const [showAgendaSettings, setShowAgendaSettings] = useState(false);
   const [showFullMap, setShowFullMap] = useState(false);
   const [showValuePanel, setShowValuePanel] = useState(false);
@@ -802,6 +838,34 @@ Return ONLY the JSON array, nothing else.`;
           </div>
 
           <div className="bg-white p-4 rounded-lg shadow-md border border-slate-200 flex-grow flex flex-col lg:overflow-y-auto h-auto">
+            {/* Smart Start */}
+            <div className="mb-3">
+              <div className="flex gap-2">
+                <div className="relative flex-grow">
+                  <input
+                    type="text"
+                    value={smartStartInput}
+                    onChange={(e) => setSmartStartInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSmartStart()}
+                    placeholder='🚀 Smart Start — e.g. "BMW Asia" or "Nestlé supply chain"'
+                    disabled={smartStartLoading}
+                    className="w-full border-2 border-dashed border-indigo-300 rounded-lg px-3 py-2 text-xs font-medium focus:outline-none focus:border-indigo-500 bg-indigo-50/50 placeholder-indigo-400 disabled:opacity-50"
+                  />
+                </div>
+                <button
+                  onClick={handleSmartStart}
+                  disabled={!smartStartInput.trim() || smartStartLoading}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm flex items-center gap-1.5 whitespace-nowrap disabled:bg-slate-400 disabled:cursor-not-allowed transition-colors"
+                >
+                  {smartStartLoading ? (
+                    <><RefreshCw size={12} className="animate-spin" /> Researching...</>
+                  ) : (
+                    <><Sparkles size={12} /> Go</>
+                  )}
+                </button>
+              </div>
+            </div>
+
             {/* Core Context Section */}
             <div className="mb-3">
               <button 
