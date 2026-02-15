@@ -258,38 +258,62 @@ export default function App() {
   const importDeal = () => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.json';
+    input.accept = '.json,.pdf,.txt,.doc,.docx,.md';
     input.onchange = (e) => {
       const file = e.target.files[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        try {
-          const deal = JSON.parse(ev.target.result);
-          if (deal.context) {
-            setSelectedIndustry(deal.context.selectedIndustry || []);
-            setSelectedProcess(deal.context.selectedProcess || []);
-            setSelectedValue(deal.context.selectedValue || []);
-            setSelectedCapability(deal.context.selectedCapability || []);
-            setAdditionalContext(deal.context.additionalContext || '');
-            setIsRise(deal.context.isRise || false);
-            setErpSystem(deal.context.erpSystem || { s4: false, ecc: false, nonSap: false });
-            setOtherSap(deal.context.otherSap || '');
-            setOtherNonSap(deal.context.otherNonSap || '');
-            setAdoptionRelated(deal.context.adoptionRelated || { signavio: false, leanix: false, walkme: false });
-            setStakeholders(deal.context.stakeholders || []);
+      
+      if (file.name.endsWith('.json')) {
+        // Structured deal import
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const deal = JSON.parse(ev.target.result);
+            if (deal.context) {
+              setSelectedIndustry(deal.context.selectedIndustry || []);
+              setSelectedProcess(deal.context.selectedProcess || []);
+              setSelectedValue(deal.context.selectedValue || []);
+              setSelectedCapability(deal.context.selectedCapability || []);
+              setAdditionalContext(deal.context.additionalContext || '');
+              setIsRise(deal.context.isRise || false);
+              setErpSystem(deal.context.erpSystem || { s4: false, ecc: false, nonSap: false });
+              setOtherSap(deal.context.otherSap || '');
+              setOtherNonSap(deal.context.otherNonSap || '');
+              setAdoptionRelated(deal.context.adoptionRelated || { signavio: false, leanix: false, walkme: false });
+              setStakeholders(deal.context.stakeholders || []);
+            }
+            if (deal.content) {
+              setCoachingContent(deal.content.coachingContent || '');
+              setBriefContent(deal.content.briefContent || '');
+              setChatMessages(deal.content.chatMessages || []);
+            }
+            addToast(`Deal imported: ${deal.context?.selectedIndustry?.[0] || 'untitled'}`, "success");
+          } catch {
+            addToast("Failed to parse JSON file", "error");
           }
-          if (deal.content) {
-            setCoachingContent(deal.content.coachingContent || '');
-            setBriefContent(deal.content.briefContent || '');
-            setChatMessages(deal.content.chatMessages || []);
-          }
-          addToast(`Deal imported: ${deal.context?.selectedIndustry?.[0] || 'untitled'}`, "success");
-        } catch {
-          addToast("Failed to import deal file", "error");
-        }
-      };
-      reader.readAsText(file);
+        };
+        reader.readAsText(file);
+      } else if (file.type === 'application/pdf') {
+        // PDF — read as base64 and add as attachment + context
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const base64 = ev.target.result;
+          setAttachments(prev => [...prev, { name: file.name, type: file.type, data: base64 }]);
+          setAdditionalContext(prev => prev ? prev + `\n\n[Imported file: ${file.name}]` : `[Imported file: ${file.name}]`);
+          addToast(`PDF attached: ${file.name} — use "Give me ideas" to analyze`, "success");
+        };
+        reader.readAsDataURL(file);
+      } else {
+        // Text/markdown/other — read as text and add to additional context
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const text = ev.target.result;
+          const truncated = text.length > 5000 ? text.substring(0, 5000) + '\n\n[...truncated]' : text;
+          setAdditionalContext(prev => prev ? prev + '\n\n--- Imported: ' + file.name + ' ---\n' + truncated : '--- Imported: ' + file.name + ' ---\n' + truncated);
+          addToast(`Content imported from ${file.name}`, "success");
+        };
+        reader.readAsText(file);
+      }
     };
     input.click();
   };
@@ -423,8 +447,8 @@ Only include stakeholders explicitly mentioned by name. If no names found, retur
 
   const refineEmailInChat = (card) => {
     setActiveTab('chat');
-    setChatMessages(prev => [...prev, { role: 'user', text: `Help me refine this email draft. Here's what I have:\n\nSubject: ${card.subject}\n\n${card.body}\n\nMake it more personalized and compelling. Keep it short.` }]);
     setShowEmailPanel(false);
+    setTimeout(() => handleChat(`Help me refine this email draft. Here's what I have:\n\nSubject: ${card.subject}\n\n${card.body}\n\nMake it more personalized and compelling. Keep it short.`), 100);
   };
 
   const [showObjectionPanel, setShowObjectionPanel] = useState(false);
@@ -466,9 +490,8 @@ Return ONLY the JSON array, nothing else.`;
 
   const practiceObjection = (card) => {
     setActiveTab('chat');
-    const practiceMsg = `I want to practice handling this objection: "${card.objection}". Play the role of a skeptical customer and challenge me with this objection. After I respond, score my rebuttal and suggest improvements.`;
-    setChatMessages(prev => [...prev, { role: 'user', text: practiceMsg }]);
     setShowObjectionPanel(false);
+    setTimeout(() => handleChat(`I want to practice handling this objection: "${card.objection}". Play the role of a skeptical customer and challenge me with this objection. After I respond, score my rebuttal and suggest improvements.`), 100);
   };
 
   const handleCompetitorIntel = async () => { 
