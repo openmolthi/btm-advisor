@@ -58,8 +58,14 @@ export default function App() {
   // UI State
   const [activeTab, setActiveTab] = useState('visual');
   const [selectedLanguage, setSelectedLanguage] = useState("English");
-  const [expandedSection, setExpandedSection] = useState({ core: true, compass: false, landscape: false, details: true });
+  const [expandedSection, setExpandedSection] = useState({ core: true, compass: false, compassDetails: false, landscape: false, details: true });
   const toggleSection = (key) => setExpandedSection(prev => ({ ...prev, [key]: !prev[key] }));
+
+  // Input State
+  const [selectedIndustry, setSelectedIndustry] = useState([]);
+  const [selectedProcess, setSelectedProcess] = useState([]);
+  const [selectedValue, setSelectedValue] = useState([]);
+  const [selectedCapability, setSelectedCapability] = useState([]);
 
   // Auto-expand Context Compass on first selection
   React.useEffect(() => {
@@ -68,12 +74,6 @@ export default function App() {
       setExpandedSection(prev => prev.compass ? prev : { ...prev, compass: true });
     }
   }, [selectedIndustry.length, selectedProcess.length, selectedValue.length, selectedCapability.length]);
-
-  // Input State
-  const [selectedIndustry, setSelectedIndustry] = useState([]);
-  const [selectedProcess, setSelectedProcess] = useState([]);
-  const [selectedValue, setSelectedValue] = useState([]);
-  const [selectedCapability, setSelectedCapability] = useState([]);
   const [additionalContext, setAdditionalContext] = useState("");
   const [attachments, setAttachments] = useState([]);
   const [isRise, setIsRise] = useState(false);
@@ -481,6 +481,7 @@ Only include stakeholders explicitly mentioned by name. If no names found, retur
     setIsModalLoading(false); 
   };
 
+  console.log('[BTM] App rendering...');
   return (
     <div className="min-h-screen bg-slate-200 text-slate-900 font-sans p-3 md:p-4">
       <ToastContainer toasts={toasts} removeToast={removeToast} />
@@ -678,6 +679,11 @@ Only include stakeholders explicitly mentioned by name. If no names found, retur
                     </div>
                     {expandedSection.compass ? <ChevronDown size={16} className="text-slate-400"/> : <ChevronRight size={16} className="text-slate-400"/>}
                   </button>
+                  {buildSummary() && (
+                    <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-slate-700 italic">
+                      {buildSummary()}
+                    </div>
+                  )}
                   {expandedSection.compass && (
                     <div className="mt-3 p-3 bg-white border border-blue-100 rounded-lg animate-in slide-in-from-top-2 fade-in duration-200">
                       {Object.entries(grouped).map(([category, items]) => (
@@ -695,11 +701,6 @@ Only include stakeholders explicitly mentioned by name. If no names found, retur
                           </div>
                         </div>
                       ))}
-                      {buildSummary() && (
-                        <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-slate-700 italic">
-                          {buildSummary()}
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>

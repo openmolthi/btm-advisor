@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { getApiKey, setApiKey as saveApiKey } from '../lib/api';
+// API key helpers inline to avoid circular deps
+const getApiKey = () => localStorage.getItem('btm_gemini_api_key') || '';
+const saveApiKey = (key) => localStorage.setItem('btm_gemini_api_key', key);
 import { 
   XCircle, RefreshCw, Download, FileJson, AlertTriangle, 
   Settings, Lock, Calendar, Sparkles, Network, Maximize2 
