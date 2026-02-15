@@ -1720,8 +1720,8 @@ Return ONLY the JSON array, nothing else.`;
           </div>
 
           {(coachingContent || briefContent) && (
-            <div className="p-3 bg-slate-50 border-t border-slate-200 flex justify-between items-center shrink-0 overflow-x-auto pb-safe">
-              <div className="flex gap-2">
+            <div className="p-3 bg-slate-50 border-t border-slate-200 flex justify-between items-center shrink-0 pb-safe">
+              <div className="flex gap-2 items-center">
                 {activeTab === 'coaching' && (
                   <>
                     <button 
@@ -1736,23 +1736,16 @@ Return ONLY the JSON array, nothing else.`;
                     >
                       <BarChart2 size={14} /> {t(selectedLanguage, "actions", "increaseValue")}
                     </button>
-                    <button 
-                      onClick={handleSignavioBPMN} 
-                      className="bg-white border border-slate-300 hover:border-blue-500 text-slate-700 text-xs font-bold py-2 px-3 rounded shadow-sm flex items-center gap-2 whitespace-nowrap"
-                    >
-                      <Share2 size={14} /> {t(selectedLanguage, "actions", "signavio")}
-                    </button>
-                    <button 
-                      onClick={handleLeanIXModel} 
-                      className="bg-white border border-slate-300 hover:border-green-500 text-slate-700 text-xs font-bold py-2 px-3 rounded shadow-sm flex items-center gap-2 whitespace-nowrap"
-                    >
-                      <Table size={14} /> {t(selectedLanguage, "actions", "leanix")}
-                    </button>
+                    <div className="w-px h-6 bg-slate-300 mx-1"></div>
                     <StrategicDropdown 
                       selectedLanguage={selectedLanguage}
                       onCompetitor={handleCompetitorIntel}
                       onStakeholder={handleStakeholderMap}
                       onSuccess={handleSuccessStories}
+                      extraActions={[
+                        { label: 'Signavio BPMN', icon: Share2, onClick: handleSignavioBPMN },
+                        { label: 'LeanIX Model', icon: Table, onClick: handleLeanIXModel },
+                      ]}
                     />
                   </>
                 )}
@@ -1760,16 +1753,17 @@ Return ONLY the JSON array, nothing else.`;
                   <>
                     <button 
                       onClick={handleDraftEmail} 
-                      className="bg-white border border-slate-300 hover:border-blue-500 text-slate-700 text-xs font-bold py-2 px-3 rounded shadow-sm flex items-center gap-2 whitespace-nowrap"
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2 px-3 rounded shadow-sm flex items-center gap-2 whitespace-nowrap"
                     >
                       <Mail size={14} /> {t(selectedLanguage, "actions", "email")}
                     </button>
                     <button 
                       onClick={handleObjections} 
-                      className="bg-white border border-slate-300 hover:border-orange-500 text-slate-700 text-xs font-bold py-2 px-3 rounded shadow-sm flex items-center gap-2 whitespace-nowrap"
+                      className="bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold py-2 px-3 rounded shadow-sm flex items-center gap-2 whitespace-nowrap"
                     >
                       <ShieldAlert size={14} /> {t(selectedLanguage, "actions", "objections")}
                     </button>
+                    <div className="w-px h-6 bg-slate-300 mx-1"></div>
                     <button 
                       onClick={() => setShowAgendaSettings(true)} 
                       className="bg-white border border-slate-300 hover:border-purple-500 text-slate-700 text-xs font-bold py-2 px-3 rounded shadow-sm flex items-center gap-2 whitespace-nowrap"

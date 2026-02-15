@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Target, ChevronUp, Users, ExternalLink } from 'lucide-react';
 import { t } from '../lib/i18n';
 
-const StrategicDropdown = ({ selectedLanguage, onCompetitor, onStakeholder, onSuccess }) => {
+const StrategicDropdown = ({ selectedLanguage, onCompetitor, onStakeholder, onSuccess, extraActions = [] }) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
   
@@ -49,6 +49,23 @@ const StrategicDropdown = ({ selectedLanguage, onCompetitor, onStakeholder, onSu
            >
              <ExternalLink size={12} /> {t(selectedLanguage, "actions", "successStory")}
            </button>
+           {extraActions.length > 0 && (
+             <>
+               <div className="border-t border-slate-100 my-1"></div>
+               {extraActions.map((action, idx) => {
+                 const Icon = action.icon;
+                 return (
+                   <button 
+                     key={idx}
+                     onClick={() => handleAction(action.onClick)} 
+                     className="w-full text-left px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-700 flex items-center gap-2"
+                   >
+                     <Icon size={12} /> {action.label}
+                   </button>
+                 );
+               })}
+             </>
+           )}
         </div>
       )}
     </div>
