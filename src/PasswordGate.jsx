@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 
 const HASH = '5f4dcc3b5aa765d61d8327deb882cf99' // placeholder, we use simple check
 const STORAGE_KEY = 'btm-advisor-auth'
-const PASSWORD = 'Molthi!1'
+const PASSWORD = 'SAPBTM2026!'
 
 export default function PasswordGate({ children }) {
   const [authenticated, setAuthenticated] = useState(false)
