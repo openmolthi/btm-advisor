@@ -59,6 +59,29 @@ export default function App() {
   // UI State
   const [activeTab, setActiveTab] = useState('visual');
   const [selectedLanguage, setSelectedLanguage] = useState("English");
+  const [guidedStep, setGuidedStep] = useState(() => {
+    return localStorage.getItem('btm_guided_done') ? null : 0;
+  });
+
+  const guidedSteps = [
+    { step: 0, title: '1. Set Your Context', desc: 'Select industry, process, value drivers, and capabilities on the left panel', highlight: 'left' },
+    { step: 1, title: '2. Generate Ideas', desc: 'Click "Give me ideas" to get AI coaching insights', highlight: 'button' },
+    { step: 2, title: '3. Refine & Expand', desc: 'Use tabs to chat, draft briefs, handle objections, and increase deal value', highlight: 'right' },
+    { step: 3, title: '4. Export & Share', desc: 'Export your deal context as JSON or copy emails to share with your team', highlight: 'header' },
+  ];
+
+  const dismissGuide = () => {
+    setGuidedStep(null);
+    localStorage.setItem('btm_guided_done', 'true');
+  };
+
+  const nextGuideStep = () => {
+    if (guidedStep >= guidedSteps.length - 1) {
+      dismissGuide();
+    } else {
+      setGuidedStep(prev => prev + 1);
+    }
+  };
   const [expandedSection, setExpandedSection] = useState({ core: true, compass: false, compassDetails: false, landscape: false, details: true });
   const toggleSection = (key) => setExpandedSection(prev => ({ ...prev, [key]: !prev[key] }));
 
@@ -676,6 +699,31 @@ Return ONLY the JSON array, nothing else.`;
         onGenerate={generateAgenda} 
       />
 
+      {guidedStep !== null && guidedSteps[guidedStep] && (
+        <div className="max-w-[1500px] mx-auto mb-3">
+          <div className="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-lg shadow-lg p-4 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex gap-1.5">
+                {guidedSteps.map((_, idx) => (
+                  <div key={idx} className={`w-2 h-2 rounded-full ${idx <= guidedStep ? 'bg-white' : 'bg-white/30'}`} />
+                ))}
+              </div>
+              <div>
+                <h3 className="text-white font-extrabold text-sm">{guidedSteps[guidedStep].title}</h3>
+                <p className="text-white/80 text-xs">{guidedSteps[guidedStep].desc}</p>
+              </div>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              <button onClick={dismissGuide} className="text-white/60 hover:text-white text-xs font-bold px-3 py-1.5 rounded transition-colors">
+                Skip
+              </button>
+              <button onClick={nextGuideStep} className="bg-white text-indigo-700 text-xs font-bold px-4 py-1.5 rounded shadow hover:bg-indigo-50 transition-colors">
+                {guidedStep >= guidedSteps.length - 1 ? "Get Started!" : "Next →"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="max-w-[1500px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4 lg:h-[93vh] h-auto">
         {/* Left Column: Inputs */}
         <div className="lg:col-span-4 flex flex-col lg:h-full h-auto gap-4">
