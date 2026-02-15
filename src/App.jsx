@@ -360,7 +360,7 @@ Based on public knowledge about this company, return ONLY valid JSON (no markdow
     setActiveTab('coaching'); 
     setCoachingContent(""); 
     scrollToOutput();
-    const prompt = `CONTEXT: ${getContextString()}\nTASK: Generate coaching ideas.\n${config.aiGuardrails}`;
+    const prompt = `CONTEXT: ${getContextString()}\nTASK: Generate 3 high-impact coaching ideas for this deal. For each idea:\n- Bold headline (1 line)\n- Why it matters (1-2 sentences)\n- Suggested talk track (2-3 sentences)\n\nBe concise and actionable. No lengthy preambles. No filler. Total response under 400 words.\n${config.aiGuardrails}`;
     const text = await generateGeminiResponse(prompt, constructSystemInstruction("Expert Solution Advisor Coach"), attachments);
     setCoachingContent(text); 
     setIsGenerating(false);
@@ -847,7 +847,7 @@ Return ONLY the JSON array, nothing else.`;
                     value={smartStartInput}
                     onChange={(e) => setSmartStartInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSmartStart()}
-                    placeholder='🚀 Smart Start — e.g. "BMW Asia" or "Nestlé supply chain"'
+                    placeholder='🚀 Smart Start — e.g. "Company XYZ in APAC wants to move to RISE"'
                     disabled={smartStartLoading}
                     className="w-full border-2 border-dashed border-indigo-300 rounded-lg px-3 py-2 text-xs font-medium focus:outline-none focus:border-indigo-500 bg-indigo-50/50 placeholder-indigo-400 disabled:opacity-50"
                   />
