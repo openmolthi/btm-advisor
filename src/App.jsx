@@ -1134,6 +1134,35 @@ Return ONLY the JSON array, nothing else.`;
                 </>
               )}
             </button>
+
+            {/* Mini Context Map */}
+            {(selectedIndustry.length > 0 || selectedProcess.length > 0 || selectedValue.length > 0 || selectedCapability.length > 0) && (
+              <button 
+                onClick={() => setActiveTab('visual')}
+                className="w-full mt-3 p-3 bg-gradient-to-r from-slate-50 to-blue-50 border border-slate-200 rounded-lg hover:border-blue-300 transition-colors text-left group"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
+                    <Network size={10} /> Context Map
+                  </span>
+                  <span className="text-[9px] text-blue-600 font-bold opacity-0 group-hover:opacity-100 transition-opacity">View full map →</span>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {selectedIndustry.map(i => (
+                    <span key={i} className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">{i}</span>
+                  ))}
+                  {selectedProcess.map(p => (
+                    <span key={p} className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-green-100 text-green-700">{p}</span>
+                  ))}
+                  {selectedValue.map(v => (
+                    <span key={v} className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-orange-100 text-orange-700">{v}</span>
+                  ))}
+                  {selectedCapability.map(c => (
+                    <span key={c} className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-100 text-purple-700">{c}</span>
+                  ))}
+                </div>
+              </button>
+            )}
           </div>
         </div>
 
