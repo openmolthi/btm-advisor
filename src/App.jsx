@@ -129,6 +129,9 @@ export default function App() {
   const [showAdmin, setShowAdmin] = useState(false);
   const [showAgendaSettings, setShowAgendaSettings] = useState(false);
   const [showFullMap, setShowFullMap] = useState(false);
+  const [showValuePanel, setShowValuePanel] = useState(false);
+  const [valueStrategies, setValueStrategies] = useState({ deepen: '', broaden: '', phase: '' });
+  const [valueLoading, setValueLoading] = useState({ deepen: false, broaden: false, phase: false });
   const [confirmConfig, setConfirmConfig] = useState({ isOpen: false, title: "", message: "", onConfirm: () => {} });
 
   // Refs
@@ -328,15 +331,35 @@ Only include stakeholders explicitly mentioned by name. If no names found, retur
     setIsModalLoading(false); 
   };
 
-  const handleIncreaseValue = async () => {
-    setActiveModal('increaseValue');
-    setIsModalLoading(true);
-    setModalContent("");
-    setModalMedia(null);
-    const prompt = `CONTEXT: ${getContextString()}\nTASK: Propose strategies to increase the deal value/size. Focus on upsell opportunities within the SAP portfolio.\n${config.aiGuardrails}`;
-    const text = await generateGeminiResponse(prompt, constructSystemInstruction("Sales Strategist"), attachments);
-    setModalContent(text);
-    setIsModalLoading(false);
+  const handleIncreaseValue = () => {
+    setShowValuePanel(prev => !prev);
+    if (!showValuePanel) {
+      // Auto-generate all 3 strategies
+      const ctx = getContextString();
+      const sysInstr = constructSystemInstruction("Sales Strategist");
+      
+      const strategies = [
+        { key: 'deepen', prompt: `CONTEXT: ${ctx}\nTASK: Propose strategies to DEEPEN the deal value by expanding the SAME solutions already selected to more processes, departments, or geographies. Be specific about which areas to expand into and the incremental value. Keep it concise (3-5 bullet points max).\n${config.aiGuardrails}` },
+        { key: 'broaden', prompt: `CONTEXT: ${ctx}\nTASK: Propose strategies to BROADEN the deal by cross-selling ADJACENT SAP solutions not yet selected. Identify 2-3 complementary solutions that create a stronger together story. Keep it concise (3-5 bullet points max).\n${config.aiGuardrails}` },
+        { key: 'phase', prompt: `CONTEXT: ${ctx}\nTASK: Propose a PHASED transformation roadmap that combines deepening current solutions AND broadening to new ones over 3 phases (Quick Wins 0-6mo, Scale 6-18mo, Transform 18-36mo). Keep each phase to 2-3 bullet points.\n${config.aiGuardrails}` },
+      ];
+      
+      strategies.forEach(async ({ key, prompt }) => {
+        setValueLoading(prev => ({ ...prev, [key]: true }));
+        const text = await generateGeminiResponse(prompt, sysInstr, attachments);
+        setValueStrategies(prev => ({ ...prev, [key]: text }));
+        setValueLoading(prev => ({ ...prev, [key]: false }));
+      });
+    }
+  };
+
+  const applyValueStrategy = (strategyText, target) => {
+    if (target === 'coaching') {
+      setCoachingContent(prev => prev + '\n\n---\n**Value Expansion Strategy:**\n' + strategyText);
+    } else {
+      setBriefContent(prev => prev + '\n\n---\n**Value Expansion Strategy:**\n' + strategyText);
+    }
+    setShowValuePanel(false);
   };
 
   const handleStakeholderMap = async () => {
@@ -1165,6 +1188,75 @@ Only include stakeholders explicitly mentioned by name. If no names found, retur
                       <div className="prose prose-sm max-w-none">
                         <ReactMarkdown>{coachingContent}</ReactMarkdown>
                       </div>
+                      
+                      {/* Value Expansion Panel */}
+                      {showValuePanel && (
+                        <div className="mt-6 border-t-2 border-purple-200 pt-4">
+                          <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-sm font-extrabold text-purple-800 flex items-center gap-2">
+                              <BarChart2 size={16} /> Value Expansion Strategies
+                            </h3>
+                            <button onClick={() => setShowValuePanel(false)} className="text-slate-400 hover:text-slate-600">
+                              <X size={16} />
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            {[
+                              { key: 'deepen', icon: '🔽', title: 'Deepen', subtitle: 'Expand current solutions to more areas',
+                                border: 'border-blue-200', bg: 'bg-blue-50/50', titleColor: 'text-blue-800',
+                                spinBorder: 'border-blue-200 border-t-blue-600',
+                                btnPrimary: 'bg-blue-600 hover:bg-blue-700', btnSecondary: 'border-blue-300 text-blue-700 hover:bg-blue-100' },
+                              { key: 'broaden', icon: '↔️', title: 'Broaden', subtitle: 'Cross-sell adjacent SAP solutions',
+                                border: 'border-green-200', bg: 'bg-green-50/50', titleColor: 'text-green-800',
+                                spinBorder: 'border-green-200 border-t-green-600',
+                                btnPrimary: 'bg-green-600 hover:bg-green-700', btnSecondary: 'border-green-300 text-green-700 hover:bg-green-100' },
+                              { key: 'phase', icon: '📅', title: 'Phase', subtitle: 'Combined roadmap over time',
+                                border: 'border-orange-200', bg: 'bg-orange-50/50', titleColor: 'text-orange-800',
+                                spinBorder: 'border-orange-200 border-t-orange-600',
+                                btnPrimary: 'bg-orange-600 hover:bg-orange-700', btnSecondary: 'border-orange-300 text-orange-700 hover:bg-orange-100' },
+                            ].map(({ key, icon, title, subtitle, border, bg, titleColor, spinBorder, btnPrimary, btnSecondary }) => (
+                              <div key={key} className={`border-2 ${border} rounded-lg ${bg} p-3 flex flex-col`}>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="text-lg">{icon}</span>
+                                  <h4 className={`text-sm font-extrabold ${titleColor}`}>{title}</h4>
+                                </div>
+                                <p className="text-[10px] text-slate-500 mb-3">{subtitle}</p>
+                                <div className="flex-grow overflow-y-auto max-h-48 mb-3">
+                                  {valueLoading[key] ? (
+                                    <div className="flex items-center gap-2 text-xs text-slate-500">
+                                      <div className={`w-4 h-4 border-2 ${spinBorder} rounded-full animate-spin`}></div>
+                                      Analyzing...
+                                    </div>
+                                  ) : valueStrategies[key] ? (
+                                    <div className="prose prose-xs max-w-none text-xs">
+                                      <ReactMarkdown>{valueStrategies[key]}</ReactMarkdown>
+                                    </div>
+                                  ) : (
+                                    <p className="text-xs text-slate-400 italic">Generating...</p>
+                                  )}
+                                </div>
+                                {valueStrategies[key] && !valueLoading[key] && (
+                                  <div className="flex gap-1 mt-auto">
+                                    <button 
+                                      onClick={() => applyValueStrategy(valueStrategies[key], 'coaching')}
+                                      className={`flex-1 text-[10px] font-bold py-1.5 px-2 rounded ${btnPrimary} text-white transition-colors`}
+                                    >
+                                      Apply to Coaching
+                                    </button>
+                                    <button 
+                                      onClick={() => applyValueStrategy(valueStrategies[key], 'brief')}
+                                      className={`flex-1 text-[10px] font-bold py-1.5 px-2 rounded border ${btnSecondary} transition-colors`}
+                                    >
+                                      Apply to Brief
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       {(() => {
                       const meddicScores = calculateMeddicScores({
                         selectedIndustry,
