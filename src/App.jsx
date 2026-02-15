@@ -67,13 +67,7 @@ export default function App() {
   const [selectedValue, setSelectedValue] = useState([]);
   const [selectedCapability, setSelectedCapability] = useState([]);
 
-  // Auto-expand Context Compass on first selection
-  React.useEffect(() => {
-    const hasSelections = selectedIndustry.length > 0 || selectedProcess.length > 0 || selectedValue.length > 0 || selectedCapability.length > 0;
-    if (hasSelections) {
-      setExpandedSection(prev => prev.compass ? prev : { ...prev, compass: true });
-    }
-  }, [selectedIndustry.length, selectedProcess.length, selectedValue.length, selectedCapability.length]);
+  // Context Compass summary shows automatically but details stay collapsed
   const [additionalContext, setAdditionalContext] = useState("");
   const [attachments, setAttachments] = useState([]);
   const [isRise, setIsRise] = useState(false);
@@ -137,6 +131,9 @@ export default function App() {
   // Refs
   const fileInputRef = useRef(null);
   const outputSectionRef = useRef(null);
+  const valuePanelRef = useRef(null);
+  const objectionPanelRef = useRef(null);
+  const emailPanelRef = useRef(null);
 
   // Helper Functions
   const triggerConfirm = (title, message, onConfirm) => 
@@ -310,6 +307,7 @@ Only include stakeholders explicitly mentioned by name. If no names found, retur
     const willShow = !showEmailPanel;
     setShowEmailPanel(willShow);
     if (willShow) {
+      setTimeout(() => emailPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
       const ctx = getContextString();
       const sysInstr = constructSystemInstruction("Expert B2B Sales Copywriter");
       const variants = [
@@ -357,6 +355,9 @@ Only include stakeholders explicitly mentioned by name. If no names found, retur
   const handleObjections = async () => {
     const willShow = !showObjectionPanel;
     setShowObjectionPanel(willShow);
+    if (willShow) {
+      setTimeout(() => objectionPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
     if (willShow && objectionCards.length === 0) {
       setObjectionLoading(true);
       const prompt = `Context:\n${getContextString()}\n\nList exactly 4 likely customer objections for this deal. For each objection return ONLY valid JSON array format, no markdown, no code fences:
@@ -404,6 +405,7 @@ Return ONLY the JSON array, nothing else.`;
     const willShow = !showValuePanel;
     setShowValuePanel(willShow);
     if (willShow) {
+      setTimeout(() => valuePanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
       // Auto-generate all 3 strategies
       const ctx = getContextString();
       const sysInstr = constructSystemInstruction("Sales Strategist");
@@ -1261,7 +1263,7 @@ Return ONLY the JSON array, nothing else.`;
                       
                       {/* Value Expansion Panel */}
                       {showValuePanel && (
-                        <div className="mt-6 border-t-2 border-purple-200 pt-4">
+                        <div ref={valuePanelRef} className="mt-6 border-t-2 border-purple-200 pt-4">
                           <div className="flex justify-between items-center mb-4">
                             <h3 className="text-sm font-extrabold text-purple-800 flex items-center gap-2">
                               <BarChart2 size={16} /> Value Expansion Strategies
@@ -1458,7 +1460,7 @@ Return ONLY the JSON array, nothing else.`;
 
                       {/* Objection Cards Panel */}
                       {showObjectionPanel && (
-                        <div className="mt-6 border-t-2 border-orange-200 pt-4">
+                        <div ref={objectionPanelRef} className="mt-6 border-t-2 border-orange-200 pt-4">
                           <div className="flex justify-between items-center mb-4">
                             <h3 className="text-sm font-extrabold text-orange-800 flex items-center gap-2">
                               <ShieldAlert size={16} /> Objection Battlecards
@@ -1551,7 +1553,7 @@ Return ONLY the JSON array, nothing else.`;
 
                       {/* Email Composer Panel */}
                       {showEmailPanel && (
-                        <div className="mt-6 border-t-2 border-indigo-200 pt-4">
+                        <div ref={emailPanelRef} className="mt-6 border-t-2 border-indigo-200 pt-4">
                           <div className="flex justify-between items-center mb-4">
                             <h3 className="text-sm font-extrabold text-indigo-800 flex items-center gap-2">
                               <Mail size={16} /> Email Starter Kit
