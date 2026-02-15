@@ -4,7 +4,8 @@ import {
   Briefcase, Settings, TrendingUp, Layers, Sparkles, Copy, RefreshCw, 
   ChevronDown, ChevronRight, FileText, Mail, ShieldAlert, Paperclip, 
   File as FileIcon, X, Network, Maximize2, BarChart2, Share2, Table, 
-  CloudLightning, Server, Target, Calendar, Users, ExternalLink, MessageSquare, Compass
+  CloudLightning, Server, Target, Calendar, Users, ExternalLink, MessageSquare, Compass,
+  Download, Upload
 } from 'lucide-react';
 
 // Library imports
@@ -212,6 +213,62 @@ export default function App() {
       localStorage.removeItem('btm_chat_messages');
       addToast(t(selectedLanguage, "clearHistory") + " complete", "info");
     });
+  };
+
+  const exportDeal = () => {
+    const deal = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      context: { selectedIndustry, selectedProcess, selectedValue, selectedCapability, additionalContext, isRise, erpSystem, otherSap, otherNonSap, adoptionRelated, stakeholders },
+      content: { coachingContent, briefContent, chatMessages },
+    };
+    const blob = new Blob([JSON.stringify(deal, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `deal-${selectedIndustry[0] || 'untitled'}-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    addToast("Deal exported!", "success");
+  };
+
+  const importDeal = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const deal = JSON.parse(ev.target.result);
+          if (deal.context) {
+            setSelectedIndustry(deal.context.selectedIndustry || []);
+            setSelectedProcess(deal.context.selectedProcess || []);
+            setSelectedValue(deal.context.selectedValue || []);
+            setSelectedCapability(deal.context.selectedCapability || []);
+            setAdditionalContext(deal.context.additionalContext || '');
+            setIsRise(deal.context.isRise || false);
+            setErpSystem(deal.context.erpSystem || { s4: false, ecc: false, nonSap: false });
+            setOtherSap(deal.context.otherSap || '');
+            setOtherNonSap(deal.context.otherNonSap || '');
+            setAdoptionRelated(deal.context.adoptionRelated || { signavio: false, leanix: false, walkme: false });
+            setStakeholders(deal.context.stakeholders || []);
+          }
+          if (deal.content) {
+            setCoachingContent(deal.content.coachingContent || '');
+            setBriefContent(deal.content.briefContent || '');
+            setChatMessages(deal.content.chatMessages || []);
+          }
+          addToast(`Deal imported: ${deal.context?.selectedIndustry?.[0] || 'untitled'}`, "success");
+        } catch {
+          addToast("Failed to import deal file", "error");
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
   };
 
   // Main Action Handlers
@@ -641,6 +698,20 @@ Return ONLY the JSON array, nothing else.`;
                 className="text-xs font-bold text-slate-500 hover:text-blue-700 flex items-center gap-1.5 px-3 py-1.5 rounded hover:bg-slate-100 transition-colors"
               >
                 <Settings size={14} /> {t(selectedLanguage, "admin")}
+              </button>
+              <button 
+                onClick={exportDeal} 
+                className="text-xs font-bold text-slate-500 hover:text-green-700 flex items-center gap-1.5 px-3 py-1.5 rounded hover:bg-slate-100 transition-colors"
+                title="Export deal"
+              >
+                <Download size={14} />
+              </button>
+              <button 
+                onClick={importDeal} 
+                className="text-xs font-bold text-slate-500 hover:text-blue-700 flex items-center gap-1.5 px-3 py-1.5 rounded hover:bg-slate-100 transition-colors"
+                title="Import deal"
+              >
+                <Upload size={14} />
               </button>
               {(coachingContent || briefContent || chatMessages.length > 0) && (
                 <button 
