@@ -4,8 +4,8 @@ import {
   Briefcase, Settings, TrendingUp, Layers, Sparkles, Copy, RefreshCw, 
   ChevronDown, ChevronRight, FileText, Mail, ShieldAlert, Paperclip, 
   File as FileIcon, X, Network, Maximize2, BarChart2, Share2, Table, 
-  CloudLightning, Server, Target, Calendar, Users, ExternalLink, MessageSquare, Compass,
-  Download, Upload
+  CloudLightning, Server, Target, Calendar, Users, MessageSquare, Compass,
+  Download, Upload, ClipboardCopy
 } from 'lucide-react';
 
 // Library imports
@@ -59,29 +59,6 @@ export default function App() {
   // UI State
   const [activeTab, setActiveTab] = useState('visual');
   const [selectedLanguage, setSelectedLanguage] = useState("English");
-  const [guidedStep, setGuidedStep] = useState(() => {
-    return localStorage.getItem('btm_guided_done') ? null : 0;
-  });
-
-  const guidedSteps = [
-    { step: 0, title: '1. Set Your Context', desc: 'Select industry, process, value drivers, and capabilities on the left panel', highlight: 'left' },
-    { step: 1, title: '2. Generate Ideas', desc: 'Click "Give me ideas" to get AI coaching insights', highlight: 'button' },
-    { step: 2, title: '3. Refine & Expand', desc: 'Use tabs to chat, draft briefs, handle objections, and increase deal value', highlight: 'right' },
-    { step: 3, title: '4. Export & Share', desc: 'Export your deal context as JSON or copy emails to share with your team', highlight: 'header' },
-  ];
-
-  const dismissGuide = () => {
-    setGuidedStep(null);
-    localStorage.setItem('btm_guided_done', 'true');
-  };
-
-  const nextGuideStep = () => {
-    if (guidedStep >= guidedSteps.length - 1) {
-      dismissGuide();
-    } else {
-      setGuidedStep(prev => prev + 1);
-    }
-  };
   const [expandedSection, setExpandedSection] = useState({ core: true, compass: false, compassDetails: false, landscape: false, details: true });
   const toggleSection = (key) => setExpandedSection(prev => ({ ...prev, [key]: !prev[key] }));
 
@@ -125,6 +102,32 @@ export default function App() {
   });
   const [isGenerating, setIsGenerating] = useState(false);
   const [isChatTyping, setIsChatTyping] = useState(false);
+
+  // Deal Timeline State
+  const DEFAULT_MILESTONES = [
+    { label: 'Discovery', status: 'pending' },
+    { label: 'Qualification', status: 'pending' },
+    { label: 'Demo', status: 'pending' },
+    { label: 'Proposal', status: 'pending' },
+    { label: 'Negotiation', status: 'pending' },
+    { label: 'Close', status: 'pending' },
+  ];
+  const [dealTimeline, setDealTimeline] = useState(() => {
+    const saved = localStorage.getItem('btm_deal_timeline');
+    return saved ? JSON.parse(saved) : DEFAULT_MILESTONES;
+  });
+
+  React.useEffect(() => {
+    localStorage.setItem('btm_deal_timeline', JSON.stringify(dealTimeline));
+  }, [dealTimeline]);
+
+  const cycleMilestone = (index) => {
+    setDealTimeline(prev => prev.map((m, i) => {
+      if (i !== index) return m;
+      const next = m.status === 'pending' ? 'active' : m.status === 'active' ? 'done' : 'pending';
+      return { ...m, status: next };
+    }));
+  };
 
   // Save to localStorage whenever content changes
   React.useEffect(() => {
@@ -255,6 +258,8 @@ Based on public knowledge about this company, return ONLY valid JSON (no markdow
       setOtherSap(""); 
       setOtherNonSap(""); 
       setAdoptionRelated({ signavio: false, leanix: false, walkme: false }); 
+      setDealTimeline(DEFAULT_MILESTONES);
+      localStorage.removeItem('btm_deal_timeline');
       localStorage.removeItem('btm_coaching_content');
       localStorage.removeItem('btm_brief_content');
       localStorage.removeItem('btm_chat_messages');
@@ -280,6 +285,7 @@ Based on public knowledge about this company, return ONLY valid JSON (no markdow
       exportedAt: new Date().toISOString(),
       context: { selectedIndustry, selectedProcess, selectedValue, selectedCapability, additionalContext, isRise, erpSystem, otherSap, otherNonSap, adoptionRelated, stakeholders },
       content: { coachingContent, briefContent, chatMessages },
+      dealTimeline,
     };
     const blob = new Blob([JSON.stringify(deal, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -323,6 +329,9 @@ Based on public knowledge about this company, return ONLY valid JSON (no markdow
               setBriefContent(deal.content.briefContent || '');
               setChatMessages(deal.content.chatMessages || []);
             }
+            if (deal.dealTimeline) {
+              setDealTimeline(deal.dealTimeline);
+            }
             addToast(`Deal imported: ${deal.context?.selectedIndustry?.[0] || 'untitled'}`, "success");
           } catch {
             addToast("Failed to parse JSON file", "error");
@@ -352,6 +361,44 @@ Based on public knowledge about this company, return ONLY valid JSON (no markdow
       }
     };
     input.click();
+  };
+
+  const copyFullDeal = () => {
+    const meddicScores = calculateMeddicScores({ selectedIndustry, selectedProcess, selectedValue, selectedCapability, additionalContext, isRise, erpSystem, adoptionRelated, stakeholders, coachingContent, briefContent });
+    const lines = [
+      '=== SAP BTM AIDE-visor — Full Deal Summary ===',
+      '',
+      '— CONTEXT —',
+      `Industry: ${selectedIndustry.join(', ') || 'Not set'}`,
+      `Process: ${selectedProcess.join(', ') || 'Not set'}`,
+      `Value Drivers: ${selectedValue.join(', ') || 'Not set'}`,
+      `Capabilities: ${selectedCapability.join(', ') || 'Not set'}`,
+      `RISE: ${isRise ? 'Yes' : 'No'}`,
+      `ERP: ${[erpSystem.s4 && 'S/4HANA', erpSystem.ecc && 'SAP ECC', erpSystem.nonSap && 'Non-SAP'].filter(Boolean).join(', ') || 'Not set'}`,
+      '',
+      '— ADDITIONAL CONTEXT —',
+      additionalContext || '(none)',
+      '',
+      '— DEAL TIMELINE —',
+      dealTimeline.map(m => `${m.label}: ${m.status === 'done' ? '✅' : m.status === 'active' ? '🔵' : '⬜'}`).join(' | '),
+    ];
+    if (stakeholders.length > 0) {
+      lines.push('', '— STAKEHOLDERS —');
+      stakeholders.forEach(s => lines.push(`• ${s.name}${s.title ? ` (${s.title})` : ''} — ${s.role} [${s.access}]${s.budgetConfirmed ? ' 💰' : ''}`));
+    }
+    if (coachingContent) {
+      lines.push('', '— COACHING CONTENT —', coachingContent);
+    }
+    if (briefContent) {
+      lines.push('', '— BRIEF CONTENT —', briefContent);
+    }
+    lines.push('', '— MEDDIC SCORES —');
+    const labels = { metrics: 'Metrics', economicBuyer: 'Economic Buyer', decisionCriteria: 'Decision Criteria', decisionProcess: 'Decision Process', identifyPain: 'Pain Points', champion: 'Champion' };
+    Object.entries(meddicScores).forEach(([key, data]) => {
+      lines.push(`${labels[key] || key}: ${data.score}/100`);
+    });
+    navigator.clipboard.writeText(lines.join('\n'));
+    addToast('Full deal copied to clipboard!', 'success');
   };
 
   // Main Action Handlers
@@ -585,10 +632,6 @@ Return ONLY the JSON array, nothing else.`;
     setIsModalLoading(false);
   };
 
-  const handleSuccessStories = async () => {
-    window.open('https://solutionflipbook.com/2025/btm/', '_blank');
-  };
-
   const handleSignavioBPMN = async () => {
     setActiveModal('signavio');
     setIsModalLoading(true);
@@ -759,36 +802,11 @@ Return ONLY the JSON array, nothing else.`;
         onGenerate={generateAgenda} 
       />
 
-      {guidedStep !== null && guidedSteps[guidedStep] && (
-        <div className="max-w-[1500px] mx-auto mb-3">
-          <div className="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-lg shadow-lg p-4 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex gap-1.5">
-                {guidedSteps.map((_, idx) => (
-                  <div key={idx} className={`w-2 h-2 rounded-full ${idx <= guidedStep ? 'bg-white' : 'bg-white/30'}`} />
-                ))}
-              </div>
-              <div>
-                <h3 className="text-white font-extrabold text-sm">{guidedSteps[guidedStep].title}</h3>
-                <p className="text-white/80 text-xs">{guidedSteps[guidedStep].desc}</p>
-              </div>
-            </div>
-            <div className="flex gap-2 shrink-0">
-              <button onClick={dismissGuide} className="text-white/60 hover:text-white text-xs font-bold px-3 py-1.5 rounded transition-colors">
-                Skip
-              </button>
-              <button onClick={nextGuideStep} className="bg-white text-indigo-700 text-xs font-bold px-4 py-1.5 rounded shadow hover:bg-indigo-50 transition-colors">
-                {guidedStep >= guidedSteps.length - 1 ? "Get Started!" : "Next →"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
       <div className="max-w-[1500px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4 lg:h-[93vh] h-auto">
         {/* Left Column: Inputs */}
         <div className="lg:col-span-4 flex flex-col lg:h-full h-auto gap-4">
-          <div className="flex items-center justify-between bg-white px-4 py-3 rounded-lg shadow-md border border-slate-200 shrink-0">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between bg-white px-4 py-3 rounded-lg shadow-md border border-slate-200 shrink-0 overflow-hidden">
+            <div className="flex items-center gap-3 shrink-0">
               <div className="p-2 bg-blue-700 rounded-lg shadow-sm">
                 <Sparkles className="text-white" size={20} />
               </div>
@@ -799,41 +817,52 @@ Return ONLY the JSON array, nothing else.`;
                 <p className="text-slate-600 text-xs font-bold mt-1">{t(selectedLanguage, "subtitle")}</p>
               </div>
             </div>
-            <div className="flex gap-2 items-center">
+            <div className="flex gap-1 items-center flex-wrap justify-end ml-2">
               <LanguageSelector selected={selectedLanguage} onChange={setSelectedLanguage} />
               <button 
                 onClick={() => setShowAdmin(true)} 
-                className="text-xs font-bold text-slate-500 hover:text-blue-700 flex items-center gap-1.5 px-3 py-1.5 rounded hover:bg-slate-100 transition-colors"
+                className="text-xs font-bold text-slate-500 hover:text-blue-700 flex items-center gap-1 px-2 py-1.5 rounded hover:bg-slate-100 transition-colors"
+                title={t(selectedLanguage, "admin")}
               >
-                <Settings size={14} /> {t(selectedLanguage, "admin")}
+                <Settings size={14} />
               </button>
               <button 
                 onClick={exportDeal} 
-                className="text-xs font-bold text-slate-500 hover:text-green-700 flex items-center gap-1.5 px-3 py-1.5 rounded hover:bg-slate-100 transition-colors"
+                className="text-xs font-bold text-slate-500 hover:text-green-700 flex items-center gap-1 px-2 py-1.5 rounded hover:bg-slate-100 transition-colors"
                 title="Export deal"
               >
                 <Download size={14} />
               </button>
               <button 
                 onClick={importDeal} 
-                className="text-xs font-bold text-slate-500 hover:text-blue-700 flex items-center gap-1.5 px-3 py-1.5 rounded hover:bg-slate-100 transition-colors"
+                className="text-xs font-bold text-slate-500 hover:text-blue-700 flex items-center gap-1 px-2 py-1.5 rounded hover:bg-slate-100 transition-colors"
                 title="Import deal"
               >
                 <Upload size={14} />
               </button>
+              <button 
+                onClick={copyFullDeal} 
+                className="text-xs font-bold text-slate-500 hover:text-teal-700 flex items-center gap-1 px-2 py-1.5 rounded hover:bg-slate-100 transition-colors"
+                title="Copy full deal as text"
+              >
+                <ClipboardCopy size={14} />
+              </button>
+              <div className="w-px h-5 bg-slate-200 mx-0.5"></div>
               {(coachingContent || briefContent || chatMessages.length > 0) && (
                 <button 
                   onClick={clearHistory} 
-                  className="text-xs font-bold text-slate-500 hover:text-orange-700 flex items-center gap-1.5 px-3 py-1.5 rounded hover:bg-slate-100 transition-colors"
+                  className="text-xs font-bold text-slate-500 hover:text-orange-700 flex items-center gap-1 px-2 py-1.5 rounded hover:bg-slate-100 transition-colors"
+                  title={t(selectedLanguage, "clearHistory")}
                 >
-                  <X size={14} /> {t(selectedLanguage, "clearHistory")}
+                  <X size={14} />
                 </button>
               )}
               <button 
                 onClick={clearAll} 
-                className="text-xs font-bold text-slate-500 hover:text-red-700 flex items-center gap-1.5 px-3 py-1.5 rounded hover:bg-slate-100 transition-colors"
+                className="text-xs font-bold text-slate-500 hover:text-red-700 flex items-center gap-1 px-2 py-1.5 rounded hover:bg-slate-100 transition-colors"
+                title={t(selectedLanguage, "reset")}
               >
-                <RefreshCw size={14} /> {t(selectedLanguage, "reset")}
+                <RefreshCw size={14} />
               </button>
             </div>
           </div>
@@ -1375,6 +1404,28 @@ Return ONLY the JSON array, nothing else.`;
 
         {/* Right Column: Outputs */}
         <div ref={outputSectionRef} className="lg:col-span-8 lg:h-full h-[600px] flex flex-col bg-white rounded-lg shadow-md border border-slate-200 overflow-hidden">
+          {/* Deal Timeline Strip */}
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 border-b border-slate-200 shrink-0 overflow-x-auto">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mr-1 whitespace-nowrap">Deal:</span>
+            {dealTimeline.map((m, i) => {
+              const styles = m.status === 'done'
+                ? 'bg-green-100 border-green-300 text-green-800'
+                : m.status === 'active'
+                ? 'bg-blue-100 border-blue-400 text-blue-800'
+                : 'bg-slate-100 border-slate-300 text-slate-500';
+              const icon = m.status === 'done' ? ' ✅' : m.status === 'active' ? ' 🔵' : '';
+              return (
+                <button
+                  key={i}
+                  onClick={() => cycleMilestone(i)}
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full border whitespace-nowrap transition-all hover:shadow-sm ${styles}`}
+                  title={`Click to cycle: pending → active → done`}
+                >
+                  {m.label}{icon}
+                </button>
+              );
+            })}
+          </div>
           <div className="flex border-b-2 border-slate-200 bg-slate-50 shrink-0 overflow-x-auto">
             <button 
               onClick={() => setActiveTab('coaching')} 
@@ -1439,45 +1490,6 @@ Return ONLY the JSON array, nothing else.`;
                       <p className="text-sm text-slate-600 mb-6 leading-relaxed">
                         {t(selectedLanguage, "emptyCoachingDesc")}
                       </p>
-                      
-                      <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-4">
-                        <p className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wide">{t(selectedLanguage, "quickStart")}</p>
-                        <div className="flex flex-wrap gap-2 justify-center">
-                          <button 
-                            onClick={() => {
-                              setSelectedIndustry(["Industrial Manufacturing"]);
-                              setSelectedProcess(["Procure to Pay"]);
-                              setSelectedValue(["Reduce Procurement FTE Productivity"]);
-                              addToast("Quick start applied!", "success");
-                            }}
-                            className="bg-white border-2 border-purple-200 hover:border-purple-400 text-purple-700 font-bold py-2 px-4 rounded-lg text-xs transition-all hover:shadow-md flex items-center gap-2"
-                          >
-                            <Briefcase size={14} /> {t(selectedLanguage, "quickStartManuf")}
-                          </button>
-                          <button 
-                            onClick={() => {
-                              setSelectedIndustry(["Retail"]);
-                              setSelectedProcess(["Order to Cash"]);
-                              setSelectedValue(["Improve Customer Satisfaction"]);
-                              addToast("Quick start applied!", "success");
-                            }}
-                            className="bg-white border-2 border-blue-200 hover:border-blue-400 text-blue-700 font-bold py-2 px-4 rounded-lg text-xs transition-all hover:shadow-md flex items-center gap-2"
-                          >
-                            <TrendingUp size={14} /> {t(selectedLanguage, "quickStartRetail")}
-                          </button>
-                          <button 
-                            onClick={() => {
-                              setSelectedIndustry(["Banking"]);
-                              setSelectedProcess(["Record to Report"]);
-                              setSelectedValue(["Improve Compliance"]);
-                              addToast("Quick start applied!", "success");
-                            }}
-                            className="bg-white border-2 border-green-200 hover:border-green-400 text-green-700 font-bold py-2 px-4 rounded-lg text-xs transition-all hover:shadow-md flex items-center gap-2"
-                          >
-                            <Layers size={14} /> {t(selectedLanguage, "quickStartFinance")}
-                          </button>
-                        </div>
-                      </div>
                       
                       <p className="text-xs text-slate-500 italic">
                         {t(selectedLanguage, "configureInputsPrompt")}
@@ -1971,33 +1983,13 @@ Return ONLY the JSON array, nothing else.`;
               <div className="flex gap-2 items-center">
                 {activeTab === 'coaching' && (
                   <>
+                    {/* Primary actions */}
                     <button 
                       onClick={handleGenerateBrief} 
                       className="bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2 px-3 rounded shadow-sm flex items-center gap-2 whitespace-nowrap"
                     >
                       <FileText size={14} /> {t(selectedLanguage, "actions", "draftBrief")}
                     </button>
-                    <button 
-                      onClick={handleIncreaseValue} 
-                      className="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold py-2 px-3 rounded shadow-sm flex items-center gap-2 whitespace-nowrap"
-                    >
-                      <BarChart2 size={14} /> {t(selectedLanguage, "actions", "increaseValue")}
-                    </button>
-                    <div className="w-px h-6 bg-slate-300 mx-1"></div>
-                    <StrategicDropdown 
-                      selectedLanguage={selectedLanguage}
-                      onCompetitor={handleCompetitorIntel}
-                      onStakeholder={handleStakeholderMap}
-                      onSuccess={handleSuccessStories}
-                      extraActions={[
-                        { label: 'Signavio BPMN', icon: Share2, onClick: handleSignavioBPMN },
-                        { label: 'LeanIX Model', icon: Table, onClick: handleLeanIXModel },
-                      ]}
-                    />
-                  </>
-                )}
-                {activeTab === 'brief' && (
-                  <>
                     <button 
                       onClick={handleDraftEmail} 
                       className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2 px-3 rounded shadow-sm flex items-center gap-2 whitespace-nowrap"
@@ -2011,12 +2003,54 @@ Return ONLY the JSON array, nothing else.`;
                       <ShieldAlert size={14} /> {t(selectedLanguage, "actions", "objections")}
                     </button>
                     <div className="w-px h-6 bg-slate-300 mx-1"></div>
+                    {/* Secondary actions in overflow */}
+                    <StrategicDropdown 
+                      label="More"
+                      actions={[
+                        { label: t(selectedLanguage, "actions", "increaseValue"), icon: BarChart2, onClick: handleIncreaseValue },
+                        { label: t(selectedLanguage, "actions", "competitor"), icon: Target, onClick: handleCompetitorIntel },
+                        { label: t(selectedLanguage, "actions", "stakeholders"), icon: Users, onClick: handleStakeholderMap },
+                        { label: t(selectedLanguage, "actions", "agenda"), icon: Calendar, onClick: () => setShowAgendaSettings(true) },
+                        { label: 'Signavio BPMN', icon: Share2, onClick: handleSignavioBPMN },
+                        { label: 'LeanIX Model', icon: Table, onClick: handleLeanIXModel },
+                      ]}
+                    />
+                  </>
+                )}
+                {activeTab === 'brief' && (
+                  <>
+                    {/* Primary actions */}
                     <button 
-                      onClick={() => setShowAgendaSettings(true)} 
-                      className="bg-white border border-slate-300 hover:border-purple-500 text-slate-700 text-xs font-bold py-2 px-3 rounded shadow-sm flex items-center gap-2 whitespace-nowrap"
+                      onClick={handleGenerateBrief} 
+                      className="bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2 px-3 rounded shadow-sm flex items-center gap-2 whitespace-nowrap"
                     >
-                      <Calendar size={14} /> {t(selectedLanguage, "actions", "agenda")}
+                      <FileText size={14} /> {t(selectedLanguage, "actions", "draftBrief")}
                     </button>
+                    <button 
+                      onClick={handleDraftEmail} 
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2 px-3 rounded shadow-sm flex items-center gap-2 whitespace-nowrap"
+                    >
+                      <Mail size={14} /> {t(selectedLanguage, "actions", "email")}
+                    </button>
+                    <button 
+                      onClick={handleObjections} 
+                      className="bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold py-2 px-3 rounded shadow-sm flex items-center gap-2 whitespace-nowrap"
+                    >
+                      <ShieldAlert size={14} /> {t(selectedLanguage, "actions", "objections")}
+                    </button>
+                    <div className="w-px h-6 bg-slate-300 mx-1"></div>
+                    {/* Secondary actions in overflow */}
+                    <StrategicDropdown 
+                      label="More"
+                      actions={[
+                        { label: t(selectedLanguage, "actions", "increaseValue"), icon: BarChart2, onClick: handleIncreaseValue },
+                        { label: t(selectedLanguage, "actions", "competitor"), icon: Target, onClick: handleCompetitorIntel },
+                        { label: t(selectedLanguage, "actions", "stakeholders"), icon: Users, onClick: handleStakeholderMap },
+                        { label: t(selectedLanguage, "actions", "agenda"), icon: Calendar, onClick: () => setShowAgendaSettings(true) },
+                        { label: 'Signavio BPMN', icon: Share2, onClick: handleSignavioBPMN },
+                        { label: 'LeanIX Model', icon: Table, onClick: handleLeanIXModel },
+                      ]}
+                    />
                     <button 
                       onClick={() => copyToClipboard(briefContent)} 
                       className="bg-white border border-slate-300 hover:border-slate-600 text-slate-700 text-xs font-bold py-2 px-3 rounded shadow-sm flex items-center gap-2 whitespace-nowrap"
