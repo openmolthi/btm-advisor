@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
+import { setApiKey } from './lib/api'
 
 const HASH = '5f4dcc3b5aa765d61d8327deb882cf99' // placeholder, we use simple check
 const STORAGE_KEY = 'btm-advisor-auth'
 const PASSWORD = 'SAPBTM2026!'
+const PROXY_TOKEN = 'btm-c3e9c5a076853c4417ba1da2a568a0e2'
 
 export default function PasswordGate({ children }) {
   const [authenticated, setAuthenticated] = useState(false)
@@ -11,6 +13,7 @@ export default function PasswordGate({ children }) {
 
   useEffect(() => {
     if (sessionStorage.getItem(STORAGE_KEY) === 'true') {
+      setApiKey(PROXY_TOKEN)
       setAuthenticated(true)
     }
   }, [])
@@ -19,6 +22,7 @@ export default function PasswordGate({ children }) {
     e.preventDefault()
     if (input === PASSWORD) {
       sessionStorage.setItem(STORAGE_KEY, 'true')
+      setApiKey(PROXY_TOKEN)
       setAuthenticated(true)
     } else {
       setError(true)
