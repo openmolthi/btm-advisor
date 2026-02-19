@@ -4,7 +4,7 @@ import { setApiKey } from './lib/api'
 const HASH = '5f4dcc3b5aa765d61d8327deb882cf99' // placeholder, we use simple check
 const STORAGE_KEY = 'btm-advisor-auth'
 const PASSWORD = 'SAPBTM2026!'
-const PROXY_TOKEN = 'btm-c3e9c5a076853c4417ba1da2a568a0e2'
+const PROXY_TOKEN = 'd7319b8ed7421da7ed501580cfd40ad5eff44fe26bda86dc'
 
 export default function PasswordGate({ children }) {
   const [authenticated, setAuthenticated] = useState(false)
