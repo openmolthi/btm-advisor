@@ -23778,6 +23778,7 @@ const PROXY_URL = "https://btm-advisor-proxy.openmolthi.workers.dev";
 const GEMINI_TEXT_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 const GEMINI_IMAGE_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict";
 const getApiKey$1 = () => localStorage.getItem("btm_proxy_token") || "";
+const setApiKey = (key) => localStorage.setItem("btm_proxy_token", key);
 const proxyFetch = async (geminiEndpoint, payload) => {
   const token = getApiKey$1();
   if (!token) throw new Error("No access token set. Go to Settings (⚙️) to enter your access token.");
@@ -27503,12 +27504,14 @@ Design ${duration} Workshop Agenda.`, constructSystemInstruction("Expert Facilit
 }
 const STORAGE_KEY = "btm-advisor-auth";
 const PASSWORD = "SAPBTM2026!";
+const PROXY_TOKEN = "btm-c3e9c5a076853c4417ba1da2a568a0e2";
 function PasswordGate({ children }) {
   const [authenticated, setAuthenticated] = reactExports.useState(false);
   const [input, setInput] = reactExports.useState("");
   const [error, setError] = reactExports.useState(false);
   reactExports.useEffect(() => {
     if (sessionStorage.getItem(STORAGE_KEY) === "true") {
+      setApiKey(PROXY_TOKEN);
       setAuthenticated(true);
     }
   }, []);
@@ -27516,6 +27519,7 @@ function PasswordGate({ children }) {
     e.preventDefault();
     if (input === PASSWORD) {
       sessionStorage.setItem(STORAGE_KEY, "true");
+      setApiKey(PROXY_TOKEN);
       setAuthenticated(true);
     } else {
       setError(true);
@@ -27624,4 +27628,4 @@ try {
   console.error("[BTM] mount error:", e);
   document.getElementById("root").innerHTML = '<pre style="color:red;padding:40px">' + e.message + "\n" + e.stack + "</pre>";
 }
-//# sourceMappingURL=index-_Nt031hW.js.map
+//# sourceMappingURL=index-DakFvrU1.js.map
