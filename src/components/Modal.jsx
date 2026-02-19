@@ -56,7 +56,7 @@ export const AdminModal = ({ isOpen, onClose, config, onSave, addToast, selected
   }, [isOpen, config]);
   
   const handleLogin = () => { 
-    if(password === "Signavio321!") { 
+    if(password === "SAPBTM2026!") { 
       setIsAuthenticated(true); 
       addToast(t(selectedLanguage, "accessGranted"), "success"); 
     } else {
@@ -133,7 +133,7 @@ export const AdminModal = ({ isOpen, onClose, config, onSave, addToast, selected
                       className="w-full border p-2 rounded text-sm font-mono" 
                       value={apiKeyInput} 
                       onChange={e=>setApiKeyInput(e.target.value)}
-                      placeholder="AIzaSy..."
+                      placeholder="Enter your access token"
                     />
                     <button 
                       onClick={() => { saveApiKey(apiKeyInput); addToast("Access token saved!", "success"); }} 
