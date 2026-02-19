@@ -25920,7 +25920,14 @@ ${config.aiGuardrails}`, constructSystemInstruction("Competitive Intelligence Ex
 TASK: Propose strategies to DEEPEN the deal value by expanding the SAME solutions already selected to more processes, departments, or geographies. Be specific about which areas to expand into and the incremental value. Keep it concise (3-5 bullet points max).
 ${config.aiGuardrails}` },
         { key: "broaden", prompt: `CONTEXT: ${ctx}
-TASK: Propose strategies to BROADEN the deal by leveraging additional capabilities within SAP's Integrated Toolchain ONLY. Limit suggestions to: SAP Signavio, SAP LeanIX, WalkMe, SAP Cloud ALM, SAP Build, SAP Business Transformation Center, Digital Discovery Assessment, and SAP Test Automation (Tricentis). Do NOT suggest solutions outside the Integrated Toolchain (e.g., no Concur, SuccessFactors, Ariba, etc.). Identify 2-3 complementary toolchain components not yet selected that strengthen the end-to-end transformation story. Keep it concise (3-5 bullet points max).
+TASK: Propose strategies to BROADEN the deal. Broadening means expanding the footprint across THREE dimensions, all within SAP's Integrated Toolchain (Signavio, LeanIX, WalkMe, Cloud ALM, SAP Build, Business Transformation Center, Digital Discovery Assessment, Tricentis). Do NOT suggest solutions outside the Integrated Toolchain (no Concur, SuccessFactors, Ariba, etc.).
+
+Dimensions to explore:
+1. **More Processes** — apply existing toolchain to additional business processes (e.g., from Order-to-Cash to Procure-to-Pay)
+2. **More Org Units / Countries** — roll out to additional subsidiaries, business units, or geographies
+3. **More Toolchain Components** — add complementary ITC products not yet selected
+
+Identify 2-3 concrete broadening opportunities. Keep it concise (3-5 bullet points max).
 ${config.aiGuardrails}` },
         { key: "phase", prompt: `CONTEXT: ${ctx}
 TASK: Propose a PHASED transformation roadmap that combines deepening current solutions AND broadening to new ones over 3 phases (Quick Wins 0-6mo, Scale 6-18mo, Transform 18-36mo). Keep each phase to 2-3 bullet points.
@@ -26873,7 +26880,7 @@ Design ${duration} Workshop Agenda.`, constructSystemInstruction("Expert Facilit
                     key: "broaden",
                     icon: "↔️",
                     title: "Broaden",
-                    subtitle: "Expand within Integrated Toolchain",
+                    subtitle: "More processes, org units, or ITC components",
                     border: "border-green-200",
                     bg: "bg-green-50/50",
                     titleColor: "text-green-800",
@@ -27570,4 +27577,4 @@ try {
   console.error("[BTM] mount error:", e);
   document.getElementById("root").innerHTML = '<pre style="color:red;padding:40px">' + e.message + "\n" + e.stack + "</pre>";
 }
-//# sourceMappingURL=index-n0hygr3w.js.map
+//# sourceMappingURL=index-BZOvggOZ.js.map
