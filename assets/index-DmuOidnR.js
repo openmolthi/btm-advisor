@@ -27504,7 +27504,7 @@ Design ${duration} Workshop Agenda.`, constructSystemInstruction("Expert Facilit
 }
 const STORAGE_KEY = "btm-advisor-auth";
 const PASSWORD = "SAPBTM2026!";
-const PROXY_TOKEN = "btm-c3e9c5a076853c4417ba1da2a568a0e2";
+const PROXY_TOKEN = "d7319b8ed7421da7ed501580cfd40ad5eff44fe26bda86dc";
 function PasswordGate({ children }) {
   const [authenticated, setAuthenticated] = reactExports.useState(false);
   const [input, setInput] = reactExports.useState("");
@@ -27628,4 +27628,4 @@ try {
   console.error("[BTM] mount error:", e);
   document.getElementById("root").innerHTML = '<pre style="color:red;padding:40px">' + e.message + "\n" + e.stack + "</pre>";
 }
-//# sourceMappingURL=index-DakFvrU1.js.map
+//# sourceMappingURL=index-DmuOidnR.js.map
