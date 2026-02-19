@@ -1656,66 +1656,6 @@ Return ONLY the JSON array, nothing else.`;
                       }
                       return null;
                     })()}
-                    </div>
-                    <div className="shrink-0 p-3 bg-slate-50 border-t border-slate-200 flex justify-center">
-                      <button 
-                        onClick={handleGiveIdeas} 
-                        disabled={isGenerating}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2 px-4 rounded shadow-sm flex items-center gap-2 disabled:bg-slate-400 disabled:cursor-not-allowed"
-                      >
-                        <RefreshCw size={14} /> Regenerate Ideas
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === 'chat' && (
-              <ChatInterface 
-                messages={chatMessages} 
-                onSendMessage={handleChat} 
-                isTyping={isChatTyping}
-                suggestions={(() => {
-                  const s = [];
-                  const scores = calculateMeddicScores({ selectedIndustry, selectedProcess, selectedValue, selectedCapability, additionalContext, isRise, erpSystem, adoptionRelated, stakeholders, coachingContent, briefContent });
-                  if (scores.economicBuyer?.score < 50) s.push({ icon: '👔', label: 'Help me identify and approach the Economic Buyer', prompt: 'Based on my deal context, help me identify who the Economic Buyer likely is, how to get access, and what messaging would resonate with them.' });
-                  if (scores.champion?.score < 50) s.push({ icon: '🏆', label: 'How do I find and develop a Champion?', prompt: 'I need to find an internal champion for this deal. What characteristics should I look for, and how do I develop them into an advocate?' });
-                  if (scores.metrics?.score < 50) s.push({ icon: '📊', label: 'What metrics should I quantify?', prompt: 'Help me identify the key business metrics and KPIs I should quantify to build a compelling business case for this deal.' });
-                  if (scores.decisionProcess?.score < 50) s.push({ icon: '🗺️', label: 'Map out the likely decision process', prompt: 'Based on this deal context, what does the typical decision process look like? Who are the approvers, what are the stages, and what could stall it?' });
-                  if (scores.identifyPain?.score < 50) s.push({ icon: '🎯', label: 'Sharpen the pain points', prompt: 'Help me articulate the customer pain points more sharply. What questions should I ask to uncover deeper pain?' });
-                  if (s.length === 0) s.push({ icon: '🚀', label: 'What should my next move be?', prompt: 'Based on everything in my deal context, what should my next strategic move be to advance this deal?' });
-                  return s.slice(0, 4);
-                })()}
-              />
-            )}
-
-            {activeTab === 'brief' && (
-              <div className="h-full flex flex-col">
-                {!briefContent && !isGenerating ? (
-                  <div className="h-full flex flex-col items-center justify-center p-8 text-center">
-                    <FileText size={48} className="mb-4 text-green-200" />
-                    <p className="text-lg font-extrabold text-slate-500 mb-2">{t(selectedLanguage, "briefNotGenerated")}</p>
-                    <button 
-                      onClick={handleGenerateBrief} 
-                      disabled={isGenerating}
-                      className="bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700 shadow-lg flex items-center gap-2 disabled:bg-slate-400 disabled:cursor-not-allowed"
-                    >
-                      <Sparkles size={16} /> {t(selectedLanguage, "generateBriefNow")}
-                    </button>
-                  </div>
-                ) : isGenerating ? (
-                  <div className="h-full flex flex-col items-center justify-center">
-                    <div className="w-12 h-12 border-4 border-green-100 border-t-green-600 rounded-full animate-spin mb-4"></div>
-                    <h3 className="text-base font-extrabold text-slate-900 mb-1">{t(selectedLanguage, "draftingDocument")}</h3>
-                    <p className="text-slate-500 text-xs font-bold">{t(selectedLanguage, "draftingDesc")}</p>
-                  </div>
-                ) : (
-                  <div className="flex flex-col h-full">
-                    <div className="flex-grow overflow-y-auto p-6">
-                      <div className="prose prose-sm max-w-none">
-                        <ReactMarkdown>{briefContent}</ReactMarkdown>
-                      </div>
 
                       {/* Objection Cards Panel */}
                       {showObjectionPanel && (
@@ -1809,6 +1749,67 @@ Return ONLY the JSON array, nothing else.`;
                           )}
                         </div>
                       )}
+
+                    </div>
+                    <div className="shrink-0 p-3 bg-slate-50 border-t border-slate-200 flex justify-center">
+                      <button 
+                        onClick={handleGiveIdeas} 
+                        disabled={isGenerating}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2 px-4 rounded shadow-sm flex items-center gap-2 disabled:bg-slate-400 disabled:cursor-not-allowed"
+                      >
+                        <RefreshCw size={14} /> Regenerate Ideas
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'chat' && (
+              <ChatInterface 
+                messages={chatMessages} 
+                onSendMessage={handleChat} 
+                isTyping={isChatTyping}
+                suggestions={(() => {
+                  const s = [];
+                  const scores = calculateMeddicScores({ selectedIndustry, selectedProcess, selectedValue, selectedCapability, additionalContext, isRise, erpSystem, adoptionRelated, stakeholders, coachingContent, briefContent });
+                  if (scores.economicBuyer?.score < 50) s.push({ icon: '👔', label: 'Help me identify and approach the Economic Buyer', prompt: 'Based on my deal context, help me identify who the Economic Buyer likely is, how to get access, and what messaging would resonate with them.' });
+                  if (scores.champion?.score < 50) s.push({ icon: '🏆', label: 'How do I find and develop a Champion?', prompt: 'I need to find an internal champion for this deal. What characteristics should I look for, and how do I develop them into an advocate?' });
+                  if (scores.metrics?.score < 50) s.push({ icon: '📊', label: 'What metrics should I quantify?', prompt: 'Help me identify the key business metrics and KPIs I should quantify to build a compelling business case for this deal.' });
+                  if (scores.decisionProcess?.score < 50) s.push({ icon: '🗺️', label: 'Map out the likely decision process', prompt: 'Based on this deal context, what does the typical decision process look like? Who are the approvers, what are the stages, and what could stall it?' });
+                  if (scores.identifyPain?.score < 50) s.push({ icon: '🎯', label: 'Sharpen the pain points', prompt: 'Help me articulate the customer pain points more sharply. What questions should I ask to uncover deeper pain?' });
+                  if (s.length === 0) s.push({ icon: '🚀', label: 'What should my next move be?', prompt: 'Based on everything in my deal context, what should my next strategic move be to advance this deal?' });
+                  return s.slice(0, 4);
+                })()}
+              />
+            )}
+
+            {activeTab === 'brief' && (
+              <div className="h-full flex flex-col">
+                {!briefContent && !isGenerating ? (
+                  <div className="h-full flex flex-col items-center justify-center p-8 text-center">
+                    <FileText size={48} className="mb-4 text-green-200" />
+                    <p className="text-lg font-extrabold text-slate-500 mb-2">{t(selectedLanguage, "briefNotGenerated")}</p>
+                    <button 
+                      onClick={handleGenerateBrief} 
+                      disabled={isGenerating}
+                      className="bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700 shadow-lg flex items-center gap-2 disabled:bg-slate-400 disabled:cursor-not-allowed"
+                    >
+                      <Sparkles size={16} /> {t(selectedLanguage, "generateBriefNow")}
+                    </button>
+                  </div>
+                ) : isGenerating ? (
+                  <div className="h-full flex flex-col items-center justify-center">
+                    <div className="w-12 h-12 border-4 border-green-100 border-t-green-600 rounded-full animate-spin mb-4"></div>
+                    <h3 className="text-base font-extrabold text-slate-900 mb-1">{t(selectedLanguage, "draftingDocument")}</h3>
+                    <p className="text-slate-500 text-xs font-bold">{t(selectedLanguage, "draftingDesc")}</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col h-full">
+                    <div className="flex-grow overflow-y-auto p-6">
+                      <div className="prose prose-sm max-w-none">
+                        <ReactMarkdown>{briefContent}</ReactMarkdown>
+                      </div>
 
                       {/* Email Composer Panel */}
                       {showEmailPanel && (
