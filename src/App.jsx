@@ -597,7 +597,7 @@ Return ONLY the JSON array, nothing else.`;
       
       const strategies = [
         { key: 'deepen', prompt: `CONTEXT: ${ctx}\nTASK: Propose strategies to DEEPEN the deal value by expanding the SAME solutions already selected to more processes, departments, or geographies. Be specific about which areas to expand into and the incremental value. Keep it concise (3-5 bullet points max).\n${config.aiGuardrails}` },
-        { key: 'broaden', prompt: `CONTEXT: ${ctx}\nTASK: Propose strategies to BROADEN the deal by leveraging additional capabilities within SAP's Integrated Toolchain ONLY. Limit suggestions to: SAP Signavio, SAP LeanIX, WalkMe, SAP Cloud ALM, SAP Build, SAP Business Transformation Center, Digital Discovery Assessment, and SAP Test Automation (Tricentis). Do NOT suggest solutions outside the Integrated Toolchain (e.g., no Concur, SuccessFactors, Ariba, etc.). Identify 2-3 complementary toolchain components not yet selected that strengthen the end-to-end transformation story. Keep it concise (3-5 bullet points max).\n${config.aiGuardrails}` },
+        { key: 'broaden', prompt: `CONTEXT: ${ctx}\nTASK: Propose strategies to BROADEN the deal. Broadening means expanding the footprint across THREE dimensions, all within SAP's Integrated Toolchain (Signavio, LeanIX, WalkMe, Cloud ALM, SAP Build, Business Transformation Center, Digital Discovery Assessment, Tricentis). Do NOT suggest solutions outside the Integrated Toolchain (no Concur, SuccessFactors, Ariba, etc.).\n\nDimensions to explore:\n1. **More Processes** — apply existing toolchain to additional business processes (e.g., from Order-to-Cash to Procure-to-Pay)\n2. **More Org Units / Countries** — roll out to additional subsidiaries, business units, or geographies\n3. **More Toolchain Components** — add complementary ITC products not yet selected\n\nIdentify 2-3 concrete broadening opportunities. Keep it concise (3-5 bullet points max).\n${config.aiGuardrails}` },
         { key: 'phase', prompt: `CONTEXT: ${ctx}\nTASK: Propose a PHASED transformation roadmap that combines deepening current solutions AND broadening to new ones over 3 phases (Quick Wins 0-6mo, Scale 6-18mo, Transform 18-36mo). Keep each phase to 2-3 bullet points.\n${config.aiGuardrails}` },
       ];
       
@@ -1519,7 +1519,7 @@ Return ONLY the JSON array, nothing else.`;
                                 border: 'border-blue-200', bg: 'bg-blue-50/50', titleColor: 'text-blue-800',
                                 spinBorder: 'border-blue-200 border-t-blue-600',
                                 btnPrimary: 'bg-blue-600 hover:bg-blue-700', btnSecondary: 'border-blue-300 text-blue-700 hover:bg-blue-100' },
-                              { key: 'broaden', icon: '↔️', title: 'Broaden', subtitle: 'Expand within Integrated Toolchain',
+                              { key: 'broaden', icon: '↔️', title: 'Broaden', subtitle: 'More processes, org units, or ITC components',
                                 border: 'border-green-200', bg: 'bg-green-50/50', titleColor: 'text-green-800',
                                 spinBorder: 'border-green-200 border-t-green-600',
                                 btnPrimary: 'bg-green-600 hover:bg-green-700', btnSecondary: 'border-green-300 text-green-700 hover:bg-green-100' },
