@@ -22188,7 +22188,7 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$T = [
+const __iconNode$U = [
   [
     "path",
     {
@@ -22197,13 +22197,13 @@ const __iconNode$T = [
     }
   ]
 ];
-const Activity = createLucideIcon("activity", __iconNode$T);
-const __iconNode$S = [
+const Activity = createLucideIcon("activity", __iconNode$U);
+const __iconNode$T = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$S);
-const __iconNode$R = [
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$T);
+const __iconNode$S = [
   [
     "path",
     {
@@ -22213,8 +22213,8 @@ const __iconNode$R = [
   ],
   ["circle", { cx: "12", cy: "8", r: "6", key: "1vp47v" }]
 ];
-const Award = createLucideIcon("award", __iconNode$R);
-const __iconNode$Q = [
+const Award = createLucideIcon("award", __iconNode$S);
+const __iconNode$R = [
   ["path", { d: "M12 8V4H8", key: "hb8ula" }],
   ["rect", { width: "16", height: "12", x: "4", y: "8", rx: "2", key: "enze0r" }],
   ["path", { d: "M2 14h2", key: "vft8re" }],
@@ -22222,20 +22222,20 @@ const __iconNode$Q = [
   ["path", { d: "M15 13v2", key: "1xurst" }],
   ["path", { d: "M9 13v2", key: "rq6x2g" }]
 ];
-const Bot = createLucideIcon("bot", __iconNode$Q);
-const __iconNode$P = [
+const Bot = createLucideIcon("bot", __iconNode$R);
+const __iconNode$Q = [
   ["path", { d: "M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16", key: "jecpp" }],
   ["rect", { width: "20", height: "14", x: "2", y: "6", rx: "2", key: "i6l2r4" }]
 ];
-const Briefcase = createLucideIcon("briefcase", __iconNode$P);
-const __iconNode$O = [
+const Briefcase = createLucideIcon("briefcase", __iconNode$Q);
+const __iconNode$P = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar = createLucideIcon("calendar", __iconNode$O);
-const __iconNode$N = [
+const Calendar = createLucideIcon("calendar", __iconNode$P);
+const __iconNode$O = [
   [
     "path",
     {
@@ -22245,37 +22245,43 @@ const __iconNode$N = [
   ],
   ["circle", { cx: "12", cy: "13", r: "3", key: "1vg3eu" }]
 ];
-const Camera = createLucideIcon("camera", __iconNode$N);
-const __iconNode$M = [
+const Camera = createLucideIcon("camera", __iconNode$O);
+const __iconNode$N = [
   ["path", { d: "M5 21v-6", key: "1hz6c0" }],
   ["path", { d: "M12 21V3", key: "1lcnhd" }],
   ["path", { d: "M19 21V9", key: "unv183" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$M);
-const __iconNode$L = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$L);
-const __iconNode$K = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$K);
-const __iconNode$J = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$J);
-const __iconNode$I = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$I);
-const __iconNode$H = [
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$N);
+const __iconNode$M = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$M);
+const __iconNode$L = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$L);
+const __iconNode$K = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$K);
+const __iconNode$J = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$J);
+const __iconNode$I = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$H);
-const __iconNode$G = [
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$I);
+const __iconNode$H = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$G);
-const __iconNode$F = [
+const CircleCheck = createLucideIcon("circle-check", __iconNode$H);
+const __iconNode$G = [
   ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$F);
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$G);
+const __iconNode$F = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
+  ["path", { d: "M12 17h.01", key: "p32p05" }]
+];
+const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$F);
 const __iconNode$E = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
@@ -25853,6 +25859,8 @@ Make it more personalized and compelling. Keep it short.`), 100);
   };
   const [showObjectionPanel, setShowObjectionPanel] = reactExports.useState(false);
   const [isEditingCoaching, setIsEditingCoaching] = reactExports.useState(false);
+  const [showHelp, setShowHelp] = reactExports.useState(false);
+  const [expandedHelp, setExpandedHelp] = reactExports.useState(null);
   const [objectionCards, setObjectionCards] = reactExports.useState([]);
   const [objectionLoading, setObjectionLoading] = reactExports.useState(false);
   const [expandedObjection, setExpandedObjection] = reactExports.useState(null);
@@ -26086,6 +26094,36 @@ Design ${duration} Workshop Agenda.`, constructSystemInstruction("Expert Facilit
         onConfirm: confirmConfig.onConfirm
       }
     ),
+    showHelp && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4", onClick: () => setShowHelp(false), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto", onClick: (e) => e.stopPropagation(), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center rounded-t-xl", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-lg font-extrabold text-slate-900 flex items-center gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(CircleQuestionMark, { size: 20, className: "text-blue-600" }),
+          " AIDE-visor Guide"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowHelp(false), className: "text-slate-400 hover:text-slate-600", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 18 }) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-6 py-4 space-y-1", children: [
+        { title: "🎯 What is AIDE-visor?", content: "A strategic coaching tool for SAP Integrated Toolchain conversations. It helps you prepare for customer engagements by generating tailored coaching, value propositions, and formal deliverables — grounded in the customer's industry, processes, and context." },
+        { title: "🔄 The Flow", content: "**1. Configure** (left panel) — Set industry, company, process domain, ERP system, and any additional context.\n\n**2. Generate Coaching** — Hit the play button to get AI-powered strategic coaching.\n\n**3. Refine** — Edit the coaching output directly (pencil icon), explore value strategies, or practice objection handling.\n\n**4. Export** — Draft a formal brief, email, or copy the content." },
+        { title: "📑 Tabs", content: "**Coaching** — Your ideation workspace. Generate strategic coaching, explore value expansion (Deepen/Broaden/Phase), handle objections, and analyze competitors.\n\n**Chat** — Freeform AI conversation for ad-hoc questions about the deal context.\n\n**Brief** — Formal output. Generate polished briefs and emails for stakeholders.\n\n**Visual** — Architecture diagrams and process visualizations.\n\n**Deal Score** — MEDDIC-based deal qualification heatmap." },
+        { title: "📈 Value Strategies", content: "**Deepen** — Expand current solutions to more areas within the same scope.\n\n**Broaden** — Three dimensions, all within the Integrated Toolchain:\n• More processes (e.g., O2C → P2P)\n• More org units or countries\n• More ITC components not yet selected\n\n**Phase** — Combined roadmap: Quick Wins (0-6mo), Scale (6-18mo), Transform (18-36mo)." },
+        { title: "🔧 Integrated Toolchain", content: "The ITC orchestrates cloud ERP transformation across people, processes, apps, and data:\n\n• **SAP Signavio** — Process analysis & benchmarking\n• **SAP LeanIX** — Enterprise architecture mapping\n• **WalkMe** — Digital adoption & in-app guidance\n• **SAP Cloud ALM** — Project governance & orchestration\n• **SAP Build** — Low-code/no-code extensions\n• **Business Transformation Center** — Data migration\n• **Digital Discovery Assessment** — Landscape assessment\n• **Tricentis** — Automated testing & validation" },
+        { title: "⚙️ Settings", content: "**Access Token** — Required to connect to the AI backend. Enter the token provided to you.\n\n**Language** — Switch the UI and AI output language.\n\n**Guardrails** — Customize the AI coaching principles (advanced). Default guardrails emphasize business outcomes over products.\n\n**Export/Import** — Save and restore your deal context as JSON files." }
+      ].map((section, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border border-slate-200 rounded-lg overflow-hidden", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: () => setExpandedHelp(expandedHelp === i ? null : i),
+            className: "w-full px-4 py-3 text-left text-sm font-bold text-slate-800 hover:bg-slate-50 flex justify-between items-center transition-colors",
+            children: [
+              section.title,
+              /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { size: 14, className: `text-slate-400 transition-transform ${expandedHelp === i ? "rotate-180" : ""}` })
+            ]
+          }
+        ),
+        expandedHelp === i && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-4 pb-4 text-sm text-slate-600 prose prose-sm max-w-none", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Markdown, { children: section.content }) })
+      ] }, i)) })
+    ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       AdminModal,
       {
@@ -26141,6 +26179,15 @@ Design ${duration} Workshop Agenda.`, constructSystemInstruction("Expert Facilit
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 items-center flex-wrap justify-end ml-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(LanguageSelector, { selected: selectedLanguage, onChange: setSelectedLanguage }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: () => setShowHelp(true),
+                className: "text-xs font-bold text-slate-500 hover:text-blue-700 flex items-center gap-1 px-2 py-1.5 rounded hover:bg-slate-100 transition-colors",
+                title: "Help",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleQuestionMark, { size: 14 })
+              }
+            ),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
@@ -27577,4 +27624,4 @@ try {
   console.error("[BTM] mount error:", e);
   document.getElementById("root").innerHTML = '<pre style="color:red;padding:40px">' + e.message + "\n" + e.stack + "</pre>";
 }
-//# sourceMappingURL=index-BZOvggOZ.js.map
+//# sourceMappingURL=index-_Nt031hW.js.map
