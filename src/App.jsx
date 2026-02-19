@@ -378,9 +378,6 @@ Based on public knowledge about this company, return ONLY valid JSON (no markdow
       '',
       '— ADDITIONAL CONTEXT —',
       additionalContext || '(none)',
-      '',
-      '— DEAL TIMELINE —',
-      dealTimeline.map(m => `${m.label}: ${m.status === 'done' ? '✅' : m.status === 'active' ? '🔵' : '⬜'}`).join(' | '),
     ];
     if (stakeholders.length > 0) {
       lines.push('', '— STAKEHOLDERS —');
@@ -1403,28 +1400,7 @@ Return ONLY the JSON array, nothing else.`;
 
         {/* Right Column: Outputs */}
         <div ref={outputSectionRef} className="lg:col-span-8 lg:h-full h-[600px] flex flex-col bg-white rounded-lg shadow-md border border-slate-200 overflow-hidden">
-          {/* Deal Timeline Strip */}
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 border-b border-slate-200 shrink-0 overflow-x-auto">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mr-1 whitespace-nowrap">Deal:</span>
-            {dealTimeline.map((m, i) => {
-              const styles = m.status === 'done'
-                ? 'bg-green-100 border-green-300 text-green-800'
-                : m.status === 'active'
-                ? 'bg-blue-100 border-blue-400 text-blue-800'
-                : 'bg-slate-100 border-slate-300 text-slate-500';
-              const icon = m.status === 'done' ? ' ✅' : m.status === 'active' ? ' 🔵' : '';
-              return (
-                <button
-                  key={i}
-                  onClick={() => cycleMilestone(i)}
-                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full border whitespace-nowrap transition-all hover:shadow-sm ${styles}`}
-                  title={`Click to cycle: pending → active → done`}
-                >
-                  {m.label}{icon}
-                </button>
-              );
-            })}
-          </div>
+          {/* Deal timeline stripped — will return with persistence/phase-aware coaching */}
           <div className="flex border-b-2 border-slate-200 bg-slate-50 shrink-0 overflow-x-auto">
             <button 
               onClick={() => setActiveTab('coaching')} 
