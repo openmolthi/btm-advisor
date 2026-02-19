@@ -2,12 +2,13 @@ import { UI_STRINGS } from './constants';
 
 export const t = (selectedLanguage, key, subKey = null) => {
   const langMap = {
-    "English": "EN",
-    "日本語": "JA",
-    "ไทย": "TH",
-    "Bahasa Indonesia": "ID",
-    "한국어": "KO",
-    "中文": "ZH"
+    "English (EN)": "EN",
+    "日本語 (JA)": "JA",
+    "ไทย (TH)": "TH",
+    "Bahasa Indonesia (ID)": "ID",
+    "한국어 (KO)": "KO",
+    "中文 (ZH)": "ZH",
+    "Tiếng Việt (VI)": "VI"
   };
   
   const langCode = langMap[selectedLanguage] || "EN";
