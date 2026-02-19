@@ -805,7 +805,7 @@ Return ONLY the JSON array, nothing else.`;
       <div className="max-w-[1500px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4 lg:h-[93vh] h-auto">
         {/* Left Column: Inputs */}
         <div className="lg:col-span-4 flex flex-col lg:h-full h-auto gap-4">
-          <div className="flex items-center justify-between bg-white px-4 py-3 rounded-lg shadow-md border border-slate-200 shrink-0 overflow-hidden">
+          <div className="flex items-center justify-between bg-white px-4 py-3 rounded-lg shadow-md border border-slate-200 shrink-0 overflow-visible">
             <div className="flex items-center gap-3 shrink-0">
               <div className="p-2 bg-blue-700 rounded-lg shadow-sm">
                 <Sparkles className="text-white" size={20} />
