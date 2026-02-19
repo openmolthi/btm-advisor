@@ -130,7 +130,7 @@ dist/assets/index-BR9wctH5.js: 458.09 kB
 
 ### ✅ Gemini API
 - Key loaded from `.env`: `VITE_GEMINI_API_KEY`
-- Model: `gemini-2.5-flash-preview-09-2025`
+- Model: `gemini-2.5-flash`
 - Features: Text generation with Google Search tool
 - Error handling in place
 
