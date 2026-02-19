@@ -899,10 +899,11 @@ export const OTHER_NONSAP_OPTIONS = [
 ];
 
 export const LANGUAGE_OPTIONS = [
-  { code: "EN", label: "English" },
-  { code: "JA", label: "日本語" },
-  { code: "TH", label: "ไทย" },
-  { code: "ID", label: "Bahasa Indonesia" },
-  { code: "KO", label: "한국어" },
-  { code: "ZH", label: "中文" }
+  { code: "EN", label: "English (EN)" },
+  { code: "JA", label: "日本語 (JA)" },
+  { code: "TH", label: "ไทย (TH)" },
+  { code: "ID", label: "Bahasa Indonesia (ID)" },
+  { code: "KO", label: "한국어 (KO)" },
+  { code: "ZH", label: "中文 (ZH)" },
+  { code: "VI", label: "Tiếng Việt (VI)" }
 ];
