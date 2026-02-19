@@ -25920,7 +25920,7 @@ ${config.aiGuardrails}`, constructSystemInstruction("Competitive Intelligence Ex
 TASK: Propose strategies to DEEPEN the deal value by expanding the SAME solutions already selected to more processes, departments, or geographies. Be specific about which areas to expand into and the incremental value. Keep it concise (3-5 bullet points max).
 ${config.aiGuardrails}` },
         { key: "broaden", prompt: `CONTEXT: ${ctx}
-TASK: Propose strategies to BROADEN the deal by cross-selling ADJACENT SAP solutions not yet selected. Identify 2-3 complementary solutions that create a stronger together story. Keep it concise (3-5 bullet points max).
+TASK: Propose strategies to BROADEN the deal by leveraging additional capabilities within SAP's Integrated Toolchain ONLY. Limit suggestions to: SAP Signavio, SAP LeanIX, WalkMe, SAP Cloud ALM, SAP Build, SAP Business Transformation Center, Digital Discovery Assessment, and SAP Test Automation (Tricentis). Do NOT suggest solutions outside the Integrated Toolchain (e.g., no Concur, SuccessFactors, Ariba, etc.). Identify 2-3 complementary toolchain components not yet selected that strengthen the end-to-end transformation story. Keep it concise (3-5 bullet points max).
 ${config.aiGuardrails}` },
         { key: "phase", prompt: `CONTEXT: ${ctx}
 TASK: Propose a PHASED transformation roadmap that combines deepening current solutions AND broadening to new ones over 3 phases (Quick Wins 0-6mo, Scale 6-18mo, Transform 18-36mo). Keep each phase to 2-3 bullet points.
@@ -26873,7 +26873,7 @@ Design ${duration} Workshop Agenda.`, constructSystemInstruction("Expert Facilit
                     key: "broaden",
                     icon: "↔️",
                     title: "Broaden",
-                    subtitle: "Cross-sell adjacent SAP solutions",
+                    subtitle: "Expand within Integrated Toolchain",
                     border: "border-green-200",
                     bg: "bg-green-50/50",
                     titleColor: "text-green-800",
@@ -27570,4 +27570,4 @@ try {
   console.error("[BTM] mount error:", e);
   document.getElementById("root").innerHTML = '<pre style="color:red;padding:40px">' + e.message + "\n" + e.stack + "</pre>";
 }
-//# sourceMappingURL=index-DF1Ogo_s.js.map
+//# sourceMappingURL=index-n0hygr3w.js.map
