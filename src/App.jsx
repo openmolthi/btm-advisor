@@ -58,7 +58,7 @@ export default function App() {
 
   // UI State
   const [activeTab, setActiveTab] = useState('visual');
-  const [selectedLanguage, setSelectedLanguage] = useState("English");
+  const [selectedLanguage, setSelectedLanguage] = useState("English (EN)");
   const [expandedSection, setExpandedSection] = useState({ core: true, compass: false, compassDetails: false, landscape: false, details: true });
   const toggleSection = (key) => setExpandedSection(prev => ({ ...prev, [key]: !prev[key] }));
 
