@@ -5,7 +5,7 @@ import {
   ChevronDown, ChevronRight, FileText, Mail, ShieldAlert, Paperclip, 
   File as FileIcon, X, Network, Maximize2, BarChart2, Share2, Table, 
   CloudLightning, Server, Target, Calendar, Users, MessageSquare, Compass,
-  Download, Upload, ClipboardCopy
+  Download, Upload, ClipboardCopy, Pencil, Eye
 } from 'lucide-react';
 
 // Library imports
@@ -536,6 +536,7 @@ Only include stakeholders explicitly mentioned by name. If no names found, retur
   };
 
   const [showObjectionPanel, setShowObjectionPanel] = useState(false);
+  const [isEditingCoaching, setIsEditingCoaching] = useState(false);
   const [objectionCards, setObjectionCards] = useState([]);
   const [objectionLoading, setObjectionLoading] = useState(false);
   const [expandedObjection, setExpandedObjection] = useState(null);
@@ -637,7 +638,7 @@ Return ONLY the JSON array, nothing else.`;
     setIsModalLoading(true);
     setModalContent("");
     setModalMedia(null);
-    const prompt = `CONTEXT: ${getContextString()}\nTASK: Describe the high-level process flow for the selected Process Domain in BPMN 2.0 notation concepts (Start Event -> Tasks -> Gateways -> End Event).\n${config.aiGuardrails}`;
+    const prompt = `CONTEXT: ${getContextString()}\nTASK: Generate a realistic, industry-specific BPMN 2.0 process flow for the selected Process Domain. Use synthetic but plausible data that reflects the customer's industry (e.g., a retailer would have POS integration, inventory replenishment; a bank would have KYC checks, credit scoring). Include: Start Event → Tasks → Gateways → End Event, with lane/pool suggestions for relevant departments. Make it feel like a real customer's process, not a generic template.\n${config.aiGuardrails}`;
     const text = await generateGeminiResponse(prompt, constructSystemInstruction("Process Architect"), attachments);
     setModalContent(text);
     setIsModalLoading(false);
@@ -650,7 +651,7 @@ Return ONLY the JSON array, nothing else.`;
     setModalMedia(null);
     
     const dataPrompt = `
-      Act as a LeanIX Data Architect. Based on the user context: ${getContextString()}, generate a comprehensive IT landscape in valid JSON format suitable for LeanIX Inventory import.
+      Act as a LeanIX Data Architect. Based on the user context: ${getContextString()}, generate a comprehensive, industry-specific IT landscape in valid JSON format suitable for LeanIX Inventory import.
 
       Required JSON Structure (LDIF-compatible):
       {
@@ -664,13 +665,11 @@ Return ONLY the JSON array, nothing else.`;
       }
 
       Guidelines:
-      1. **Entities**: Generate realistic Business Capabilities (e.g., "Livestock Management"), Tech Categories (e.g., "IoT Platform"), and Applications (e.g., "Herd Intelligence Platform").
-      2. **Relationships**: 
-          - Link Apps to Capabilities.
-          - Link IT Components to Apps, Providers, and Tech Categories.
-          - Link Interfaces to Provider/Consumer Apps and Data Objects.
-      3. **Competitor Policy**: Do NOT predominantly use competitors like Celonis/Aris. Use SAP Signavio, SAP LeanIX, or neutral tech (AWS, Azure).
+      1. **Industry-Specific Realism**: Generate capabilities, applications, and components that are plausible for the customer's industry. Examples: Retail → POS Systems, Merchandise Planning, Supply Chain Visibility; Banking → Mortgage Origination, Credit Risk Engine, Core Banking; Manufacturing → MES, Quality Management, Shop Floor Integration.
+      2. **Relationships**: Link Apps to Capabilities, IT Components to Apps/Providers/Tech Categories, Interfaces to Provider/Consumer Apps and Data Objects.
+      3. **Providers**: Use a realistic mix of vendors the customer's industry would actually have (SAP, Microsoft, Salesforce, industry-specific vendors, cloud providers).
       4. **Format**: Return ONLY raw JSON.
+      ${config.aiGuardrails}
     `;
     
     try {
@@ -1505,9 +1504,27 @@ Return ONLY the JSON array, nothing else.`;
                 ) : (
                   <div className="flex flex-col h-full">
                     <div className="flex-grow overflow-y-auto p-6">
-                      <div className="prose prose-sm max-w-none">
-                        <ReactMarkdown>{coachingContent}</ReactMarkdown>
+                      <div className="flex justify-end mb-2">
+                        <button
+                          onClick={() => setIsEditingCoaching(!isEditingCoaching)}
+                          className="text-xs font-bold text-slate-500 hover:text-slate-700 flex items-center gap-1 px-2 py-1 rounded border border-slate-200 hover:border-slate-400 transition-colors"
+                          title={isEditingCoaching ? "Preview" : "Edit"}
+                        >
+                          {isEditingCoaching ? <><Eye size={12} /> Preview</> : <><Pencil size={12} /> Edit</>}
+                        </button>
                       </div>
+                      {isEditingCoaching ? (
+                        <textarea
+                          value={coachingContent}
+                          onChange={(e) => setCoachingContent(e.target.value)}
+                          className="w-full h-[calc(100%-2rem)] min-h-[300px] p-4 text-sm font-mono border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none bg-white"
+                          placeholder="Edit coaching content (Markdown supported)..."
+                        />
+                      ) : (
+                        <div className="prose prose-sm max-w-none">
+                          <ReactMarkdown>{coachingContent}</ReactMarkdown>
+                        </div>
+                      )}
                       
                       {/* Value Expansion Panel */}
                       {showValuePanel && (
@@ -2020,7 +2037,7 @@ Return ONLY the JSON array, nothing else.`;
                 )}
                 {activeTab === 'brief' && (
                   <>
-                    {/* Primary actions */}
+                    {/* Primary actions — brief-relevant only */}
                     <button 
                       onClick={handleGenerateBrief} 
                       className="bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2 px-3 rounded shadow-sm flex items-center gap-2 whitespace-nowrap"
@@ -2034,30 +2051,20 @@ Return ONLY the JSON array, nothing else.`;
                       <Mail size={14} /> {t(selectedLanguage, "actions", "email")}
                     </button>
                     <button 
-                      onClick={handleObjections} 
-                      className="bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold py-2 px-3 rounded shadow-sm flex items-center gap-2 whitespace-nowrap"
-                    >
-                      <ShieldAlert size={14} /> {t(selectedLanguage, "actions", "objections")}
-                    </button>
-                    <div className="w-px h-6 bg-slate-300 mx-1"></div>
-                    {/* Secondary actions in overflow */}
-                    <StrategicDropdown 
-                      label="More"
-                      actions={[
-                        { label: t(selectedLanguage, "actions", "increaseValue"), icon: BarChart2, onClick: handleIncreaseValue },
-                        { label: t(selectedLanguage, "actions", "competitor"), icon: Target, onClick: handleCompetitorIntel },
-                        { label: t(selectedLanguage, "actions", "stakeholders"), icon: Users, onClick: handleStakeholderMap },
-                        { label: t(selectedLanguage, "actions", "agenda"), icon: Calendar, onClick: () => setShowAgendaSettings(true) },
-                        { label: 'Signavio BPMN', icon: Share2, onClick: handleSignavioBPMN },
-                        { label: 'LeanIX Model', icon: Table, onClick: handleLeanIXModel },
-                      ]}
-                    />
-                    <button 
                       onClick={() => copyToClipboard(briefContent)} 
                       className="bg-white border border-slate-300 hover:border-slate-600 text-slate-700 text-xs font-bold py-2 px-3 rounded shadow-sm flex items-center gap-2 whitespace-nowrap"
                     >
                       <Copy size={14} /> {t(selectedLanguage, "actions", "copy")}
                     </button>
+                    <div className="w-px h-6 bg-slate-300 mx-1"></div>
+                    <StrategicDropdown 
+                      label="More"
+                      actions={[
+                        { label: t(selectedLanguage, "actions", "agenda"), icon: Calendar, onClick: () => setShowAgendaSettings(true) },
+                        { label: 'Signavio BPMN', icon: Share2, onClick: handleSignavioBPMN },
+                        { label: 'LeanIX Model', icon: Table, onClick: handleLeanIXModel },
+                      ]}
+                    />
                   </>
                 )}
               </div>
