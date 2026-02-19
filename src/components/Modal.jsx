@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-// API key helpers inline to avoid circular deps
-const getApiKey = () => localStorage.getItem('btm_gemini_api_key') || '';
-const saveApiKey = (key) => localStorage.setItem('btm_gemini_api_key', key);
+// Token helpers inline to avoid circular deps
+const getApiKey = () => localStorage.getItem('btm_proxy_token') || '';
+const saveApiKey = (key) => localStorage.setItem('btm_proxy_token', key);
 import { 
   XCircle, RefreshCw, Download, FileJson, AlertTriangle, 
   Settings, Lock, Calendar, Sparkles, Network, Maximize2 
@@ -108,7 +108,7 @@ export const AdminModal = ({ isOpen, onClose, config, onSave, addToast, selected
                   onClick={()=>setActiveTab("apikey")} 
                   className={`w-full text-left px-2 py-1 rounded ${activeTab==="apikey" ? "bg-blue-50 text-blue-700" : ""}`}
                 >
-                  🔑 API Key
+                  🔑 Access Token
                 </button>
                 <button 
                   onClick={()=>setActiveTab("guardrails")} 
@@ -126,8 +126,8 @@ export const AdminModal = ({ isOpen, onClose, config, onSave, addToast, selected
               <div className="flex-grow space-y-4">
                 {activeTab === "apikey" && (
                   <div>
-                    <label className="font-bold block mb-1">Gemini API Key</label>
-                    <p className="text-sm text-slate-500 mb-3">Get a free key from <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Google AI Studio</a>. Stored locally in your browser only.</p>
+                    <label className="font-bold block mb-1">Access Token</label>
+                    <p className="text-sm text-slate-500 mb-3">Enter the access token provided by your administrator. Stored locally in your browser only.</p>
                     <input 
                       type="password" 
                       className="w-full border p-2 rounded text-sm font-mono" 
@@ -136,10 +136,10 @@ export const AdminModal = ({ isOpen, onClose, config, onSave, addToast, selected
                       placeholder="AIzaSy..."
                     />
                     <button 
-                      onClick={() => { saveApiKey(apiKeyInput); addToast("API key saved!", "success"); }} 
+                      onClick={() => { saveApiKey(apiKeyInput); addToast("Access token saved!", "success"); }} 
                       className="bg-blue-600 text-white px-4 py-2 rounded font-bold mt-3"
                     >
-                      Save API Key
+                      Save Token
                     </button>
                   </div>
                 )}

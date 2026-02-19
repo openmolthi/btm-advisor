@@ -1,11 +1,37 @@
-// API key management — stored in localStorage, never in source
-export const getApiKey = () => localStorage.getItem('btm_gemini_api_key') || '';
-export const setApiKey = (key) => localStorage.setItem('btm_gemini_api_key', key);
+// Proxy configuration — API key lives server-side on Cloudflare Worker
+const PROXY_URL = 'https://btm-advisor-proxy.openmolthi.workers.dev';
+const GEMINI_TEXT_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+const GEMINI_IMAGE_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict';
+
+// Token management — stored in localStorage, never the actual API key
+export const getApiKey = () => localStorage.getItem('btm_proxy_token') || '';
+export const setApiKey = (key) => localStorage.setItem('btm_proxy_token', key);
 export const hasApiKey = () => !!getApiKey();
 
+const proxyFetch = async (geminiEndpoint, payload) => {
+  const token = getApiKey();
+  if (!token) throw new Error('No access token set. Go to Settings (⚙️) to enter your access token.');
+
+  const response = await fetch(PROXY_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ endpoint: geminiEndpoint, payload }),
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err?.error?.message || `API failed: ${response.statusText}`);
+  }
+
+  return response.json();
+};
+
 export const generateGeminiResponse = async (prompt, systemInstruction, attachments = []) => {
-  const apiKey = getApiKey();
-  if (!apiKey) return "⚠️ No API key set. Go to Settings (⚙️) to enter your Gemini API key.";
+  const token = getApiKey();
+  if (!token) return "⚠️ No access token set. Go to Settings (⚙️) to enter your access token.";
   
   const parts = [{ text: prompt }];
   
@@ -17,25 +43,11 @@ export const generateGeminiResponse = async (prompt, systemInstruction, attachme
   }
   
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: parts }],
-          systemInstruction: { parts: [{ text: systemInstruction }] },
-          tools: [{ google_search: {} }]
-        }),
-      }
-    );
-    
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err?.error?.message || `API failed: ${response.statusText}`);
-    }
-    
-    const result = await response.json();
+    const result = await proxyFetch(GEMINI_TEXT_ENDPOINT, {
+      contents: [{ parts }],
+      systemInstruction: { parts: [{ text: systemInstruction }] },
+      tools: [{ google_search: {} }],
+    });
     return result.candidates?.[0]?.content?.parts?.[0]?.text || "No response.";
   } catch (error) {
     console.error("Text Gen Error:", error);
@@ -44,25 +56,14 @@ export const generateGeminiResponse = async (prompt, systemInstruction, attachme
 };
 
 export const generateImagenImage = async (prompt) => {
-  const apiKey = getApiKey();
-  if (!apiKey) return null;
+  const token = getApiKey();
+  if (!token) return null;
   
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          instances: [{ prompt: prompt }],
-          parameters: { sampleCount: 1, aspectRatio: "16:9" } 
-        }),
-      }
-    );
-    
-    if (!response.ok) throw new Error(`Image API failed: ${response.statusText}`);
-    
-    const result = await response.json();
+    const result = await proxyFetch(GEMINI_IMAGE_ENDPOINT, {
+      instances: [{ prompt }],
+      parameters: { sampleCount: 1, aspectRatio: "16:9" },
+    });
     const base64 = result.predictions?.[0]?.bytesBase64Encoded;
     return base64 ? `data:image/png;base64,${base64}` : null;
   } catch (error) {
