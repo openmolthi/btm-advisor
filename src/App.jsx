@@ -31,6 +31,7 @@ import {
   OTHER_SAP_OPTIONS,
   OTHER_NONSAP_OPTIONS
 } from './lib/constants';
+import { useDealState } from './hooks/useDealState';
 
 // Component imports
 import ToastContainer from './components/ToastContainer';
@@ -69,29 +70,28 @@ export default function App() {
   const [expandedSection, setExpandedSection] = useState({ core: true, compass: false, compassDetails: false, landscape: false, details: true });
   const toggleSection = (key) => setExpandedSection(prev => ({ ...prev, [key]: !prev[key] }));
 
-  // Input State
-  const [selectedIndustry, setSelectedIndustry] = useState([]);
-  const [selectedProcess, setSelectedProcess] = useState([]);
-  const [selectedValue, setSelectedValue] = useState([]);
-  const [selectedCapability, setSelectedCapability] = useState([]);
-
-  // Context Compass summary shows automatically but details stay collapsed
-  const [additionalContext, setAdditionalContext] = useState("");
-  const [attachments, setAttachments] = useState([]);
-  const [isRise, setIsRise] = useState(false);
-  const [adoptionRelated, setAdoptionRelated] = useState({ signavio: false, leanix: false, walkme: false });
-  const [erpSystem, setErpSystem] = useState({ s4: false, ecc: false, nonSap: false });
-  const [otherSap, setOtherSap] = useState("");
-  const [otherNonSap, setOtherNonSap] = useState("");
-  const [stakeholders, setStakeholders] = useState([]);
-  const [stakeholderDraft, setStakeholderDraft] = useState({ name: '', title: '', role: 'Economic Buyer', access: 'unknown', budgetConfirmed: false });
-  const addStakeholder = () => {
-    if (!stakeholderDraft.name.trim()) return;
-    setStakeholders(prev => [...prev, { ...stakeholderDraft, id: Date.now() }]);
-    setStakeholderDraft({ name: '', title: '', role: 'Economic Buyer', access: 'unknown', budgetConfirmed: false });
-  };
-  const removeStakeholder = (id) => setStakeholders(prev => prev.filter(s => s.id !== id));
-  const [debriefText, setDebriefText] = useState("");
+  // Deal State (inputs, stakeholders, timeline, attachments)
+  const deal = useDealState(addToast);
+  const {
+    selectedIndustry, setSelectedIndustry,
+    selectedProcess, setSelectedProcess,
+    selectedValue, setSelectedValue,
+    selectedCapability, setSelectedCapability,
+    additionalContext, setAdditionalContext,
+    attachments, setAttachments,
+    isRise, setIsRise,
+    adoptionRelated, setAdoptionRelated,
+    erpSystem, setErpSystem,
+    otherSap, setOtherSap,
+    otherNonSap, setOtherNonSap,
+    stakeholders, setStakeholders,
+    stakeholderDraft, setStakeholderDraft,
+    debriefText, setDebriefText,
+    dealTimeline,
+    fileInputRef,
+    addStakeholder, removeStakeholder, cycleMilestone,
+    handleFileSelect, removeAttachment,
+  } = deal;
   const [isExtractingDebrief, setIsExtractingDebrief] = useState(false);
 
   // Output State
@@ -109,32 +109,6 @@ export default function App() {
   });
   const [isGenerating, setIsGenerating] = useState(false);
   const [isChatTyping, setIsChatTyping] = useState(false);
-
-  // Deal Timeline State
-  const DEFAULT_MILESTONES = [
-    { label: 'Discovery', status: 'pending' },
-    { label: 'Qualification', status: 'pending' },
-    { label: 'Demo', status: 'pending' },
-    { label: 'Proposal', status: 'pending' },
-    { label: 'Negotiation', status: 'pending' },
-    { label: 'Close', status: 'pending' },
-  ];
-  const [dealTimeline, setDealTimeline] = useState(() => {
-    const saved = localStorage.getItem('btm_deal_timeline');
-    return saved ? JSON.parse(saved) : DEFAULT_MILESTONES;
-  });
-
-  React.useEffect(() => {
-    localStorage.setItem('btm_deal_timeline', JSON.stringify(dealTimeline));
-  }, [dealTimeline]);
-
-  const cycleMilestone = (index) => {
-    setDealTimeline(prev => prev.map((m, i) => {
-      if (i !== index) return m;
-      const next = m.status === 'pending' ? 'active' : m.status === 'active' ? 'done' : 'pending';
-      return { ...m, status: next };
-    }));
-  };
 
   // Save to localStorage whenever content changes
   React.useEffect(() => {
@@ -188,7 +162,6 @@ export default function App() {
   const [confirmConfig, setConfirmConfig] = useState({ isOpen: false, title: "", message: "", onConfirm: () => {} });
 
   // Refs
-  const fileInputRef = useRef(null);
   const outputSectionRef = useRef(null);
   const valuePanelRef = useRef(null);
   const objectionPanelRef = useRef(null);
@@ -216,52 +189,12 @@ export default function App() {
     return `${config.valueMethodology}\n\n${config.marketingVoice}\n\nROLE: ${roleInstruction}\n\nIMPORTANT: Respond in ${selectedLanguage}.`;
   };
 
-  const handleFileSelect = (e) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      const reader = new FileReader();
-      reader.onload = (event) => { 
-        setAttachments(prev => [...prev, { name: file.name, type: file.type, data: event.target.result }]); 
-        addToast(`Attached ${file.name}`, 'success');
-      };
-      reader.readAsDataURL(file);
-    }
-    e.target.value = null;
-  };
-
-  const removeAttachment = (index) => { 
-    setAttachments(prev => prev.filter((_, i) => i !== index)); 
-  };
-
   const copyToClipboard = (text) => { 
     navigator.clipboard.writeText(text); 
     addToast(t(selectedLanguage, "actions", "copy"), "success"); 
   };
 
-  const clearAll = () => { 
-    triggerConfirm(t(selectedLanguage, "confirmReset"), t(selectedLanguage, "confirmResetMsg"), () => {
-      setSelectedIndustry([]); 
-      setSelectedProcess([]); 
-      setSelectedValue([]); 
-      setSelectedCapability([]); 
-      setAdditionalContext(""); 
-      setCoachingContent(""); 
-      setBriefContent(""); 
-      setChatMessages([]); 
-      setAttachments([]); 
-      setIsRise(false); 
-      setErpSystem({ s4: false, ecc: false, nonSap: false }); 
-      setOtherSap(""); 
-      setOtherNonSap(""); 
-      setAdoptionRelated({ signavio: false, leanix: false, walkme: false }); 
-      setDealTimeline(DEFAULT_MILESTONES);
-      localStorage.removeItem('btm_deal_timeline');
-      localStorage.removeItem('btm_coaching_content');
-      localStorage.removeItem('btm_brief_content');
-      localStorage.removeItem('btm_chat_messages');
-      addToast("All fields reset", "info");
-    });
-  };
+  const clearAll = () => deal.clearAll(triggerConfirm, setCoachingContent, setBriefContent, setChatMessages, t, selectedLanguage);
 
   const clearHistory = () => {
     triggerConfirm(t(selectedLanguage, "clearHistory"), "Clear all coaching content, briefs, and chat history?", () => {
@@ -275,89 +208,8 @@ export default function App() {
     });
   };
 
-  const exportDeal = () => {
-    const deal = {
-      version: 1,
-      exportedAt: new Date().toISOString(),
-      context: { selectedIndustry, selectedProcess, selectedValue, selectedCapability, additionalContext, isRise, erpSystem, otherSap, otherNonSap, adoptionRelated, stakeholders },
-      content: { coachingContent, briefContent, chatMessages },
-      dealTimeline,
-    };
-    const blob = new Blob([JSON.stringify(deal, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `deal-${selectedIndustry[0] || 'untitled'}-${new Date().toISOString().slice(0,10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    addToast("Deal exported!", "success");
-  };
-
-  const importDeal = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json,.pdf,.txt,.doc,.docx,.md';
-    input.onchange = (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      
-      if (file.name.endsWith('.json')) {
-        // Structured deal import
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          try {
-            const deal = JSON.parse(ev.target.result);
-            if (deal.context) {
-              setSelectedIndustry(deal.context.selectedIndustry || []);
-              setSelectedProcess(deal.context.selectedProcess || []);
-              setSelectedValue(deal.context.selectedValue || []);
-              setSelectedCapability(deal.context.selectedCapability || []);
-              setAdditionalContext(deal.context.additionalContext || '');
-              setIsRise(deal.context.isRise || false);
-              setErpSystem(deal.context.erpSystem || { s4: false, ecc: false, nonSap: false });
-              setOtherSap(deal.context.otherSap || '');
-              setOtherNonSap(deal.context.otherNonSap || '');
-              setAdoptionRelated(deal.context.adoptionRelated || { signavio: false, leanix: false, walkme: false });
-              setStakeholders(deal.context.stakeholders || []);
-            }
-            if (deal.content) {
-              setCoachingContent(deal.content.coachingContent || '');
-              setBriefContent(deal.content.briefContent || '');
-              setChatMessages(deal.content.chatMessages || []);
-            }
-            if (deal.dealTimeline) {
-              setDealTimeline(deal.dealTimeline);
-            }
-            addToast(`Deal imported: ${deal.context?.selectedIndustry?.[0] || 'untitled'}`, "success");
-          } catch {
-            addToast("Failed to parse JSON file", "error");
-          }
-        };
-        reader.readAsText(file);
-      } else if (file.type === 'application/pdf') {
-        // PDF — read as base64 and add as attachment + context
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          const base64 = ev.target.result;
-          setAttachments(prev => [...prev, { name: file.name, type: file.type, data: base64 }]);
-          setAdditionalContext(prev => prev ? prev + `\n\n[Imported file: ${file.name}]` : `[Imported file: ${file.name}]`);
-          addToast(`PDF attached: ${file.name} — use "Give me ideas" to analyze`, "success");
-        };
-        reader.readAsDataURL(file);
-      } else {
-        // Text/markdown/other — read as text and add to additional context
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          const text = ev.target.result;
-          const truncated = text.length > 5000 ? text.substring(0, 5000) + '\n\n[...truncated]' : text;
-          setAdditionalContext(prev => prev ? prev + '\n\n--- Imported: ' + file.name + ' ---\n' + truncated : '--- Imported: ' + file.name + ' ---\n' + truncated);
-          addToast(`Content imported from ${file.name}`, "success");
-        };
-        reader.readAsText(file);
-      }
-    };
-    input.click();
-  };
+  const exportDeal = () => deal.exportDeal(coachingContent, briefContent, chatMessages);
+  const importDeal = () => deal.importDeal(setCoachingContent, setBriefContent, setChatMessages);
 
   const copyFullDeal = () => {
     const meddicScores = calculateMeddicScores({ selectedIndustry, selectedProcess, selectedValue, selectedCapability, additionalContext, isRise, erpSystem, adoptionRelated, stakeholders, coachingContent, briefContent });
