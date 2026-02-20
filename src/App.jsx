@@ -14,6 +14,12 @@ import { generateGeminiResponse, generateImagenImage } from './lib/api';
 import { calculateMeddicScores } from './lib/meddic';
 import { glossary } from './lib/glossary';
 import { parseAIJson } from './lib/parseAIJson';
+import {
+  smartStartPrompt, giveIdeasPrompt, generateBriefPrompt, chatPrompt,
+  extractDebriefPrompt, emailPrompts, objectionsPrompt, competitorPrompt,
+  valueStrategyPrompts, stakeholderMapPrompt, signavioBpmnPrompt,
+  leanixDataPrompt, leanixImagePrompt, agendaPrompt
+} from './lib/prompts';
 import { 
   DEFAULT_VALUE_METHODOLOGY, 
   DEFAULT_MARKETING_VOICE, 
@@ -155,18 +161,7 @@ export default function App() {
   const handleSmartStart = async () => {
     if (!smartStartInput.trim()) return;
     setSmartStartLoading(true);
-    const prompt = `Research this company/context and suggest the best SAP deal positioning: "${smartStartInput}"
-
-Based on public knowledge about this company, return ONLY valid JSON (no markdown, no code fences):
-{
-  "industries": ["pick 1-2 from: Automotive, Banking, Chemicals, Consumer Products, Healthcare, High Tech, Industrial Manufacturing, Insurance, Life Sciences, Logistics, Media, Mining, Oil & Gas, Pharmaceuticals, Professional Services, Public Sector, Retail, Telecommunications, Transportation, Utilities"],
-  "processes": ["pick 2-3 from: Acquire to Retire, Campaign to Lead, Claims to Resolution, Forecast to Fulfill, Hire to Retire, Idea to Market, Incident to Resolution, Lead to Cash, Meter to Cash, Order to Cash, Plan to Produce, Procure to Pay, Quote to Cash, Record to Report, Service to Cash"],
-  "valueDrivers": ["pick 2-3 from: Reduce Days Sales Outstanding, Improve Net Working Capital, Reduce Total Logistics Cost, Reduce Finance Cost, Reduce Sales Cost, Reduce Manufacturing Cost, Reduce Asset Maintenance Cost, Reduce Unplanned Downtime, Reduce Waste Generation Cost, Reduce Service & Support Cost, Improve Procurement FTE Productivity, Reduce Uncollectible Accounts Receivable, Improve On-Time Delivery, Improve Customer Satisfaction, Increase Forecast Accuracy, Improve Compliance, Increase First-Time-Right, Reduce Cycle Time, Increase Automation Rate"],
-  "capabilities": ["pick 2-3 from: SAP Signavio - all, SAP LeanIX - all, WalkMe - all, Process Modeling, Process Mining, Journey Modeling, Application Portfolio Mgmt, Tech Risk Mgmt, Digital Adoption, Guided Workflows"],
-  "additionalContext": "2-3 sentences about this company's key challenges, digital transformation status, and relevant SAP opportunities",
-  "isRise": true/false,
-  "erpSystem": {"s4": true/false, "ecc": true/false, "nonSap": true/false}
-}`;
+    const prompt = smartStartPrompt(smartStartInput);
     const text = await generateGeminiResponse(prompt, constructSystemInstruction("SAP Industry Research Analyst"), []);
     const parsed = parseAIJson(text);
     if (parsed.ok) {
@@ -406,7 +401,7 @@ Based on public knowledge about this company, return ONLY valid JSON (no markdow
     setCoachingContent(""); 
     setExpandedSection(prev => ({ ...prev, core: false, landscape: false, details: false }));
     scrollToOutput();
-    const prompt = `CONTEXT: ${getContextString()}\nTASK: Generate 3 high-impact coaching ideas for this deal. Use this exact markdown format for each:\n\n## 1. [Bold Headline]\n\n**Why it matters:** 1-2 sentences.\n\n**Talk track:** 2-3 sentences of what to actually say.\n\n---\n\n(repeat for ideas 2 and 3)\n\nUse --- between ideas. Use **bold** for key terms. Keep total under 400 words. No preamble before idea 1.\n${config.aiGuardrails}`;
+    const prompt = giveIdeasPrompt(getContextString(), config.aiGuardrails);
     const text = await generateGeminiResponse(prompt, constructSystemInstruction("Expert Solution Advisor Coach"), attachments);
     setCoachingContent(text); 
     setIsGenerating(false);
@@ -416,7 +411,7 @@ Based on public knowledge about this company, return ONLY valid JSON (no markdow
     setIsGenerating(true);
     setActiveTab('brief');
     setBriefContent("");
-    const prompt = `CONTEXT: ${getContextString()}\nCOACHING NOTES: ${coachingContent}\nTASK: Create a formal executive brief based on the above. Structure it professionally.\n${config.aiGuardrails}`;
+    const prompt = generateBriefPrompt(getContextString(), coachingContent, config.aiGuardrails);
     const text = await generateGeminiResponse(prompt, constructSystemInstruction("Executive Communications Expert"), attachments);
     setBriefContent(text);
     setIsGenerating(false);
@@ -426,7 +421,7 @@ Based on public knowledge about this company, return ONLY valid JSON (no markdow
   const handleChat = async (message) => {
     setChatMessages(prev => [...prev, { role: 'user', text: message }]);
     setIsChatTyping(true);
-    const prompt = `CONTEXT: ${getContextString()}\nCHAT HISTORY: ${JSON.stringify(chatMessages.slice(-5))}\nUSER MESSAGE: ${message}\n${config.aiGuardrails}`;
+    const prompt = chatPrompt(getContextString(), chatMessages.slice(-5), message, config.aiGuardrails);
     const text = await generateGeminiResponse(prompt, constructSystemInstruction("Helpful Coach"), attachments);
     setChatMessages(prev => [...prev, { role: 'model', text: text }]);
     setIsChatTyping(false);
@@ -437,20 +432,7 @@ Based on public knowledge about this company, return ONLY valid JSON (no markdow
     if (!debriefText.trim()) return;
     setIsExtractingDebrief(true);
     try {
-      const prompt = `Extract structured deal intelligence from these meeting notes/debrief:
-
-"${debriefText}"
-
-Return ONLY valid JSON:
-{
-  "stakeholders": [{"name": "...", "title": "...", "role": "Economic Buyer|Champion|Decision Maker|Influencer|Blocker", "access": "direct|indirect|none"}],
-  "metrics": "quantifiable outcomes or KPIs mentioned (or empty string)",
-  "pain": "business pain points mentioned (or empty string)", 
-  "timeline": "timeline, deadlines, phases mentioned (or empty string)",
-  "criteria": "decision criteria, requirements mentioned (or empty string)",
-  "summary": "2-3 sentence summary of key takeaways"
-}
-Only include stakeholders explicitly mentioned by name. If no names found, return empty array.`;
+      const prompt = extractDebriefPrompt(debriefText);
 
       const response = await generateGeminiResponse(prompt, "Extract deal intelligence. Return only valid JSON.", []);
       let cleanJson = response.trim().replace(/```json\n?/g, '').replace(/```\n?/g, '');
@@ -496,11 +478,7 @@ Only include stakeholders explicitly mentioned by name. If no names found, retur
       setTimeout(() => emailPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
       const ctx = getContextString();
       const sysInstr = constructSystemInstruction("Expert B2B Sales Copywriter");
-      const variants = [
-        { key: 'intro', prompt: `Context:\n${ctx}\n\nWrite a short cold outreach email (3-4 sentences max). Be curiosity-driven, not salesy. Return ONLY valid JSON, no markdown, no code fences:\n{"subject":"...","body":"...","tone":"Conversational"}` },
-        { key: 'followup', prompt: `Context:\n${ctx}\n\nWrite a short meeting follow-up email (4-5 sentences). Reference the deal context, propose clear next steps. Return ONLY valid JSON, no markdown, no code fences:\n{"subject":"...","body":"...","tone":"Formal"}` },
-        { key: 'valuehook', prompt: `Context:\n${ctx}\n\nWrite a short value-hook email (3-4 sentences) sharing a specific insight or proof point to re-engage a prospect. Return ONLY valid JSON, no markdown, no code fences:\n{"subject":"...","body":"...","tone":"Executive"}` },
-      ];
+      const variants = emailPrompts(ctx);
       variants.forEach(async ({ key, prompt }) => {
         setEmailLoading(prev => ({ ...prev, [key]: true }));
         const text = await generateGeminiResponse(prompt, sysInstr, attachments);
@@ -549,18 +527,7 @@ Only include stakeholders explicitly mentioned by name. If no names found, retur
     }
     if (willShow && objectionCards.length === 0) {
       setObjectionLoading(true);
-      const prompt = `Context:\n${getContextString()}\n\nList exactly 4 likely customer objections for this deal. For each objection return ONLY valid JSON array format, no markdown, no code fences:
-[
-  {
-    "objection": "short objection headline",
-    "severity": "high|medium|low",
-    "why": "why the customer says this (1 sentence)",
-    "realMeaning": "what they really mean (1 sentence)", 
-    "rebuttal": "your recommended response (2-3 sentences)",
-    "proofPoint": "specific reference, case study, or data point (1 sentence)"
-  }
-]
-Return ONLY the JSON array, nothing else.`;
+      const prompt = objectionsPrompt(getContextString(), config.aiGuardrails);
       const text = await generateGeminiResponse(prompt, constructSystemInstruction("Sales Objection Handler Expert"), attachments);
       const parsed = parseAIJson(text);
       if (parsed.ok) {
@@ -583,7 +550,7 @@ Return ONLY the JSON array, nothing else.`;
     setIsModalLoading(true); 
     setModalContent(""); 
     setModalMedia(null); 
-    const text = await generateGeminiResponse(`Context:\n${getContextString()}\n\nIdentify competitors (Direct & Status Quo).\n${config.aiGuardrails}`, constructSystemInstruction("Competitive Intelligence Expert"), attachments); 
+    const text = await generateGeminiResponse(competitorPrompt(getContextString(), config.aiGuardrails), constructSystemInstruction("Competitive Intelligence Expert"), attachments); 
     setModalContent(text); 
     setIsModalLoading(false); 
   };
@@ -597,11 +564,7 @@ Return ONLY the JSON array, nothing else.`;
       const ctx = getContextString();
       const sysInstr = constructSystemInstruction("Sales Strategist");
       
-      const strategies = [
-        { key: 'deepen', prompt: `CONTEXT: ${ctx}\nTASK: Propose strategies to DEEPEN the deal value by expanding the SAME solutions already selected to more processes, departments, or geographies. Be specific about which areas to expand into and the incremental value. Keep it concise (3-5 bullet points max).\n${config.aiGuardrails}` },
-        { key: 'broaden', prompt: `CONTEXT: ${ctx}\nTASK: Propose strategies to BROADEN the deal. Broadening means expanding the footprint across THREE dimensions, all within SAP's Integrated Toolchain (Signavio, LeanIX, WalkMe, Cloud ALM, SAP Build, Business Transformation Center, Digital Discovery Assessment, Tricentis). Do NOT suggest solutions outside the Integrated Toolchain (no Concur, SuccessFactors, Ariba, etc.).\n\nDimensions to explore:\n1. **More Processes** — apply existing toolchain to additional business processes (e.g., from Order-to-Cash to Procure-to-Pay)\n2. **More Org Units / Countries** — roll out to additional subsidiaries, business units, or geographies\n3. **More Toolchain Components** — add complementary ITC products not yet selected\n\nIdentify 2-3 concrete broadening opportunities. Keep it concise (3-5 bullet points max).\n${config.aiGuardrails}` },
-        { key: 'phase', prompt: `CONTEXT: ${ctx}\nTASK: Propose a PHASED transformation roadmap that combines deepening current solutions AND broadening to new ones over 3 phases (Quick Wins 0-6mo, Scale 6-18mo, Transform 18-36mo). Keep each phase to 2-3 bullet points.\n${config.aiGuardrails}` },
-      ];
+      const strategies = valueStrategyPrompts(ctx, config.aiGuardrails);
       
       strategies.forEach(async ({ key, prompt }) => {
         setValueLoading(prev => ({ ...prev, [key]: true }));
@@ -626,7 +589,7 @@ Return ONLY the JSON array, nothing else.`;
     setIsModalLoading(true);
     setModalContent("");
     setModalMedia(null);
-    const prompt = `CONTEXT: ${getContextString()}\nTASK: Create a stakeholder map. Identify key personas (CIO, CFO, etc.), their likely concerns, and how to address them.\n${config.aiGuardrails}`;
+    const prompt = stakeholderMapPrompt(getContextString(), config.aiGuardrails);
     const text = await generateGeminiResponse(prompt, constructSystemInstruction("Change Management Expert"), attachments);
     setModalContent(text);
     setIsModalLoading(false);
@@ -637,7 +600,7 @@ Return ONLY the JSON array, nothing else.`;
     setIsModalLoading(true);
     setModalContent("");
     setModalMedia(null);
-    const prompt = `CONTEXT: ${getContextString()}\nTASK: Generate a realistic, industry-specific BPMN 2.0 process flow for the selected Process Domain. Use synthetic but plausible data that reflects the customer's industry (e.g., a retailer would have POS integration, inventory replenishment; a bank would have KYC checks, credit scoring). Include: Start Event → Tasks → Gateways → End Event, with lane/pool suggestions for relevant departments. Make it feel like a real customer's process, not a generic template.\n${config.aiGuardrails}`;
+    const prompt = signavioBpmnPrompt(getContextString(), config.aiGuardrails);
     const text = await generateGeminiResponse(prompt, constructSystemInstruction("Process Architect"), attachments);
     setModalContent(text);
     setIsModalLoading(false);
@@ -649,27 +612,7 @@ Return ONLY the JSON array, nothing else.`;
     setModalContent(""); 
     setModalMedia(null);
     
-    const dataPrompt = `
-      Act as a LeanIX Data Architect. Based on the user context: ${getContextString()}, generate a comprehensive, industry-specific IT landscape in valid JSON format suitable for LeanIX Inventory import.
-
-      Required JSON Structure (LDIF-compatible):
-      {
-        "businessCapabilities": [ { "name": "...", "description": "..." } ],
-        "techCategories": [ { "name": "...", "description": "..." } ],
-        "providers": [ "Provider Name 1", "Provider Name 2" ],
-        "applications": [ { "name": "...", "description": "...", "applicationCategory": "...", "linkedCapability": "..." } ],
-        "itComponents": [ { "name": "...", "description": "...", "linkedApplication": "...", "provider": "...", "techCategory": "..." } ],
-        "interfaces": [ { "name": "...", "description": "...", "providerApp": "...", "consumerApp": "...", "dataObjects": ["..."] } ],
-        "dataObjects": [ { "name": "...", "description": "..." } ]
-      }
-
-      Guidelines:
-      1. **Industry-Specific Realism**: Generate capabilities, applications, and components that are plausible for the customer's industry. Examples: Retail → POS Systems, Merchandise Planning, Supply Chain Visibility; Banking → Mortgage Origination, Credit Risk Engine, Core Banking; Manufacturing → MES, Quality Management, Shop Floor Integration.
-      2. **Relationships**: Link Apps to Capabilities, IT Components to Apps/Providers/Tech Categories, Interfaces to Provider/Consumer Apps and Data Objects.
-      3. **Providers**: Use a realistic mix of vendors the customer's industry would actually have (SAP, Microsoft, Salesforce, industry-specific vendors, cloud providers).
-      4. **Format**: Return ONLY raw JSON.
-      ${config.aiGuardrails}
-    `;
+    const dataPrompt = leanixDataPrompt(getContextString(), config.aiGuardrails);
     
     try {
       const jsonStr = await generateGeminiResponse(dataPrompt, "Data Architect", attachments);
@@ -726,14 +669,7 @@ Return ONLY the JSON array, nothing else.`;
 
       const ldifContent = JSON.stringify({ patches }, null, 2);
       
-      const imagePrompt = `
-      Create a high-quality, layered IT architecture diagram (Visual Meta Model) on a white background.
-      Layer 1 (Top): Business Capabilities. Draw ${data.businessCapabilities.length} blue rectangular nodes labeled: ${data.businessCapabilities.map(b=>b.name).join(', ')}.
-      Layer 2: Applications. Draw ${data.applications.length} green rectangular nodes labeled: ${data.applications.map(a=>a.name).join(', ')}. Connect these to the capabilities above.
-      Layer 3: IT Components. Draw ${data.itComponents.length} orange nodes labeled: ${data.itComponents.map(i=>i.name).join(', ')}. Connect to apps above.
-      Layer 4 (Bottom): Providers. Draw small grey boxes for: ${data.providers.join(', ')}.
-      Style: Clean corporate vector art, distinct layers, legible text, directional lines showing support flow (bottom-up).
-      `;
+      const imagePrompt = leanixImagePrompt(data);
       
       const imageUrl = await generateImagenImage(imagePrompt);
       
@@ -752,7 +688,7 @@ Return ONLY the JSON array, nothing else.`;
     setIsModalLoading(true); 
     setModalContent(""); 
     setModalMedia(null); 
-    const text = await generateGeminiResponse(`Context:\n${getContextString()}\n\nDesign ${duration} Workshop Agenda.`, constructSystemInstruction("Expert Facilitator"), attachments); 
+    const text = await generateGeminiResponse(agendaPrompt(getContextString(), duration), constructSystemInstruction("Expert Facilitator"), attachments); 
     setModalContent(text); 
     setIsModalLoading(false); 
   };
