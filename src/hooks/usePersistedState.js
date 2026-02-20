@@ -1,17 +1,21 @@
 import { useState, useEffect } from 'react';
 
 /**
- * useState wrapper with automatic localStorage persistence.
+ * useState wrapper that syncs to localStorage.
+ * Reads initial value from localStorage, writes on every change.
+ * 
  * @param {string} key - localStorage key
- * @param {any} defaultValue - default value if nothing in storage
- * @returns {[any, Function]} - [state, setState]
+ * @param {*} defaultValue - fallback if nothing stored
+ * @param {boolean} isJson - whether to JSON.parse/stringify (default: true for objects/arrays)
  */
 export function usePersistedState(key, defaultValue) {
-  const [state, setState] = useState(() => {
+  const isJson = typeof defaultValue === 'object' || Array.isArray(defaultValue);
+  
+  const [value, setValue] = useState(() => {
     try {
       const saved = localStorage.getItem(key);
       if (saved === null) return defaultValue;
-      return JSON.parse(saved);
+      return isJson ? JSON.parse(saved) : saved;
     } catch {
       return defaultValue;
     }
@@ -19,11 +23,20 @@ export function usePersistedState(key, defaultValue) {
 
   useEffect(() => {
     try {
-      localStorage.setItem(key, JSON.stringify(state));
+      if (isJson) {
+        localStorage.setItem(key, JSON.stringify(value));
+      } else {
+        localStorage.setItem(key, value);
+      }
     } catch {
-      // Storage full or unavailable
+      // localStorage full or unavailable
     }
-  }, [key, state]);
+  }, [key, value, isJson]);
 
-  return [state, setState];
+  const clear = () => {
+    localStorage.removeItem(key);
+    setValue(defaultValue);
+  };
+
+  return [value, setValue, clear];
 }
