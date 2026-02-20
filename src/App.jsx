@@ -13,6 +13,7 @@ import { t } from './lib/i18n';
 import { generateGeminiResponse, generateImagenImage } from './lib/api';
 import { calculateMeddicScores } from './lib/meddic';
 import { glossary } from './lib/glossary';
+import { parseAIJson } from './lib/parseAIJson';
 import { 
   DEFAULT_VALUE_METHODOLOGY, 
   DEFAULT_MARKETING_VOICE, 
@@ -167,9 +168,9 @@ Based on public knowledge about this company, return ONLY valid JSON (no markdow
   "erpSystem": {"s4": true/false, "ecc": true/false, "nonSap": true/false}
 }`;
     const text = await generateGeminiResponse(prompt, constructSystemInstruction("SAP Industry Research Analyst"), []);
-    try {
-      const cleaned = text.replace(/```json?\n?/g, '').replace(/```/g, '').trim();
-      const result = JSON.parse(cleaned);
+    const parsed = parseAIJson(text);
+    if (parsed.ok) {
+      const result = parsed.data;
       if (result.industries) setSelectedIndustry(result.industries);
       if (result.processes) setSelectedProcess(result.processes);
       if (result.valueDrivers) setSelectedValue(result.valueDrivers);
@@ -179,7 +180,7 @@ Based on public knowledge about this company, return ONLY valid JSON (no markdow
       if (result.erpSystem) setErpSystem({ s4: result.erpSystem.s4 || false, ecc: result.erpSystem.ecc || false, nonSap: result.erpSystem.nonSap || false });
       setSmartStartInput('');
       addToast(`Smart Start: ${smartStartInput} — context loaded!`, "success");
-    } catch {
+    } else {
       addToast("Couldn't parse research results. Try again.", "error");
     }
     setSmartStartLoading(false);
@@ -503,10 +504,10 @@ Only include stakeholders explicitly mentioned by name. If no names found, retur
       variants.forEach(async ({ key, prompt }) => {
         setEmailLoading(prev => ({ ...prev, [key]: true }));
         const text = await generateGeminiResponse(prompt, sysInstr, attachments);
-        try {
-          const cleaned = text.replace(/```json?\n?/g, '').replace(/```/g, '').trim();
-          setEmailCards(prev => ({ ...prev, [key]: JSON.parse(cleaned) }));
-        } catch {
+        const parsed = parseAIJson(text);
+        if (parsed.ok) {
+          setEmailCards(prev => ({ ...prev, [key]: parsed.data }));
+        } else {
           setEmailCards(prev => ({ ...prev, [key]: { subject: 'Email draft', body: text, tone: 'N/A' } }));
         }
         setEmailLoading(prev => ({ ...prev, [key]: false }));
@@ -561,11 +562,10 @@ Only include stakeholders explicitly mentioned by name. If no names found, retur
 ]
 Return ONLY the JSON array, nothing else.`;
       const text = await generateGeminiResponse(prompt, constructSystemInstruction("Sales Objection Handler Expert"), attachments);
-      try {
-        const cleaned = text.replace(/```json?\n?/g, '').replace(/```/g, '').trim();
-        const parsed = JSON.parse(cleaned);
-        setObjectionCards(parsed);
-      } catch {
+      const parsed = parseAIJson(text);
+      if (parsed.ok) {
+        setObjectionCards(parsed.data);
+      } else {
         setObjectionCards([{ objection: "Could not parse objections", severity: "low", why: text, realMeaning: "", rebuttal: "", proofPoint: "" }]);
       }
       setObjectionLoading(false);
@@ -675,11 +675,11 @@ Return ONLY the JSON array, nothing else.`;
       const jsonStr = await generateGeminiResponse(dataPrompt, "Data Architect", attachments);
       let data = { businessCapabilities: [], techCategories: [], providers: [], applications: [], itComponents: [], interfaces: [], dataObjects: [] };
       
-      try { 
-        const cleanJson = jsonStr.replace(/```json/g, '').replace(/```/g, '').trim();
-        data = JSON.parse(cleanJson); 
-      } catch(e) {
-        console.error("JSON Parse Error", e);
+      const parsedJson = parseAIJson(jsonStr);
+      if (parsedJson.ok) {
+        data = parsedJson.data;
+      } else {
+        console.error("JSON Parse Error");
         data = { businessCapabilities: [{name: "Core Business"}], applications: [{name: "ERP System", linkedCapability: "Core Business"}], itComponents: [], providers: [], interfaces: [], dataObjects: [], techCategories: [] };
       }
 
