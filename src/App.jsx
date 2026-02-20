@@ -28,6 +28,7 @@ import {
 } from './lib/constants';
 import { useDealState } from './hooks/useDealState';
 import { useModals } from './hooks/useModals';
+import { StakeholderList } from './components/StakeholderList';
 
 // Component imports
 import ToastContainer from './components/ToastContainer';
@@ -759,104 +760,13 @@ export default function App() {
                   />
 
                   {/* Key Stakeholders */}
-                  <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <h4 className="text-xs font-bold text-blue-800 uppercase tracking-wide mb-2 flex items-center gap-1">
-                      <Users size={12} /> Key Stakeholders
-                    </h4>
-                    {/* Existing stakeholders as chips */}
-                    {stakeholders.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mb-2">
-                        {stakeholders.map(s => {
-                          const roleColors = {
-                            'Economic Buyer': 'bg-purple-100 border-purple-300 text-purple-800',
-                            'Champion': 'bg-green-100 border-green-300 text-green-800',
-                            'Influencer': 'bg-blue-100 border-blue-300 text-blue-800',
-                            'Blocker': 'bg-red-100 border-red-300 text-red-800',
-                            'Decision Maker': 'bg-amber-100 border-amber-300 text-amber-800',
-                          };
-                          const accessIcon = s.access === 'direct' ? '●' : s.access === 'indirect' ? '◐' : '○';
-                          return (
-                            <div key={s.id} className={`flex items-center gap-1 border rounded-full px-2.5 py-1 text-xs font-bold ${roleColors[s.role] || 'bg-slate-100 border-slate-300 text-slate-700'}`}>
-                              <span title={`Access: ${s.access}`}>{accessIcon}</span>
-                              <span>{s.name}</span>
-                              {s.title && <span className="font-medium opacity-70">· {s.title}</span>}
-                              <span className="opacity-50">({s.role})</span>
-                              {s.budgetConfirmed && <span title="Budget confirmed">💰</span>}
-                              <button onClick={() => removeStakeholder(s.id)} className="ml-0.5 opacity-40 hover:opacity-100 transition-opacity">
-                                <X size={10} />
-                              </button>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                    {/* Add stakeholder row */}
-                    <div className="flex gap-1.5 items-end flex-wrap">
-                      <input
-                        type="text"
-                        value={stakeholderDraft.name}
-                        onChange={(e) => setStakeholderDraft(prev => ({ ...prev, name: e.target.value }))}
-                        onKeyDown={(e) => e.key === 'Enter' && addStakeholder()}
-                        placeholder="Name"
-                        className="border border-blue-300 rounded px-2 py-1.5 text-xs font-medium text-slate-900 focus:ring-1 focus:ring-blue-500 w-28"
-                      />
-                      <input
-                        type="text"
-                        value={stakeholderDraft.title}
-                        onChange={(e) => setStakeholderDraft(prev => ({ ...prev, title: e.target.value }))}
-                        onKeyDown={(e) => e.key === 'Enter' && addStakeholder()}
-                        placeholder="Title"
-                        className="border border-blue-300 rounded px-2 py-1.5 text-xs font-medium text-slate-900 focus:ring-1 focus:ring-blue-500 w-24"
-                      />
-                      <select
-                        value={stakeholderDraft.role}
-                        onChange={(e) => setStakeholderDraft(prev => ({ ...prev, role: e.target.value }))}
-                        className="border border-blue-300 rounded px-1.5 py-1.5 text-xs font-bold text-slate-700 focus:ring-1 focus:ring-blue-500 bg-white"
-                      >
-                        <option>Economic Buyer</option>
-                        <option>Champion</option>
-                        <option>Decision Maker</option>
-                        <option>Influencer</option>
-                        <option>Blocker</option>
-                      </select>
-                      <div className="flex items-center gap-0.5">
-                        {[{val: 'direct', label: '●', tip: 'Direct access'}, {val: 'indirect', label: '◐', tip: 'Indirect access'}, {val: 'none', label: '○', tip: 'No access'}].map(a => (
-                          <button
-                            key={a.val}
-                            title={a.tip}
-                            onClick={() => setStakeholderDraft(prev => ({ ...prev, access: a.val }))}
-                            className={`w-6 h-6 rounded text-xs font-bold transition-all ${
-                              stakeholderDraft.access === a.val
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-white border border-slate-300 text-slate-500 hover:border-blue-400'
-                            }`}
-                          >
-                            {a.label}
-                          </button>
-                        ))}
-                      </div>
-                      <label className="flex items-center gap-1 cursor-pointer" title="Budget confirmed">
-                        <input
-                          type="checkbox"
-                          checked={stakeholderDraft.budgetConfirmed}
-                          onChange={(e) => setStakeholderDraft(prev => ({ ...prev, budgetConfirmed: e.target.checked }))}
-                          className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-3.5 h-3.5"
-                        />
-                        <span className="text-xs font-bold text-slate-500">💰</span>
-                      </label>
-                      <button
-                        onClick={addStakeholder}
-                        disabled={!stakeholderDraft.name.trim()}
-                        className={`px-2.5 py-1.5 rounded text-xs font-bold transition-all ${
-                          stakeholderDraft.name.trim()
-                            ? 'bg-blue-600 text-white hover:bg-blue-700'
-                            : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                        }`}
-                      >
-                        + Add
-                      </button>
-                    </div>
-                  </div>
+                  <StakeholderList
+                    stakeholders={stakeholders}
+                    removeStakeholder={removeStakeholder}
+                    stakeholderDraft={stakeholderDraft}
+                    setStakeholderDraft={setStakeholderDraft}
+                    addStakeholder={addStakeholder}
+                  />
 
                   {/* Post-Meeting Debrief */}
                   <div className="mt-3 p-3 bg-indigo-50 border border-indigo-200 rounded-lg">
@@ -1048,72 +958,14 @@ export default function App() {
                       )}
                       
                       {/* Value Expansion Panel */}
-                      {showValuePanel && (
-                        <div ref={valuePanelRef} className="mt-6 border-t-2 border-purple-200 pt-4">
-                          <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-sm font-extrabold text-purple-800 flex items-center gap-2">
-                              <BarChart2 size={16} /> Value Expansion Strategies
-                            </h3>
-                            <button onClick={() => setShowValuePanel(false)} className="text-slate-400 hover:text-slate-600">
-                              <X size={16} />
-                            </button>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            {[
-                              { key: 'deepen', icon: '🔽', title: 'Deepen', subtitle: 'Expand current solutions to more areas',
-                                border: 'border-blue-200', bg: 'bg-blue-50/50', titleColor: 'text-blue-800',
-                                spinBorder: 'border-blue-200 border-t-blue-600',
-                                btnPrimary: 'bg-blue-600 hover:bg-blue-700', btnSecondary: 'border-blue-300 text-blue-700 hover:bg-blue-100' },
-                              { key: 'broaden', icon: '↔️', title: 'Broaden', subtitle: 'More processes, org units, or ITC components',
-                                border: 'border-green-200', bg: 'bg-green-50/50', titleColor: 'text-green-800',
-                                spinBorder: 'border-green-200 border-t-green-600',
-                                btnPrimary: 'bg-green-600 hover:bg-green-700', btnSecondary: 'border-green-300 text-green-700 hover:bg-green-100' },
-                              { key: 'phase', icon: '📅', title: 'Phase', subtitle: 'Combined roadmap over time',
-                                border: 'border-orange-200', bg: 'bg-orange-50/50', titleColor: 'text-orange-800',
-                                spinBorder: 'border-orange-200 border-t-orange-600',
-                                btnPrimary: 'bg-orange-600 hover:bg-orange-700', btnSecondary: 'border-orange-300 text-orange-700 hover:bg-orange-100' },
-                            ].map(({ key, icon, title, subtitle, border, bg, titleColor, spinBorder, btnPrimary, btnSecondary }) => (
-                              <div key={key} className={`border-2 ${border} rounded-lg ${bg} p-3 flex flex-col`}>
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="text-lg">{icon}</span>
-                                  <h4 className={`text-sm font-extrabold ${titleColor}`}>{title}</h4>
-                                </div>
-                                <p className="text-[10px] text-slate-500 mb-3">{subtitle}</p>
-                                <div className="flex-grow overflow-y-auto max-h-48 mb-3">
-                                  {valueLoading[key] ? (
-                                    <div className="flex items-center gap-2 text-xs text-slate-500">
-                                      <div className={`w-4 h-4 border-2 ${spinBorder} rounded-full animate-spin`}></div>
-                                      Analyzing...
-                                    </div>
-                                  ) : valueStrategies[key] ? (
-                                    <div className="prose prose-xs max-w-none text-xs">
-                                      <ReactMarkdown>{valueStrategies[key]}</ReactMarkdown>
-                                    </div>
-                                  ) : (
-                                    <p className="text-xs text-slate-400 italic">Generating...</p>
-                                  )}
-                                </div>
-                                {valueStrategies[key] && !valueLoading[key] && (
-                                  <div className="flex gap-1 mt-auto">
-                                    <button 
-                                      onClick={() => applyValueStrategy(valueStrategies[key], 'coaching')}
-                                      className={`flex-1 text-[10px] font-bold py-1.5 px-2 rounded ${btnPrimary} text-white transition-colors`}
-                                    >
-                                      Apply to Coaching
-                                    </button>
-                                    <button 
-                                      onClick={() => applyValueStrategy(valueStrategies[key], 'brief')}
-                                      className={`flex-1 text-[10px] font-bold py-1.5 px-2 rounded border ${btnSecondary} transition-colors`}
-                                    >
-                                      Apply to Brief
-                                    </button>
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                      <ValuePanel
+                        valuePanelRef={valuePanelRef}
+                        showValuePanel={showValuePanel}
+                        setShowValuePanel={setShowValuePanel}
+                        valueLoading={valueLoading}
+                        valueStrategies={valueStrategies}
+                        applyValueStrategy={applyValueStrategy}
+                      />
 
                       {(() => {
                       const meddicScores = calculateMeddicScores({
@@ -1196,97 +1048,19 @@ export default function App() {
                     })()}
 
                       {/* Objection Cards Panel */}
-                      {showObjectionPanel && (
-                        <div ref={objectionPanelRef} className="mt-6 border-t-2 border-orange-200 pt-4">
-                          <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-sm font-extrabold text-orange-800 flex items-center gap-2">
-                              <ShieldAlert size={16} /> Objection Battlecards
-                            </h3>
-                            <button onClick={() => { setShowObjectionPanel(false); setExpandedObjection(null); }} className="text-slate-400 hover:text-slate-600">
-                              <X size={16} />
-                            </button>
-                          </div>
-                          {objectionLoading ? (
-                            <div className="flex items-center gap-3 py-8 justify-center">
-                              <div className="w-5 h-5 border-2 border-orange-200 border-t-orange-600 rounded-full animate-spin"></div>
-                              <span className="text-sm text-slate-500 font-medium">Anticipating objections...</span>
-                            </div>
-                          ) : (
-                            <div className="space-y-3">
-                              {objectionCards.map((card, idx) => {
-                                const isExpanded = expandedObjection === idx;
-                                const severityStyles = {
-                                  high: { badge: 'bg-red-100 text-red-700 border-red-200', border: 'border-red-200', dot: '🔴' },
-                                  medium: { badge: 'bg-yellow-100 text-yellow-700 border-yellow-200', border: 'border-yellow-200', dot: '🟡' },
-                                  low: { badge: 'bg-green-100 text-green-700 border-green-200', border: 'border-green-200', dot: '🟢' },
-                                };
-                                const sev = severityStyles[card.severity] || severityStyles.medium;
-                                return (
-                                  <div key={idx} className={`border-2 ${sev.border} rounded-lg overflow-hidden transition-all`}>
-                                    <button
-                                      onClick={() => setExpandedObjection(isExpanded ? null : idx)}
-                                      className="w-full flex items-center justify-between p-3 hover:bg-slate-50 transition-colors text-left"
-                                    >
-                                      <div className="flex items-center gap-3">
-                                        <span className="text-sm">{sev.dot}</span>
-                                        <span className="text-sm font-bold text-slate-800">{card.objection}</span>
-                                      </div>
-                                      <div className="flex items-center gap-2">
-                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${sev.badge}`}>
-                                          {card.severity?.toUpperCase()}
-                                        </span>
-                                        {isExpanded ? <ChevronDown size={14} className="text-slate-400"/> : <ChevronRight size={14} className="text-slate-400"/>}
-                                      </div>
-                                    </button>
-                                    {isExpanded && (
-                                      <div className="px-3 pb-3 space-y-3 border-t border-slate-100 bg-slate-50/50">
-                                        <div className="grid grid-cols-2 gap-3 mt-3">
-                                          <div>
-                                            <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">Why they say it</p>
-                                            <p className="text-xs text-slate-700">{card.why}</p>
-                                          </div>
-                                          <div>
-                                            <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">What they really mean</p>
-                                            <p className="text-xs text-slate-700">{card.realMeaning}</p>
-                                          </div>
-                                        </div>
-                                        <div>
-                                          <p className="text-[10px] font-bold text-green-700 uppercase mb-1">💬 Your Response</p>
-                                          <p className="text-xs text-slate-800 bg-green-50 border border-green-200 rounded p-2">{card.rebuttal}</p>
-                                        </div>
-                                        <div>
-                                          <p className="text-[10px] font-bold text-blue-700 uppercase mb-1">📊 Proof Point</p>
-                                          <p className="text-xs text-slate-700 bg-blue-50 border border-blue-200 rounded p-2">{card.proofPoint}</p>
-                                        </div>
-                                        <div className="flex gap-2 pt-1">
-                                          <button
-                                            onClick={() => practiceObjection(card)}
-                                            className="flex-1 text-[10px] font-bold py-1.5 px-2 rounded bg-orange-600 hover:bg-orange-700 text-white transition-colors flex items-center justify-center gap-1"
-                                          >
-                                            <MessageSquare size={10} /> Practice in Chat
-                                          </button>
-                                          <button
-                                            onClick={() => { setBriefContent(prev => prev + '\n\n---\n**Objection: ' + card.objection + '**\n- *Why:* ' + card.why + '\n- *Response:* ' + card.rebuttal + '\n- *Proof:* ' + card.proofPoint); setShowObjectionPanel(false); }}
-                                            className="flex-1 text-[10px] font-bold py-1.5 px-2 rounded border border-orange-300 text-orange-700 hover:bg-orange-100 transition-colors"
-                                          >
-                                            Add to Brief
-                                          </button>
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                              <button
-                                onClick={() => { setObjectionCards([]); handleObjections(); }}
-                                className="w-full text-xs text-slate-500 hover:text-slate-700 font-medium py-2 flex items-center justify-center gap-1"
-                              >
-                                <RefreshCw size={12} /> Regenerate objections
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      )}
+                      <ObjectionPanel
+                        objectionPanelRef={objectionPanelRef}
+                        showObjectionPanel={showObjectionPanel}
+                        setShowObjectionPanel={setShowObjectionPanel}
+                        objectionLoading={objectionLoading}
+                        objectionCards={objectionCards}
+                        expandedObjection={expandedObjection}
+                        setExpandedObjection={setExpandedObjection}
+                        practiceObjection={practiceObjection}
+                        setBriefContent={setBriefContent}
+                        setObjectionCards={setObjectionCards}
+                        handleObjections={handleObjections}
+                      />
 
                     </div>
                     <div className="shrink-0 p-3 bg-slate-50 border-t border-slate-200 flex justify-center">
