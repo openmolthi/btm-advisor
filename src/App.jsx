@@ -27,6 +27,7 @@ import {
   OTHER_NONSAP_OPTIONS
 } from './lib/constants';
 import { useDealState } from './hooks/useDealState';
+import { useModals } from './hooks/useModals';
 
 // Component imports
 import ToastContainer from './components/ToastContainer';
@@ -119,22 +120,22 @@ export default function App() {
   }, [chatMessages]);
 
   // Modal State
-  const [activeModal, setActiveModal] = useState(null);
-  const [modalContent, setModalContent] = useState("");
-  const [isModalLoading, setIsModalLoading] = useState(false);
-  const [modalMedia, setModalMedia] = useState(null);
-  const [showAdmin, setShowAdmin] = useState(false);
+  // Modal State
+  const {
+    activeModal, setActiveModal, modalContent, setModalContent,
+    isModalLoading, setIsModalLoading, modalMedia, setModalMedia,
+    showAdmin, setShowAdmin, showAgendaSettings, setShowAgendaSettings,
+    showFullMap, setShowFullMap, showHelp, setShowHelp,
+    expandedHelp, setExpandedHelp,
+    confirmConfig, setConfirmConfig, triggerConfirm,
+  } = useModals();
   const [smartStartInput, setSmartStartInput] = useState('');
   const [smartStartLoading, setSmartStartLoading] = useState(false);
 
   // AI Actions hook (see below after state declarations)
-  const [showAgendaSettings, setShowAgendaSettings] = useState(false);
-  const [showFullMap, setShowFullMap] = useState(false);
   const [showValuePanel, setShowValuePanel] = useState(false);
   const [valueStrategies, setValueStrategies] = useState({ deepen: '', broaden: '', phase: '' });
   const [valueLoading, setValueLoading] = useState({ deepen: false, broaden: false, phase: false });
-  const [confirmConfig, setConfirmConfig] = useState({ isOpen: false, title: "", message: "", onConfirm: () => {} });
-
   // Refs
   const outputSectionRef = useRef(null);
   const valuePanelRef = useRef(null);
@@ -142,9 +143,6 @@ export default function App() {
   const emailPanelRef = useRef(null);
 
   // Helper Functions
-  const triggerConfirm = (title, message, onConfirm) => 
-    setConfirmConfig({ isOpen: true, title, message, onConfirm });
-
   const saveConfigWrapper = (newConfig) => {
     setConfig(newConfig);
     localStorage.setItem("btm_advisor_config", JSON.stringify(newConfig));
@@ -227,8 +225,6 @@ export default function App() {
 
   const [showObjectionPanel, setShowObjectionPanel] = useState(false);
   const [isEditingCoaching, setIsEditingCoaching] = useState(false);
-  const [showHelp, setShowHelp] = useState(false);
-  const [expandedHelp, setExpandedHelp] = useState(null);
   const [objectionCards, setObjectionCards] = useState([]);
   const [objectionLoading, setObjectionLoading] = useState(false);
   const [expandedObjection, setExpandedObjection] = useState(null);
