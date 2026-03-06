@@ -138,6 +138,9 @@ const translations = {
   'settings.apiKeyPlaceholder': { jp: 'AIza...で始まるキーを入力', en: 'Enter key starting with AIza...' },
   'settings.apiKeySaved': { jp: '保存しました', en: 'Saved' },
   'settings.apiKeySave': { jp: '保存', en: 'Save' },
+  'settings.apiKeyShared': { jp: 'このキーはBTM AIDE-visorと共有されます', en: 'This key is shared with BTM AIDE-visor' },
+  'nav.home': { jp: 'ホーム', en: 'Home' },
+  'nav.advisor': { jp: 'AIDE-visorへ', en: 'Switch to AIDE-visor' },
   'settings.footer': { jp: 'SAP BTM Portfolio Training App for Japan SSEs', en: 'SAP BTM Portfolio Training App for Japan SSEs' },
 
   // Theme

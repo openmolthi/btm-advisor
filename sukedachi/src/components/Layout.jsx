@@ -1,4 +1,4 @@
-import { MessageCircle, Compass, Map, Swords, Settings, Globe, WifiOff, Moon, Sun, Zap } from 'lucide-react'
+import { MessageCircle, Compass, Map, Swords, Settings, Globe, WifiOff, Moon, Sun, Zap, Home, ExternalLink } from 'lucide-react'
 import { useI18n } from '../lib/i18n'
 import { useOnlineStatus } from '../lib/useOnlineStatus'
 import { useTheme } from '../lib/useTheme'
@@ -115,6 +115,24 @@ export default function Layout({ activeTab, onTabChange, onDrillOpen, children }
             <Globe size={14} />
             <span style={{ fontWeight: 400 }}>{lang === 'jp' ? 'English' : '日本語'}</span>
           </button>
+          <div className="mt-1.5 pt-1.5 border-t border-[var(--ink-100)]">
+            <a
+              href="../"
+              className="flex items-center gap-2 px-2 py-1.5 rounded-lg text-[11px] text-[var(--ink-500)] hover:bg-[var(--ink-200)] hover:text-[var(--ink-700)] transition-colors w-full"
+              style={{ fontWeight: 400 }}
+            >
+              <Home size={14} />
+              <span>{t('nav.home')}</span>
+            </a>
+            <a
+              href="../advisor/"
+              className="flex items-center gap-2 px-2 py-1.5 rounded-lg text-[11px] text-[var(--ink-500)] hover:bg-[var(--ink-200)] hover:text-[var(--ink-700)] transition-colors w-full"
+              style={{ fontWeight: 400 }}
+            >
+              <ExternalLink size={14} />
+              <span>{t('nav.advisor')}</span>
+            </a>
+          </div>
           <p className="text-[10px] text-[var(--ink-400)] tracking-wide mt-2 px-2" style={{ fontWeight: 400 }}>
             {t('nav.footer')}
           </p>

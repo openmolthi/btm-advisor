@@ -9,7 +9,7 @@ import { buildOfficialDocsContext } from '../data/officialDocs'
 const GEMINI_MODEL = 'gemini-2.5-pro'
 
 function getApiKey() {
-  return localStorage.getItem('sukedachi-gemini-key') || ''
+  return localStorage.getItem('btm-suite-gemini-key') || localStorage.getItem('sukedachi-gemini-key') || ''
 }
 
 export function hasApiKey() {

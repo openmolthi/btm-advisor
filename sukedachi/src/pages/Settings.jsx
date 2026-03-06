@@ -224,7 +224,7 @@ function ProgressDashboard({ t }) {
 export default function Settings() {
   const { t, lang, setLang } = useI18n()
   const { preference, setTheme } = useTheme()
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem('sukedachi-gemini-key') || '')
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem('btm-suite-gemini-key') || localStorage.getItem('sukedachi-gemini-key') || '')
   const [showKey, setShowKey] = useState(false)
   const [saved, setSaved] = useState(false)
   const [voiceInput, setVoiceInput] = useState(() => localStorage.getItem('sukedachi-voice-input') !== 'false')
@@ -232,7 +232,7 @@ export default function Settings() {
   const [speechRate, setSpeechRate] = useState(() => parseFloat(localStorage.getItem('sukedachi-speech-rate')) || 0.9)
 
   const handleSaveKey = () => {
-    localStorage.setItem('sukedachi-gemini-key', apiKey.trim())
+    localStorage.setItem('btm-suite-gemini-key', apiKey.trim())
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
@@ -397,6 +397,9 @@ export default function Settings() {
             </div>
             <p className="text-[11px] text-[var(--ink-400)] mt-2" style={{ fontWeight: 400 }}>
               Model: gemini-2.5-pro
+            </p>
+            <p className="text-[11px] text-[var(--ink-400)] mt-1" style={{ fontWeight: 400 }}>
+              {t('settings.apiKeyShared')}
             </p>
           </div>
 

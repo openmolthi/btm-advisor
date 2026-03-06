@@ -2,7 +2,8 @@ import React from 'react';
 import {
   Briefcase, Settings, TrendingUp, Layers, Sparkles, ChevronDown, ChevronRight,
   FileText, Paperclip, File as FileIcon, X, Network, Server, CloudLightning,
-  MessageSquare, RefreshCw, Download, Upload, ClipboardCopy, HelpCircle, Compass
+  MessageSquare, RefreshCw, Download, Upload, ClipboardCopy, HelpCircle, Compass,
+  Home, Swords,
 } from 'lucide-react';
 import { t } from '../lib/i18n';
 import { glossary } from '../lib/glossary';
@@ -84,6 +85,13 @@ export default function InputPanel({
           <button onClick={clearAll} className="text-xs font-bold text-slate-500 hover:text-red-700 flex items-center gap-1 px-2 py-1.5 rounded hover:bg-slate-100 transition-colors" title={t(selectedLanguage, "reset")}>
             <RefreshCw size={14} />
           </button>
+          <div className="w-px h-5 bg-slate-200 mx-0.5"></div>
+          <a href="../" className="text-xs font-bold text-slate-500 hover:text-blue-700 flex items-center gap-1 px-2 py-1.5 rounded hover:bg-slate-100 transition-colors" title="Home">
+            <Home size={14} />
+          </a>
+          <a href="../sukedachi/" className="text-xs font-bold text-slate-500 hover:text-green-700 flex items-center gap-1 px-2 py-1.5 rounded hover:bg-slate-100 transition-colors" title="Switch to 助太刀">
+            <Swords size={14} />
+          </a>
         </div>
       </div>
 
