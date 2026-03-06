@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAP BTM Portfolio Tools</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --blue: #3B82F6;
+      --blue-soft: #EFF6FF;
+      --sage: #6B8F71;
+      --sage-soft: #F0F5F1;
+      --bg: #FAFAF8;
+      --text: #1A1A1A;
+      --text-muted: #6B7280;
+      --card-bg: #FFFFFF;
+      --border: #E5E7EB;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
+      --shadow-hover: 0 2px 8px rgba(0,0,0,0.08), 0 16px 40px rgba(0,0,0,0.06);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111113;
+        --text: #E8E8E6;
+        --text-muted: #9CA3AF;
+        --card-bg: #1C1C1F;
+        --border: #2D2D30;
+        --blue-soft: #1E293B;
+        --sage-soft: #1A2E1D;
+        --shadow: 0 1px 3px rgba(0,0,0,0.2), 0 8px 24px rgba(0,0,0,0.15);
+        --shadow-hover: 0 2px 8px rgba(0,0,0,0.3), 0 16px 40px rgba(0,0,0,0.2);
+      }
+    }
+
+    body {
+      font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      text-align: center;
+      padding: 3rem 1.5rem 1rem;
+    }
+
+    header h1 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    header h1 span {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--blue), var(--sage));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    header p {
+      margin-top: 0.5rem;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 300;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      max-width: 56rem;
+      width: 100%;
+    }
+
+    @media (max-width: 720px) {
+      .cards {
+        grid-template-columns: 1fr;
+        max-width: 26rem;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 2.5rem 2rem;
+      box-shadow: var(--shadow);
+      transition: box-shadow 0.25s ease, transform 0.25s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-2px);
+    }
+
+    .card-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .card h2 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .card .subtitle {
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+    }
+
+    .card.blue .subtitle { color: var(--blue); }
+    .card.sage .subtitle { color: var(--sage); }
+
+    .card .description {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.65;
+      font-weight: 300;
+      flex: 1;
+      margin-bottom: 1.75rem;
+    }
+
+    .card .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.7rem 1.5rem;
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      color: #fff;
+      transition: opacity 0.2s ease, transform 0.15s ease;
+      align-self: flex-start;
+    }
+
+    .card .btn:hover {
+      opacity: 0.9;
+      transform: translateX(2px);
+    }
+
+    .card.blue .btn { background: var(--blue); }
+    .card.sage .btn { background: var(--sage); }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 300;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><span>SAP BTM Portfolio Tools</span></h1>
+    <p>AI-powered tools for solution advisory excellence</p>
+  </header>
+
+  <main>
+    <div class="cards">
+      <div class="card blue">
+        <div class="card-icon">🎯</div>
+        <h2>BTM AIDE-visor</h2>
+        <div class="subtitle">Solution Advisory Coach</div>
+        <p class="description">
+          AI-powered deal coaching for customer engagements. Context-aware coaching,
+          executive briefs, objection handling, competitive intelligence.
+        </p>
+        <a href="./advisor/" class="btn">Launch AIDE-visor →</a>
+      </div>
+
+      <div class="card sage">
+        <div class="card-icon">⚔️</div>
+        <h2>助太刀 Sukedachi</h2>
+        <div class="subtitle">SSE Training Companion</div>
+        <p class="description">
+          Build product conviction and sales play fluency. Flash cards, AI coaching,
+          pitch dojo, and daily drills.
+        </p>
+        <a href="./sukedachi/" class="btn">Launch 助太刀 →</a>
+      </div>
+    </div>
+  </main>
+
+  <footer>Built with 🦞 by Molthi</footer>
+</body>
+</html>

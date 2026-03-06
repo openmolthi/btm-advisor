@@ -1,0 +1,381 @@
+@import "tailwindcss";
+
+/* KOKORO-inspired Japanese aesthetic — with dark mode support */
+:root {
+  /* Sage green accent */
+  --sage: #5A7D60;
+  --sage-light: #7A9E80;
+  --sage-dark: #3D5C42;
+  --sage-tint: #E8F0EA;
+
+  /* Washi paper tones */
+  --washi: #FAFAF8;
+  --washi-warm: #F5F3EF;
+  --washi-cool: #F7F8FA;
+  --washi-cream: #FAF9F5;
+
+  /* Ink tones — darker for readability */
+  --ink-50: #F5F5F3;
+  --ink-100: #E5E2DC;
+  --ink-200: #D4D0C8;
+  --ink-300: #B0AAA0;
+  --ink-400: #7A7570;
+  --ink-500: #5C5752;
+  --ink-600: #3D3A36;
+  --ink-700: #2A2826;
+  --ink-800: #1A1A1A;
+  --ink-900: #0F0F0F;
+
+  /* Sidebar */
+  --sidebar-bg: #F0EDE8;
+  --sidebar-active-bg: #5A7D60;
+
+  /* Solution colors - vivid */
+  --signavio: #4A78A0;
+  --signavio-bg: #EBF2F8;
+  --leanix: #7060A8;
+  --leanix-bg: #EFECF6;
+  --syniti: #5A9070;
+  --syniti-bg: #E8F4ED;
+  --tricentis: #A07840;
+  --tricentis-bg: #F8F2E8;
+
+  /* Mode colors */
+  --challenge-accent: #B07840;
+  --challenge-bg: #FAF7F3;
+  --gym-accent: #6A5890;
+  --gym-bg: #F5F3F8;
+
+  /* Semantic surface colors */
+  --surface: #FFFFFF;
+  --surface-elevated: #FFFFFF;
+
+  /* Chat bubbles */
+  --chat-user-bg: var(--sage-tint);
+  --chat-user-border: var(--sage-light);
+  --chat-ai-bg: #FFFFFF;
+  --chat-ai-border: var(--ink-200);
+  --chat-challenge-user-bg: #FDF8F3;
+  --chat-challenge-user-border: #E0C8A8;
+  --chat-gym-user-bg: #F0ECF5;
+  --chat-gym-user-border: #C8BEE0;
+
+  /* Mobile bottom bar */
+  --mobile-bar-bg: #FFFFFF;
+
+  /* Blockquote */
+  --blockquote-bg: var(--washi-warm);
+
+  /* Offline/amber banner */
+  --amber-bg: #FFFBEB;
+  --amber-border: #FDE68A;
+  --amber-text: #92400E;
+  --amber-icon: #D97706;
+
+  /* Success/error feedback */
+  --success-bg: #E8F4ED;
+  --success-border: #A8D4B8;
+  --success-text: #2D6B45;
+  --error-bg: #FDE8E8;
+  --error-border: #F0A0A0;
+  --error-text: #B42020;
+
+  /* Streak badge */
+  --streak-bg: #FFF7ED;
+  --streak-border: #FED7AA;
+  --streak-text: #C2410C;
+  --streak-icon: #F97316;
+}
+
+/* ─── Dark Mode ──────────────────────────────────────────────────────────────── */
+:root.dark {
+  --sage: #7BA882;
+  --sage-light: #8FBF96;
+  --sage-dark: #9DD4A4;
+  --sage-tint: #2A3E2E;
+
+  --washi: #1A1A1F;
+  --washi-warm: #222225;
+  --washi-cool: #1E1E23;
+  --washi-cream: #1C1C20;
+
+  --ink-50: #2A2A30;
+  --ink-100: #3A3A40;
+  --ink-200: #3A3A40;
+  --ink-300: #505058;
+  --ink-400: #9A9690;
+  --ink-500: #B0ACA6;
+  --ink-600: #C8C4BE;
+  --ink-700: #D8D4CE;
+  --ink-800: #E8E5E0;
+  --ink-900: #F0EDE8;
+
+  --sidebar-bg: #222228;
+  --sidebar-active-bg: #7BA882;
+
+  --signavio: #6A98C0;
+  --signavio-bg: #1E2A35;
+  --leanix: #9080C8;
+  --leanix-bg: #25203A;
+  --syniti: #7AB090;
+  --syniti-bg: #1E2E25;
+  --tricentis: #C09860;
+  --tricentis-bg: #2A2518;
+
+  --challenge-accent: #D09860;
+  --challenge-bg: #1E1C1A;
+  --gym-accent: #8A78B0;
+  --gym-bg: #1E1C22;
+
+  --surface: #2A2A30;
+  --surface-elevated: #2A2A30;
+
+  --chat-user-bg: #3A4A3F;
+  --chat-user-border: #4A5A4F;
+  --chat-ai-bg: #2A2A30;
+  --chat-ai-border: #3A3A40;
+  --chat-challenge-user-bg: #3A3428;
+  --chat-challenge-user-border: #504830;
+  --chat-gym-user-bg: #302840;
+  --chat-gym-user-border: #403850;
+
+  --mobile-bar-bg: #222228;
+
+  --blockquote-bg: #252528;
+
+  --amber-bg: #2A2518;
+  --amber-border: #504020;
+  --amber-text: #E0B060;
+  --amber-icon: #D09840;
+
+  --success-bg: #1E2E25;
+  --success-border: #2A4A32;
+  --success-text: #7ABF8A;
+  --error-bg: #2E1E1E;
+  --error-border: #4A2A2A;
+  --error-text: #E07070;
+
+  --streak-bg: #2A2518;
+  --streak-border: #504020;
+  --streak-text: #E0A040;
+  --streak-icon: #D09840;
+}
+
+* {
+  font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Smooth theme transitions */
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body {
+  background: var(--washi);
+  color: var(--ink-800);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography — stronger weight for readability */
+p, li, span {
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+  font-weight: 400;
+}
+
+h1, h2, h3, h4 {
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  line-height: 1.5;
+  color: var(--ink-800);
+}
+
+strong, b {
+  font-weight: 600;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ink-200);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-300);
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+  background: var(--sage-tint);
+  color: var(--ink-800);
+}
+
+/* Smooth transitions */
+button, a {
+  transition: all 0.15s ease;
+}
+
+/* Card base style — with visible border */
+.card {
+  background: var(--surface);
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--ink-200);
+}
+
+/* Skeleton loader animation */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--ink-50) 25%, var(--ink-100) 50%, var(--ink-50) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+/* Hide scrollbar on mobile */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  * {
+    scrollbar-width: none;
+  }
+}
+
+/* Voice — mic pulse animation */
+@keyframes voice-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.9; }
+}
+
+@keyframes voice-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.voice-mic-active {
+  animation: voice-pulse 1.5s ease-in-out infinite;
+}
+
+.voice-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #EF4444;
+  animation: voice-dot-pulse 1s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.voice-speaker-active {
+  animation: voice-pulse 1.2s ease-in-out infinite;
+}
+
+/* Theme-aware surface utility — replaces bg-white across the app */
+.bg-surface {
+  background: var(--surface);
+}
+
+/* Daily Drill — confetti celebration */
+@keyframes drill-confetti-float {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-120px) rotate(calc(var(--i) * 45deg)) scale(0);
+    opacity: 0;
+  }
+}
+
+.drill-confetti {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 200px;
+  pointer-events: none;
+}
+
+.drill-confetti-particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  left: calc(50% + cos(calc(var(--i) * 30deg)) * 40px);
+  top: calc(50% + sin(calc(var(--i) * 30deg)) * 40px);
+  animation: drill-confetti-float 2s ease-out forwards;
+  animation-delay: calc(var(--i) * 0.1s);
+}
+
+.drill-confetti-particle:nth-child(3n) { background: var(--sage); }
+.drill-confetti-particle:nth-child(3n+1) { background: var(--streak-icon); }
+.drill-confetti-particle:nth-child(3n+2) { background: var(--signavio); }
+
+/* Toast slide-in animation */
+@keyframes toast-in {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-toast-in {
+  animation: toast-in 0.25s ease-out;
+}
+
+/* Print stylesheet for PDF export */
+@media print {
+  body { background: white !important; color: #1A1A1A !important; }
+  nav, .sidebar, .mobile-bar, .no-print { display: none !important; }
+  .print-cards { display: grid !important; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .print-card {
+    break-inside: avoid;
+    border: 1px solid #D4D0C8;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 8px;
+  }
+  .print-card h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .print-card p { font-size: 12px; line-height: 1.7; }
+  .print-group-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    break-after: avoid;
+  }
+}
+
+/* Safe area for iPhone notch/home indicator */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}

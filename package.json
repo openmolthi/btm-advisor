@@ -1,0 +1,9 @@
+{
+  "name": "btm-advisor-suite",
+  "private": true,
+  "scripts": {
+    "build": "bash build.sh",
+    "dev:advisor": "cd advisor && npm run dev",
+    "dev:sukedachi": "cd sukedachi && npm run dev"
+  }
+}

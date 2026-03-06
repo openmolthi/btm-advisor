@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>助太刀 — モックアップ</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        ink: { 50: '#f8f9fa', 100: '#f1f3f5', 200: '#e9ecef', 300: '#dee2e6', 400: '#adb5bd', 500: '#6c757d', 600: '#495057', 700: '#343a40', 800: '#212529', 900: '#161b22' },
+        sumi: { DEFAULT: '#2c2c2c', light: '#4a4a4a', faint: '#8c8c8c' },
+        washi: { DEFAULT: '#faf9f7', warm: '#f5f3ef', cool: '#f7f8fa' },
+      }
+    }
+  }
+}
+</script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600&display=swap');
+  * { font-family: 'Noto Sans JP', sans-serif; font-weight: 400; }
+  body { background: #f7f8fa; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .chip { display: inline-block; padding: 7px 14px; border-radius: 20px; font-size: 12px; font-weight: 400; cursor: pointer; transition: all 0.2s; }
+  .msg-user { background: #343a40; color: #f1f3f5; border-radius: 16px 16px 4px 16px; }
+  .msg-ai { background: #f5f3ef; color: #2c2c2c; border-radius: 16px 16px 16px 4px; }
+  .product-card { transition: all 0.15s; cursor: pointer; }
+  .product-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+  .score-bar { height: 6px; border-radius: 3px; }
+  .nav-pill { padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: 400; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .nav-pill.active { background: #343a40; color: #f1f3f5; }
+  .nav-pill:not(.active) { background: #f1f3f5; color: #6c757d; }
+  p, li, span { line-height: 1.9; letter-spacing: 0.03em; font-weight: 300; }
+  h2 { font-weight: 500; letter-spacing: 0.08em; }
+  h3 { font-weight: 500; letter-spacing: 0.05em; }
+  .text-sm { font-size: 13px; }
+  .text-xs { font-size: 11px; }
+  strong { font-weight: 500; }
+
+  /* View toggle */
+  .view-toggle { display: inline-flex; border: 1px solid #e9ecef; border-radius: 8px; overflow: hidden; }
+  .view-btn { padding: 6px 16px; font-size: 12px; cursor: pointer; background: white; color: #6c757d; border: none; transition: all 0.15s; }
+  .view-btn.active { background: #343a40; color: #f1f3f5; }
+
+  /* Desktop layout */
+  .desktop-frame { display: none; max-width: 1100px; margin: 0 auto; border: 1px solid #e9ecef; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
+  .mobile-frame { max-width: 420px; margin: 0 auto; border: 1px solid #e9ecef; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
+
+  body.desktop-mode .desktop-frame { display: flex; }
+  body.desktop-mode .mobile-frame { display: none; }
+  body.mobile-mode .desktop-frame { display: none; }
+  body.mobile-mode .mobile-frame { display: block; }
+
+  /* Desktop sidebar */
+  .sidebar { width: 260px; background: #212529; color: #dee2e6; flex-shrink: 0; display: flex; flex-direction: column; }
+  .sidebar-nav { flex: 1; padding: 0; }
+  .sidebar-item { padding: 14px 24px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.1s; color: #adb5bd; font-weight: 300; letter-spacing: 0.03em; border-left: 3px solid transparent; }
+  .sidebar-item:hover { background: rgba(255,255,255,0.04); }
+  .sidebar-item.active { background: rgba(255,255,255,0.06); color: #f1f3f5; border-left-color: #adb5bd; font-weight: 400; }
+  .desktop-content { flex: 1; display: flex; flex-direction: column; min-height: 700px; }
+  .desktop-header { padding: 24px 32px 20px; border-bottom: 1px solid #e9ecef; background: white; }
+  .desktop-body { flex: 1; overflow-y: auto; }
+</style>
+</head>
+<body class="min-h-screen p-4 mobile-mode">
+
+<!-- Header + View Toggle -->
+<div class="text-center mb-6">
+  <h1 class="text-xl font-medium text-ink-700 mb-1 tracking-wider">助太刀 ⚔️</h1>
+  <p class="text-ink-400 text-xs mb-4">モックアップ</p>
+  <div class="view-toggle mb-4">
+    <button onclick="setView('mobile')" id="view-mobile" class="view-btn active">📱 モバイル</button>
+    <button onclick="setView('desktop')" id="view-desktop" class="view-btn">🖥️ デスクトップ</button>
+  </div>
+  <!-- Mobile nav pills -->
+  <div id="mobile-nav" class="flex justify-center gap-2 flex-wrap">
+    <button onclick="showScreen('coach')" id="btn-coach" class="nav-pill active">🧠 コーチ</button>
+    <button onclick="showScreen('challenge')" id="btn-challenge" class="nav-pill">🥊 チャレンジ</button>
+    <button onclick="showScreen('navigator')" id="btn-navigator" class="nav-pill">🗺️ 製品ナビ</button>
+    <button onclick="showScreen('crosssell')" id="btn-crosssell" class="nav-pill">🔗 クロスセル</button>
+    <button onclick="showScreen('gym')" id="btn-gym" class="nav-pill">🎭 実践練習</button>
+    <button onclick="showScreen('score')" id="btn-score" class="nav-pill">📊 スコア</button>
+  </div>
+</div>
+
+<!-- ==================== DESKTOP VERSION ==================== -->
+<div class="desktop-frame" id="desktop-view">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="px-6 py-5 border-b border-white/10">
+      <h2 class="text-base tracking-widest text-ink-100" style="font-weight:500;">⚔️ 助太刀</h2>
+      <p class="text-xs mt-1" style="color: #6c757d; font-weight:300;">あなたの営業を助太刀する</p>
+    </div>
+    <nav class="sidebar-nav py-2">
+      <div onclick="showDesktopScreen('d-coach')" id="dbtn-d-coach" class="sidebar-item active">🧠 コーチ（学ぶ）</div>
+      <div onclick="showDesktopScreen('d-challenge')" id="dbtn-d-challenge" class="sidebar-item">🥊 チャレンジ</div>
+      <div onclick="showDesktopScreen('d-navigator')" id="dbtn-d-navigator" class="sidebar-item">🗺️ 製品ナビゲーター</div>
+      <div onclick="showDesktopScreen('d-crosssell')" id="dbtn-d-crosssell" class="sidebar-item">🔗 クロスセル</div>
+      <div onclick="showDesktopScreen('d-gym')" id="dbtn-d-gym" class="sidebar-item">🎭 実践練習（道場）</div>
+      <div onclick="showDesktopScreen('d-score')" id="dbtn-d-score" class="sidebar-item">📊 スコアカード</div>
+    </nav>
+    <div class="px-6 py-4 border-t border-white/10">
+      <p class="text-xs" style="color: #495057; font-weight:300;">SAP BTM ポートフォリオ</p>
+      <div class="flex gap-1.5 mt-2 flex-wrap">
+        <span class="text-xs px-2 py-0.5 rounded" style="background: rgba(107,140,174,0.15); color: #8caabe;">Signavio</span>
+        <span class="text-xs px-2 py-0.5 rounded" style="background: rgba(139,123,181,0.15); color: #a99bbe;">LeanIX</span>
+        <span class="text-xs px-2 py-0.5 rounded" style="background: rgba(123,168,142,0.15); color: #8cb89e;">Syniti</span>
+        <span class="text-xs px-2 py-0.5 rounded" style="background: rgba(181,152,91,0.15); color: #c9b87a;">Tricentis</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Desktop Content Area -->
+  <div class="desktop-content">
+
+    <!-- D-COACH -->
+    <div id="dscreen-d-coach" class="screen active" style="display:flex; flex-direction:column; height:100%;">
+      <div class="desktop-header">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-base text-ink-800" style="font-weight:500;">🧠 コーチ</h2>
+            <p class="text-xs text-ink-400 mt-0.5" style="font-weight:300;">BTMポートフォリオについて何でも質問</p>
+          </div>
+          <div class="flex gap-2">
+            <div class="chip bg-ink-100 text-ink-700 border border-ink-200" style="font-weight:400;">📚 学ぶ</div>
+            <div class="chip text-ink-400 border border-transparent">🥊 挑戦する</div>
+          </div>
+        </div>
+      </div>
+      <div class="flex-1 overflow-y-auto px-8 py-6 space-y-4" style="background: #faf9f7;">
+        <!-- Welcome -->
+        <div class="msg-ai px-5 py-4 max-w-[65%] text-sm">
+          <p class="text-sumi-light mb-1.5" style="font-weight:500; font-size:12px;">⚔️ 助太刀、参上！</p>
+          <p class="text-sumi-light" style="font-weight:300;">BTMポートフォリオの戦いに、あなたの味方として馳せ参じました。Signavio、LeanIX、Syniti、Tricentisについて、何でも聞いてください。</p>
+        </div>
+        <!-- Quick chips -->
+        <div class="flex flex-wrap gap-2 pl-1">
+          <span class="chip bg-white text-ink-600 text-xs border border-ink-200">プロセスマイニングとは？</span>
+          <span class="chip bg-white text-ink-600 text-xs border border-ink-200">LeanIXの価値は？</span>
+          <span class="chip bg-white text-ink-600 text-xs border border-ink-200">S/4移行でSynitiが必要な理由</span>
+          <span class="chip bg-white text-ink-600 text-xs border border-ink-200">Tricentisの30秒ピッチ</span>
+          <span class="chip bg-white text-ink-600 text-xs border border-ink-200">Celonisとの違いは？</span>
+          <span class="chip bg-white text-ink-600 text-xs border border-ink-200">日本市場でのBPMの可能性</span>
+        </div>
+        <!-- User msg -->
+        <div class="flex justify-end">
+          <div class="msg-user px-5 py-3.5 max-w-[55%] text-sm">
+            プロセスマイニングって何ですか？日本の製造業にとって、なぜ重要なのですか？
+          </div>
+        </div>
+        <!-- AI response -->
+        <div class="msg-ai px-5 py-4 max-w-[65%] text-sm space-y-2.5">
+          <p class="text-sumi-light"><span style="font-weight:500;">プロセスマイニング</span>とは、業務プロセスの「デジタルレントゲン」のようなものです。SAPやMESなどのシステムログを分析し、実際の業務フローを可視化します。</p>
+          <p class="text-sumi-light" style="font-weight:400;">🏭 日本の製造業にとっての重要性：</p>
+          <ul class="list-none pl-0 space-y-1.5 text-xs text-sumi-light">
+            <li class="flex gap-2"><span class="text-ink-400 shrink-0">―</span><span><span style="font-weight:500;">人手不足</span> — 労働人口が減少する中、非効率を素早く発見する必要があります</span></li>
+            <li class="flex gap-2"><span class="text-ink-400 shrink-0">―</span><span><span style="font-weight:500;">2025年の崖</span> — S/4HANAへの移行には、まず現行プロセスの把握が不可欠です</span></li>
+            <li class="flex gap-2"><span class="text-ink-400 shrink-0">―</span><span><span style="font-weight:500;">ものづくりの文化</span> — プロセスマイニングは「デジタルカイゼン」そのものです</span></li>
+          </ul>
+          <div class="bg-washi-cool rounded-lg p-3 mt-2 border border-ink-100">
+            <p class="text-xs text-ink-500">💡 <span style="font-weight:500;">営業ヒント：</span>日本の製造業のお客様には「デジタルカイゼン」というキーワードが響きます。</p>
+          </div>
+        </div>
+      </div>
+      <!-- Input -->
+      <div class="border-t border-ink-100 px-8 py-4 flex items-center gap-3 bg-white">
+        <button class="text-ink-400 hover:text-ink-600 transition p-2 rounded-full hover:bg-ink-50" title="ファイルをアップロード"><span class="text-base">📎</span></button>
+        <input type="text" placeholder="質問を入力、または音声・ファイルで..." class="flex-1 bg-ink-50 rounded-full px-5 py-3 text-sm outline-none focus:ring-1 focus:ring-ink-300 text-ink-700 placeholder-ink-400" style="font-weight:300;">
+        <button class="text-ink-400 hover:text-ink-600 transition p-2 rounded-full hover:bg-ink-50" title="音声入力"><span class="text-base">🎤</span></button>
+        <button class="bg-ink-700 text-white rounded-full px-6 py-2.5 text-sm" style="font-weight:400;">送信</button>
+      </div>
+    </div>
+
+    <!-- D-CHALLENGE -->
+    <div id="dscreen-d-challenge" class="screen" style="flex-direction:column; height:100%;">
+      <div class="desktop-header" style="background: #faf8f5; border-color: #e9e4db;">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-base" style="font-weight:500; color: #5c4a32;">🥊 チャレンジモード</h2>
+            <p class="text-xs mt-0.5" style="color: #8a7a62; font-weight:300;">腕を磨け — 懐疑的な相手に立ち向かう</p>
+          </div>
+          <div class="flex gap-2">
+            <div class="chip text-ink-400 border border-transparent">📚 学ぶ</div>
+            <div class="chip border" style="background: #5c4a32; color: #f5efe6; font-weight:400;">🥊 挑戦する</div>
+          </div>
+        </div>
+      </div>
+      <div class="flex-1 overflow-y-auto px-8 py-6 space-y-4" style="background: #faf8f5;">
+        <div class="px-5 py-4 max-w-[65%] text-sm rounded-2xl" style="background: #f5efe6;">
+          <p class="mb-1.5" style="font-weight:500; font-size:12px; color: #6b5a3e;">🥊 チャレンジモード</p>
+          <p style="color: #6b5a3e; font-weight:300;">懐疑的な同僚やお客様として立ちはだかります。一本取ってみてください。</p>
+        </div>
+        <div class="flex flex-wrap gap-2 pl-1">
+          <span class="chip bg-white text-xs border border-ink-200" style="color: #6b5a3e;">🙄「BPMに市場はない」</span>
+          <span class="chip bg-white text-xs border border-ink-200" style="color: #6b5a3e;">🤷「EAはただのパワポ」</span>
+          <span class="chip bg-white text-xs border border-ink-200" style="color: #6b5a3e;">😤「Celonisに勝てない」</span>
+          <span class="chip bg-white text-xs border border-ink-200" style="color: #6b5a3e;">🤔「テストは技術の話」</span>
+          <span class="chip bg-white text-xs border border-ink-200" style="color: #6b5a3e;">😑「Synitiなんて聞いたことない」</span>
+        </div>
+        <div class="flex justify-end">
+          <div class="px-5 py-3.5 max-w-[55%] text-sm rounded-2xl" style="background: #5c4a32; color: #f5efe6; border-radius: 16px 16px 4px 16px;">
+            正直、日本でエンタープライズアーキテクチャ（EA）ツールの市場はないと思います。
+          </div>
+        </div>
+        <div class="px-5 py-4 max-w-[65%] text-sm space-y-2.5 rounded-2xl" style="background: #f5efe6;">
+          <p style="color: #6b5a3e;">本当にそうでしょうか？🤔 少し考えてみましょう。</p>
+          <p style="color: #6b5a3e;"><span style="font-weight:500;">日本には従業員1,000人以上の企業が5,600社以上あります。</span>その多くが200〜500のアプリケーションを運用しています。</p>
+          <p style="color: #6b5a3e;">誰も「EAツール」で検索しません。検索するのは<em>「M&A後のIT統合」</em>や<em>「クラウドコスト削減」</em>。それがEAの実態です。</p>
+          <p style="color: #6b5a3e;"><span style="font-weight:500;">Gartner 2025：</span>EAツール市場は前年比15%成長。競合が投資しているのに、市場がないはずがありません。</p>
+          <div class="rounded-lg p-3 mt-2" style="background: #ece5d8;">
+            <p class="text-xs" style="color: #6b5a3e; font-weight:400;">💪 あなたの番：EAに懐疑的な同僚にどう説明しますか？</p>
+          </div>
+        </div>
+      </div>
+      <div class="border-t px-8 py-4 flex gap-3 bg-white" style="border-color: #e9e4db;">
+        <button class="p-2 rounded-full" style="color: #8a7a62;" title="ファイルをアップロード"><span class="text-base">📎</span></button>
+        <input type="text" placeholder="あなたの主張を述べてください..." class="flex-1 rounded-full px-5 py-3 text-sm outline-none" style="background: #faf8f5; color: #5c4a32; font-weight:300;">
+        <button class="p-2 rounded-full" style="color: #8a7a62;" title="音声入力"><span class="text-base">🎤</span></button>
+        <button class="rounded-full px-6 py-2.5 text-sm text-white" style="background: #5c4a32; font-weight:400;">送信</button>
+      </div>
+    </div>
+
+    <!-- D-NAVIGATOR -->
+    <div id="dscreen-d-navigator" class="screen" style="flex-direction:column; height:100%;">
+      <div class="desktop-header">
+        <h2 class="text-base text-ink-800" style="font-weight:500;">🗺️ 製品ナビゲーター</h2>
+        <p class="text-xs text-ink-400 mt-0.5" style="font-weight:300;">製品をクリックして詳細を表示</p>
+      </div>
+      <div class="flex-1 overflow-y-auto px-8 py-6" style="background: #faf9f7;">
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div class="product-card bg-white rounded-xl p-5 border-l-2 border border-ink-100" style="border-left-color: #6b8cae;">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="text-2xl">🔍</span>
+              <div>
+                <h3 class="text-sm text-ink-800">Signavio</h3>
+                <p class="text-xs text-ink-400" style="font-weight:300;">プロセスマイニング＆マネジメント</p>
+              </div>
+            </div>
+            <p class="text-sm text-ink-500 mb-3" style="font-weight:300;">業務プロセスの実態を可視化。問題を発見し、改善し、自動化する。</p>
+            <div class="flex gap-2 flex-wrap">
+              <span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">⏱ 30秒</span>
+              <span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">📋 2分</span>
+              <span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">👤 ペルソナ</span>
+              <span class="text-xs px-2.5 py-1.5 rounded-lg border" style="background: #f0f4f8; border-color: #d0dbe7; color: #6b8cae;">📋 コピー</span>
+            </div>
+          </div>
+          <div class="product-card bg-white rounded-xl p-5 border-l-2 border border-ink-100" style="border-left-color: #8b7bb5;">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="text-2xl">🏗️</span>
+              <div>
+                <h3 class="text-sm text-ink-800">LeanIX</h3>
+                <p class="text-xs text-ink-400" style="font-weight:300;">エンタープライズ・アーキテクチャ管理</p>
+              </div>
+            </div>
+            <p class="text-sm text-ink-500 mb-3" style="font-weight:300;">IT資産の全体像を把握。計画的に最適化。Excelの混乱から脱却。</p>
+            <div class="flex gap-2 flex-wrap">
+              <span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">⏱ 30秒</span>
+              <span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">📋 2分</span>
+              <span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">👤 ペルソナ</span>
+            </div>
+          </div>
+          <div class="product-card bg-white rounded-xl p-5 border-l-2 border border-ink-100" style="border-left-color: #7ba88e;">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="text-2xl">🧬</span>
+              <div>
+                <h3 class="text-sm text-ink-800">Syniti</h3>
+                <p class="text-xs text-ink-400" style="font-weight:300;">データ品質＆マイグレーション</p>
+              </div>
+            </div>
+            <p class="text-sm text-ink-500 mb-3" style="font-weight:300;">S/4HANA移行の成否はデータ品質で決まる。Synitiがそれを保証する。</p>
+            <div class="flex gap-2 flex-wrap">
+              <span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">⏱ 30秒</span>
+              <span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">📋 2分</span>
+              <span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">👤 ペルソナ</span>
+            </div>
+          </div>
+          <div class="product-card bg-white rounded-xl p-5 border-l-2 border border-ink-100" style="border-left-color: #b5985b;">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="text-2xl">🧪</span>
+              <div>
+                <h3 class="text-sm text-ink-800">Tricentis</h3>
+                <p class="text-xs text-ink-400" style="font-weight:300;">テスト自動化＆品質保証</p>
+              </div>
+            </div>
+            <p class="text-sm text-ink-500 mb-3" style="font-weight:300;">SAP変更のリスクを最小化。人が見逃すバグを継続的に検出。</p>
+            <div class="flex gap-2 flex-wrap">
+              <span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">⏱ 30秒</span>
+              <span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">📋 2分</span>
+              <span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">👤 ペルソナ</span>
+            </div>
+          </div>
+        </div>
+        <!-- Japan context - full width -->
+        <div class="bg-white rounded-xl p-5 border border-ink-100">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-lg">🇯🇵</span>
+            <h3 class="text-sm text-ink-800">なぜ今、日本なのか</h3>
+          </div>
+          <div class="grid grid-cols-4 gap-3 text-xs">
+            <div class="rounded-lg p-3 text-center border border-ink-100" style="background: #faf5f5;">
+              <p class="text-ink-700" style="font-weight:500;">2025年の崖</p>
+              <p class="text-ink-400 mt-0.5" style="font-weight:300;">レガシーモダナイゼーション</p>
+            </div>
+            <div class="rounded-lg p-3 text-center border border-ink-100" style="background: #faf5f5;">
+              <p class="text-ink-700" style="font-weight:500;">人手不足</p>
+              <p class="text-ink-400 mt-0.5" style="font-weight:300;">自動化への必然</p>
+            </div>
+            <div class="rounded-lg p-3 text-center border border-ink-100" style="background: #faf5f5;">
+              <p class="text-ink-700" style="font-weight:500;">DX推進</p>
+              <p class="text-ink-400 mt-0.5" style="font-weight:300;">経団連の方針</p>
+            </div>
+            <div class="rounded-lg p-3 text-center border border-ink-100" style="background: #faf5f5;">
+              <p class="text-ink-700" style="font-weight:500;">製造業大国</p>
+              <p class="text-ink-400 mt-0.5" style="font-weight:300;">プロセスマイニング最適</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D-CROSSSELL -->
+    <div id="dscreen-d-crosssell" class="screen" style="flex-direction:column; height:100%;">
+      <div class="desktop-header">
+        <h2 class="text-base text-ink-800" style="font-weight:500;">🔗 クロスセル・プレイブック</h2>
+        <p class="text-xs text-ink-400 mt-0.5" style="font-weight:300;">お客様の発言 → 提案製品の組み合わせ</p>
+      </div>
+      <div class="flex-1 overflow-y-auto px-8 py-6" style="background: #faf9f7;">
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div class="bg-white rounded-xl p-5 border border-ink-100">
+            <p class="text-sm text-ink-700 mb-2.5" style="font-weight:500;">🗣️「S/4HANAへの移行を計画しています」</p>
+            <div class="flex items-center gap-1.5 mb-2 flex-wrap">
+              <span class="text-xs px-2.5 py-1 rounded-full border" style="background: #f0f4f8; border-color: #d0dbe7; color: #6b8cae;">Signavio</span>
+              <span class="text-ink-300 text-xs">→</span>
+              <span class="text-xs px-2.5 py-1 rounded-full border" style="background: #f0f7f2; border-color: #c8e0d2; color: #5a8a6b;">Syniti</span>
+              <span class="text-ink-300 text-xs">→</span>
+              <span class="text-xs px-2.5 py-1 rounded-full border" style="background: #faf6ef; border-color: #e5d9c3; color: #8a7345;">Tricentis</span>
+            </div>
+            <p class="text-xs text-ink-400" style="font-weight:300;">プロセス把握 → データ整備 → テスト自動化。<span style="font-weight:400;">¥1.5億以上。</span></p>
+          </div>
+          <div class="bg-white rounded-xl p-5 border border-ink-100">
+            <p class="text-sm text-ink-700 mb-2.5" style="font-weight:500;">🗣️「M&A後にアプリが多すぎます」</p>
+            <div class="flex items-center gap-1.5 mb-2">
+              <span class="text-xs px-2.5 py-1 rounded-full border" style="background: #f3f0f8; border-color: #d4cde5; color: #7b6ba0;">LeanIX</span>
+              <span class="text-ink-300 text-xs">→</span>
+              <span class="text-xs px-2.5 py-1 rounded-full border" style="background: #f0f4f8; border-color: #d0dbe7; color: #6b8cae;">Signavio</span>
+            </div>
+            <p class="text-xs text-ink-400" style="font-weight:300;">IT全体像の可視化 → プロセスの標準化。</p>
+          </div>
+          <div class="bg-white rounded-xl p-5 border border-ink-100">
+            <p class="text-sm text-ink-700 mb-2.5" style="font-weight:500;">🗣️「アップグレードで障害が頻発」</p>
+            <div class="flex items-center gap-1.5 mb-2">
+              <span class="text-xs px-2.5 py-1 rounded-full border" style="background: #faf6ef; border-color: #e5d9c3; color: #8a7345;">Tricentis</span>
+              <span class="text-ink-300 text-xs">→</span>
+              <span class="text-xs px-2.5 py-1 rounded-full border" style="background: #f0f4f8; border-color: #d0dbe7; color: #6b8cae;">Signavio</span>
+            </div>
+            <p class="text-xs text-ink-400" style="font-weight:300;">継続テストで安定化 → 根本原因を特定。</p>
+          </div>
+          <div class="bg-white rounded-xl p-5 border border-ink-100">
+            <p class="text-sm text-ink-700 mb-2.5" style="font-weight:500;">🗣️「すでにCelonisを導入しています」</p>
+            <div class="flex items-center gap-1.5 mb-2">
+              <span class="text-xs px-2.5 py-1 rounded-full border" style="background: #f0f4f8; border-color: #d0dbe7; color: #6b8cae;">Signavio</span>
+              <span class="text-xs text-ink-300">＋</span>
+              <span class="text-xs px-2.5 py-1 rounded-full bg-ink-50 text-ink-500 border border-ink-200">Celonis</span>
+            </div>
+            <p class="text-xs text-ink-400" style="font-weight:300;">発見はCelonis、改善設計はSignavio。<span style="font-weight:400;">補完関係。</span></p>
+          </div>
+        </div>
+        <div class="bg-ink-800 text-white rounded-xl p-6 text-center">
+          <p class="text-xs text-ink-400 mb-2" style="font-weight:300; letter-spacing:0.1em;">もっと大きく考えよう</p>
+          <div class="flex justify-center gap-12">
+            <div><p class="text-lg" style="font-weight:500;">〜¥5,000万</p><p class="text-xs text-ink-400" style="font-weight:300;">単一製品</p></div>
+            <div><p class="text-lg" style="font-weight:500;">¥1.5億〜3億+</p><p class="text-xs text-ink-400" style="font-weight:300;">ポートフォリオ</p></div>
+          </div>
+          <p class="text-xs text-ink-400 mt-3" style="font-weight:300;">常に2番目、3番目の製品を探す</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- D-GYM -->
+    <div id="dscreen-d-gym" class="screen" style="flex-direction:column; height:100%;">
+      <div class="desktop-header" style="background: #faf9fb; border-color: #e8e0ec;">
+        <h2 class="text-base" style="font-weight:500; color: #3d3554;">🎭 実践練習（道場）</h2>
+        <p class="text-xs mt-0.5" style="color: #8a7a9e; font-weight:300;">実戦さながらの稽古</p>
+      </div>
+      <div class="flex-1 overflow-y-auto" style="background: #faf9fb;">
+        <div class="flex h-full">
+          <!-- Scenario list -->
+          <div class="w-[320px] border-r border-ink-100 p-5 space-y-2 flex-shrink-0">
+            <p class="text-xs text-ink-400 mb-3" style="font-weight:400; letter-spacing:0.05em;">シナリオ一覧</p>
+            <div class="bg-white rounded-lg p-3.5 border border-ink-100 cursor-pointer">
+              <div class="flex items-center justify-between">
+                <div><p class="text-sm text-ink-700" style="font-weight:500;">🏭 製造業 CIO</p><p class="text-xs text-ink-400" style="font-weight:300;">大手自動車メーカー、S/4移行中</p></div>
+                <span class="text-xs px-2 py-0.5 rounded border" style="background: #fef9ed; border-color: #f0e4c4; color: #8a7345;">普通</span>
+              </div>
+            </div>
+            <div class="bg-white rounded-lg p-3.5 border-2 cursor-pointer" style="border-color: #8b7bb5;">
+              <div class="flex items-center justify-between">
+                <div><p class="text-sm text-ink-700" style="font-weight:500;">🏦 銀行 技術担当VP</p><p class="text-xs text-ink-400" style="font-weight:300;">コンプライアンス重視、Celonis導入済み</p></div>
+                <span class="text-xs px-2 py-0.5 rounded border" style="background: #fef2f2; border-color: #fecaca; color: #b45555;">難しい</span>
+              </div>
+            </div>
+            <div class="bg-white rounded-lg p-3.5 border border-ink-100 cursor-pointer">
+              <div class="flex items-center justify-between">
+                <div><p class="text-sm text-ink-700" style="font-weight:500;">💼 CFO 予算レビュー</p><p class="text-xs text-ink-400" style="font-weight:300;">「なぜ新しいツールが必要？」</p></div>
+                <span class="text-xs px-2 py-0.5 rounded border" style="background: #fef2f2; border-color: #fecaca; color: #b45555;">難しい</span>
+              </div>
+            </div>
+            <div class="bg-white rounded-lg p-3.5 border border-ink-100 cursor-pointer">
+              <div class="flex items-center justify-between">
+                <div><p class="text-sm text-ink-700" style="font-weight:500;">🏢 小売業 CDO</p><p class="text-xs text-ink-400" style="font-weight:300;">DX推進、オムニチャネル</p></div>
+                <span class="text-xs px-2 py-0.5 rounded border" style="background: #f0f7f2; border-color: #c8e0d2; color: #5a8a6b;">易しい</span>
+              </div>
+            </div>
+            <div class="bg-white rounded-lg p-3.5 border border-ink-100 cursor-pointer">
+              <div class="flex items-center justify-between">
+                <div><p class="text-sm text-ink-700" style="font-weight:500;">🎲 ランダム</p><p class="text-xs text-ink-400" style="font-weight:300;">お任せで</p></div>
+                <span class="text-xs px-2 py-0.5 rounded bg-ink-50 text-ink-400 border border-ink-100">？？？</span>
+              </div>
+            </div>
+          </div>
+          <!-- Roleplay area -->
+          <div class="flex-1 flex flex-col">
+            <div class="flex-1 px-6 py-5 space-y-3">
+              <p class="text-xs text-ink-400" style="font-weight:400; letter-spacing:0.05em;">実践中：銀行 技術担当VP</p>
+              <div class="msg-ai px-5 py-4 max-w-[75%] text-sm">
+                <p class="text-xs text-ink-400 mb-1.5" style="font-weight:300;">🏦 田中様 — みずほフィナンシャル 技術担当VP</p>
+                <p class="text-ink-600" style="font-weight:300;">「すでにCelonisでプロセスマイニングをやっています。SAPからさらに別のツールを導入する理由がわかりませんが、ご説明いただけますか？」</p>
+              </div>
+              <div class="flex justify-end">
+                <div class="msg-user px-5 py-3.5 max-w-[60%] text-sm">
+                  田中様、Celonisは素晴らしい投資ですね。プロセスの非効率を発見する点では優れていますが...
+                </div>
+              </div>
+            </div>
+            <div class="border-t border-ink-100 px-6 py-4 flex gap-3 bg-white">
+              <button class="text-ink-400 hover:text-ink-600 transition p-2 rounded-full" title="ファイルをアップロード"><span class="text-base">📎</span></button>
+              <input type="text" placeholder="あなたの返答..." class="flex-1 bg-ink-50 rounded-full px-5 py-3 text-sm outline-none text-ink-700 placeholder-ink-400" style="font-weight:300;">
+              <button class="text-ink-400 hover:text-ink-600 transition p-2 rounded-full" title="音声入力"><span class="text-base">🎤</span></button>
+              <button class="rounded-full px-6 py-2.5 text-sm text-white" style="background: #3d3554; font-weight:400;">送信</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D-SCORE -->
+    <div id="dscreen-d-score" class="screen" style="flex-direction:column; height:100%;">
+      <div class="desktop-header" style="background: #faf9fb; border-color: #e8e0ec;">
+        <h2 class="text-base" style="font-weight:500; color: #3d3554;">📊 実践スコアカード</h2>
+        <p class="text-xs mt-0.5" style="color: #8a7a9e; font-weight:300;">銀行VP — Celonisシナリオ</p>
+      </div>
+      <div class="flex-1 overflow-y-auto" style="background: #faf9fb;">
+        <div class="flex h-full">
+          <!-- Score panel -->
+          <div class="flex-1 px-8 py-6 space-y-5">
+            <div class="flex items-center gap-6">
+              <div class="inline-flex items-center justify-center w-16 h-16 rounded-full text-white text-xl shadow-sm" style="background: linear-gradient(135deg, #7ba88e, #5a8a6b); font-weight:600;">B+</div>
+              <div>
+                <p class="text-sm text-ink-700" style="font-weight:500;">良い内容です</p>
+                <p class="text-xs text-ink-400" style="font-weight:300;">もう少し大きく考えましょう。</p>
+              </div>
+            </div>
+            <div class="space-y-3">
+              <div><div class="flex justify-between text-sm mb-1.5"><span class="text-ink-500" style="font-weight:300;">💡 ビジネス価値で訴求</span><span style="color: #5a8a6b; font-weight:400;">✅ 優秀</span></div><div class="score-bar bg-ink-100 w-full"><div class="score-bar" style="width:85%; background: #7ba88e;"></div></div></div>
+              <div><div class="flex justify-between text-sm mb-1.5"><span class="text-ink-500" style="font-weight:300;">❓ ヒアリング質問</span><span style="color: #5a8a6b; font-weight:400;">✅ 良好</span></div><div class="score-bar bg-ink-100 w-full"><div class="score-bar" style="width:75%; background: #7ba88e;"></div></div></div>
+              <div><div class="flex justify-between text-sm mb-1.5"><span class="text-ink-500" style="font-weight:300;">🎯 適切な製品提案</span><span style="color: #5a8a6b; font-weight:400;">✅ 良好</span></div><div class="score-bar bg-ink-100 w-full"><div class="score-bar" style="width:80%; background: #7ba88e;"></div></div></div>
+              <div><div class="flex justify-between text-sm mb-1.5"><span class="text-ink-500" style="font-weight:300;">🥊 反論への対応</span><span style="color: #8a7345; font-weight:400;">⚠️ まあまあ</span></div><div class="score-bar bg-ink-100 w-full"><div class="score-bar" style="width:55%; background: #c9b87a;"></div></div></div>
+              <div><div class="flex justify-between text-sm mb-1.5"><span class="text-ink-500" style="font-weight:300;">📐 案件規模の発想</span><span style="color: #b45555; font-weight:400;">❌ 小さすぎる</span></div><div class="score-bar bg-ink-100 w-full"><div class="score-bar" style="width:30%; background: #c97a7a;"></div></div></div>
+              <div><div class="flex justify-between text-sm mb-1.5"><span class="text-ink-500" style="font-weight:300;">🔗 クロスセル意識</span><span style="color: #8a7345; font-weight:400;">⚠️ 見逃し</span></div><div class="score-bar bg-ink-100 w-full"><div class="score-bar" style="width:40%; background: #c9b87a;"></div></div></div>
+            </div>
+            <div class="flex gap-3 pt-2">
+              <button class="text-white rounded-xl py-3 px-8 text-sm" style="background: #3d3554; font-weight:400;">🔄 もう一度挑戦</button>
+              <button class="bg-white text-ink-600 rounded-xl py-3 px-8 text-sm border border-ink-200" style="font-weight:400;">👀 模範解答を見る</button>
+            </div>
+          </div>
+          <!-- Coach notes panel -->
+          <div class="w-[340px] border-l border-ink-100 p-6 bg-white flex-shrink-0">
+            <p class="text-sm mb-3" style="font-weight:500; color: #4a5568;">💡 コーチのコメント</p>
+            <ul class="text-xs text-ink-500 space-y-3" style="font-weight:300;">
+              <li class="flex gap-2"><span class="text-ink-300 shrink-0">―</span><span>Celonisとの差別化は上手でした。「競合ではなく補完」という切り口は正解です</span></li>
+              <li class="flex gap-2"><span class="text-ink-300 shrink-0">―</span><span><span style="font-weight:500;">見逃したチャンス：</span>田中様がコンプライアンスに言及した時 → Signavio（ガバナンス）+ Tricentis（テスト自動化）の入り口でした</span></li>
+              <li class="flex gap-2"><span class="text-ink-300 shrink-0">―</span><span>Signavioだけを提案。3製品が可能：Signavio + Tricentis + LeanIX</span></li>
+              <li class="flex gap-2"><span class="text-ink-300 shrink-0">―</span><span><span style="font-weight:500;">もっと大きく：</span>¥3,000万のパイロット → この規模の銀行なら¥7,500万スタート、¥2億への拡大パスを</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==================== MOBILE VERSION ==================== -->
+<!-- (Same as before — keeping mobile screens intact) -->
+
+<!-- SCREEN 1: Coach Learn -->
+<div id="screen-coach" class="screen active">
+  <div class="mobile-frame bg-white">
+    <div class="bg-ink-800 text-white px-5 py-5">
+      <h2 class="text-base tracking-widest" style="font-weight:500;">助太刀</h2>
+      <p class="text-ink-400 text-xs mt-0.5" style="font-weight:300;">あなたの営業を助太刀する</p>
+      <div class="flex gap-2 mt-4">
+        <div class="chip bg-white/10 text-white/90 border border-white/20" style="font-weight:400;">📚 学ぶ</div>
+        <div class="chip text-ink-400 border border-transparent">🥊 挑戦する</div>
+      </div>
+    </div>
+    <div class="px-5 py-5 space-y-4" style="min-height: 420px; background: #faf9f7;">
+      <div class="msg-ai px-4 py-3.5 max-w-[88%] text-sm">
+        <p class="text-sumi-light mb-1.5" style="font-weight:500; font-size:12px;">⚔️ 助太刀、参上！</p>
+        <p class="text-sumi-light" style="font-weight:300;">BTMポートフォリオの戦いに、あなたの味方として馳せ参じました。Signavio、LeanIX、Syniti、Tricentisについて、何でも聞いてください。</p>
+      </div>
+      <div class="flex flex-wrap gap-2 pl-1">
+        <span class="chip bg-white text-ink-600 text-xs border border-ink-200">プロセスマイニングとは？</span>
+        <span class="chip bg-white text-ink-600 text-xs border border-ink-200">LeanIXの価値は？</span>
+        <span class="chip bg-white text-ink-600 text-xs border border-ink-200">S/4移行でSynitiが必要な理由</span>
+        <span class="chip bg-white text-ink-600 text-xs border border-ink-200">Tricentisの30秒ピッチ</span>
+      </div>
+      <div class="flex justify-end">
+        <div class="msg-user px-4 py-3 max-w-[80%] text-sm">プロセスマイニングって何ですか？日本の製造業にとって、なぜ重要なのですか？</div>
+      </div>
+      <div class="msg-ai px-4 py-3.5 max-w-[88%] text-sm space-y-2.5">
+        <p class="text-sumi-light"><span style="font-weight:500;">プロセスマイニング</span>とは、業務プロセスの「デジタルレントゲン」です。システムログを分析し、実際の業務フローを可視化します。</p>
+        <p class="text-sumi-light" style="font-weight:400;">🏭 日本の製造業にとっての重要性：</p>
+        <ul class="list-none pl-0 space-y-1.5 text-xs text-sumi-light">
+          <li class="flex gap-2"><span class="text-ink-400 shrink-0">―</span><span><span style="font-weight:500;">人手不足</span> — 非効率を素早く発見する必要があります</span></li>
+          <li class="flex gap-2"><span class="text-ink-400 shrink-0">―</span><span><span style="font-weight:500;">2025年の崖</span> — S/4HANAへの移行には現行プロセスの把握が不可欠</span></li>
+          <li class="flex gap-2"><span class="text-ink-400 shrink-0">―</span><span><span style="font-weight:500;">ものづくりの文化</span> — 「デジタルカイゼン」そのものです</span></li>
+        </ul>
+        <div class="bg-washi-cool rounded-lg p-3 mt-2 border border-ink-100">
+          <p class="text-xs text-ink-500">💡 <span style="font-weight:500;">営業ヒント：</span>「デジタルカイゼン」が響きます。</p>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-ink-100 px-5 py-3.5 flex gap-2 bg-white">
+      <button class="text-ink-400 p-1.5" title="ファイル">📎</button>
+      <input type="text" placeholder="何でも質問..." class="flex-1 bg-ink-50 rounded-full px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-ink-300 text-ink-700 placeholder-ink-400" style="font-weight:300;">
+      <button class="text-ink-400 p-1.5" title="音声入力">🎤</button>
+      <button class="bg-ink-700 text-white rounded-full w-10 h-10 flex items-center justify-center text-sm">↑</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile screens 2-6 (Challenge, Navigator, Crosssell, Gym, Score) -->
+<div id="screen-challenge" class="screen">
+  <div class="mobile-frame bg-white">
+    <div class="px-5 py-5" style="background: #5c4a32;">
+      <h2 class="text-base tracking-widest text-amber-100" style="font-weight:500;">助太刀</h2>
+      <p class="text-xs mt-0.5" style="color: #c9b896; font-weight:300;">チャレンジモード — 腕を磨け</p>
+      <div class="flex gap-2 mt-4">
+        <div class="chip border border-transparent" style="color: #c9b896;">📚 学ぶ</div>
+        <div class="chip bg-white/10 border border-white/20" style="color: #f5efe6; font-weight:400;">🥊 挑戦する</div>
+      </div>
+    </div>
+    <div class="px-5 py-5 space-y-4" style="min-height: 420px; background: #faf8f5;">
+      <div class="px-4 py-3.5 max-w-[88%] text-sm rounded-2xl" style="background: #f5efe6;">
+        <p class="mb-1.5" style="font-weight:500; font-size:12px; color: #6b5a3e;">🥊 チャレンジモード</p>
+        <p style="color: #6b5a3e; font-weight:300;">懐疑的な同僚やお客様として立ちはだかります。一本取ってみてください。</p>
+      </div>
+      <div class="flex flex-wrap gap-2 pl-1">
+        <span class="chip bg-white text-xs border border-ink-200" style="color: #6b5a3e;">🙄「BPMに市場はない」</span>
+        <span class="chip bg-white text-xs border border-ink-200" style="color: #6b5a3e;">🤷「EAはただのパワポ」</span>
+        <span class="chip bg-white text-xs border border-ink-200" style="color: #6b5a3e;">😤「Celonisに勝てない」</span>
+      </div>
+      <div class="flex justify-end">
+        <div class="px-4 py-3 max-w-[80%] text-sm rounded-2xl" style="background: #5c4a32; color: #f5efe6; border-radius: 16px 16px 4px 16px;">正直、日本でEAツールの市場はないと思います。</div>
+      </div>
+      <div class="px-4 py-3.5 max-w-[88%] text-sm space-y-2.5 rounded-2xl" style="background: #f5efe6;">
+        <p style="color: #6b5a3e;">本当にそうでしょうか？🤔</p>
+        <p style="color: #6b5a3e;"><span style="font-weight:500;">日本には従業員1,000人以上の企業が5,600社以上。</span>その多くが200〜500のアプリを運用。自社のIT資産を把握できていますか？</p>
+        <p style="color: #6b5a3e;"><span style="font-weight:500;">Gartner 2025：</span>EA市場は前年比15%成長。競合が投資しているのに市場がないはずがありません。</p>
+        <div class="rounded-lg p-3 mt-2" style="background: #ece5d8;"><p class="text-xs" style="color: #6b5a3e; font-weight:400;">💪 あなたの番：どう説明しますか？</p></div>
+      </div>
+    </div>
+    <div class="border-t px-5 py-3.5 flex gap-2 bg-white" style="border-color: #e9e4db;">
+      <button class="p-1.5" style="color: #8a7a62;" title="ファイル">📎</button>
+      <input type="text" placeholder="あなたの主張を..." class="flex-1 rounded-full px-4 py-2.5 text-sm outline-none" style="background: #faf8f5; color: #5c4a32; font-weight:300;">
+      <button class="p-1.5" style="color: #8a7a62;" title="音声入力">🎤</button>
+      <button class="rounded-full w-10 h-10 flex items-center justify-center text-sm text-white" style="background: #5c4a32;">↑</button>
+    </div>
+  </div>
+</div>
+
+<div id="screen-navigator" class="screen">
+  <div class="mobile-frame bg-white">
+    <div class="bg-ink-800 text-white px-5 py-5">
+      <h2 class="text-base tracking-widest" style="font-weight:500;">製品ナビゲーター</h2>
+      <p class="text-ink-400 text-xs mt-0.5" style="font-weight:300;">製品をタップして詳細を表示</p>
+    </div>
+    <div class="px-5 py-5 space-y-3" style="background: #faf9f7;">
+      <div class="product-card bg-white rounded-xl p-4 border-l-2 border border-ink-100" style="border-left-color: #6b8cae;"><div class="flex items-center gap-3 mb-2"><span class="text-xl">🔍</span><div><h3 class="text-sm text-ink-800">Signavio</h3><p class="text-xs text-ink-400" style="font-weight:300;">プロセスマイニング＆マネジメント</p></div></div><p class="text-sm text-ink-500 mb-3" style="font-weight:300;">業務プロセスの実態を可視化。問題を発見し、改善し、自動化する。</p><div class="flex gap-2 flex-wrap"><span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">⏱ 30秒</span><span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">📋 2分</span><span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">👤 ペルソナ</span></div></div>
+      <div class="product-card bg-white rounded-xl p-4 border-l-2 border border-ink-100" style="border-left-color: #8b7bb5;"><div class="flex items-center gap-3 mb-2"><span class="text-xl">🏗️</span><div><h3 class="text-sm text-ink-800">LeanIX</h3><p class="text-xs text-ink-400" style="font-weight:300;">エンタープライズ・アーキテクチャ管理</p></div></div><p class="text-sm text-ink-500 mb-3" style="font-weight:300;">IT資産の全体像を把握。計画的に最適化。</p><div class="flex gap-2 flex-wrap"><span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">⏱ 30秒</span><span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">📋 2分</span><span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">👤 ペルソナ</span></div></div>
+      <div class="product-card bg-white rounded-xl p-4 border-l-2 border border-ink-100" style="border-left-color: #7ba88e;"><div class="flex items-center gap-3 mb-2"><span class="text-xl">🧬</span><div><h3 class="text-sm text-ink-800">Syniti</h3><p class="text-xs text-ink-400" style="font-weight:300;">データ品質＆マイグレーション</p></div></div><p class="text-sm text-ink-500 mb-3" style="font-weight:300;">S/4HANA移行の成否はデータ品質で決まる。</p><div class="flex gap-2 flex-wrap"><span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">⏱ 30秒</span><span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">📋 2分</span><span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">👤 ペルソナ</span></div></div>
+      <div class="product-card bg-white rounded-xl p-4 border-l-2 border border-ink-100" style="border-left-color: #b5985b;"><div class="flex items-center gap-3 mb-2"><span class="text-xl">🧪</span><div><h3 class="text-sm text-ink-800">Tricentis</h3><p class="text-xs text-ink-400" style="font-weight:300;">テスト自動化＆品質保証</p></div></div><p class="text-sm text-ink-500 mb-3" style="font-weight:300;">SAP変更のリスクを最小化。継続的に検出。</p><div class="flex gap-2 flex-wrap"><span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">⏱ 30秒</span><span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">📋 2分</span><span class="text-xs bg-ink-50 text-ink-500 px-2.5 py-1.5 rounded-lg border border-ink-100">👤 ペルソナ</span></div></div>
+      <div class="bg-white rounded-xl p-4 border border-ink-100"><div class="flex items-center gap-2 mb-3"><span class="text-lg">🇯🇵</span><h3 class="text-sm text-ink-800">なぜ今、日本なのか</h3></div><div class="grid grid-cols-2 gap-2 text-xs"><div class="rounded-lg p-3 text-center border border-ink-100" style="background: #faf5f5;"><p class="text-ink-700" style="font-weight:500;">2025年の崖</p><p class="text-ink-400 mt-0.5" style="font-weight:300;">レガシーモダナイゼーション</p></div><div class="rounded-lg p-3 text-center border border-ink-100" style="background: #faf5f5;"><p class="text-ink-700" style="font-weight:500;">人手不足</p><p class="text-ink-400 mt-0.5" style="font-weight:300;">自動化への必然</p></div><div class="rounded-lg p-3 text-center border border-ink-100" style="background: #faf5f5;"><p class="text-ink-700" style="font-weight:500;">DX推進</p><p class="text-ink-400 mt-0.5" style="font-weight:300;">経団連の方針</p></div><div class="rounded-lg p-3 text-center border border-ink-100" style="background: #faf5f5;"><p class="text-ink-700" style="font-weight:500;">製造業大国</p><p class="text-ink-400 mt-0.5" style="font-weight:300;">プロセスマイニング最適</p></div></div></div>
+    </div>
+  </div>
+</div>
+
+<div id="screen-crosssell" class="screen">
+  <div class="mobile-frame bg-white">
+    <div class="bg-ink-800 text-white px-5 py-5">
+      <h2 class="text-base tracking-widest" style="font-weight:500;">クロスセル・プレイブック</h2>
+      <p class="text-ink-400 text-xs mt-0.5" style="font-weight:300;">お客様の発言 → 提案製品</p>
+    </div>
+    <div class="px-5 py-5 space-y-3" style="background: #faf9f7;">
+      <div class="bg-white rounded-xl p-4 border border-ink-100"><p class="text-sm text-ink-700 mb-2" style="font-weight:500;">🗣️「S/4HANAへの移行を計画」</p><div class="flex items-center gap-1.5 mb-2 flex-wrap"><span class="text-xs px-2.5 py-1 rounded-full border" style="background: #f0f4f8; border-color: #d0dbe7; color: #6b8cae;">Signavio</span><span class="text-ink-300 text-xs">→</span><span class="text-xs px-2.5 py-1 rounded-full border" style="background: #f0f7f2; border-color: #c8e0d2; color: #5a8a6b;">Syniti</span><span class="text-ink-300 text-xs">→</span><span class="text-xs px-2.5 py-1 rounded-full border" style="background: #faf6ef; border-color: #e5d9c3; color: #8a7345;">Tricentis</span></div><p class="text-xs text-ink-400" style="font-weight:300;"><span style="font-weight:400;">¥1.5億以上のポートフォリオ案件。</span></p></div>
+      <div class="bg-white rounded-xl p-4 border border-ink-100"><p class="text-sm text-ink-700 mb-2" style="font-weight:500;">🗣️「M&A後にアプリが多すぎる」</p><div class="flex items-center gap-1.5 mb-2"><span class="text-xs px-2.5 py-1 rounded-full border" style="background: #f3f0f8; border-color: #d4cde5; color: #7b6ba0;">LeanIX</span><span class="text-ink-300 text-xs">→</span><span class="text-xs px-2.5 py-1 rounded-full border" style="background: #f0f4f8; border-color: #d0dbe7; color: #6b8cae;">Signavio</span></div><p class="text-xs text-ink-400" style="font-weight:300;">可視化 → 標準化。合理化と統合。</p></div>
+      <div class="bg-white rounded-xl p-4 border border-ink-100"><p class="text-sm text-ink-700 mb-2" style="font-weight:500;">🗣️「Celonisを導入済み」</p><div class="flex items-center gap-1.5 mb-2"><span class="text-xs px-2.5 py-1 rounded-full border" style="background: #f0f4f8; border-color: #d0dbe7; color: #6b8cae;">Signavio</span><span class="text-xs text-ink-300">＋</span><span class="text-xs px-2.5 py-1 rounded-full bg-ink-50 text-ink-500 border border-ink-200">Celonis</span></div><p class="text-xs text-ink-400" style="font-weight:300;"><span style="font-weight:400;">競合ではなく補完関係。</span></p></div>
+      <div class="bg-ink-800 text-white rounded-xl p-5 text-center"><p class="text-xs text-ink-400 mb-1.5" style="font-weight:300; letter-spacing:0.1em;">もっと大きく考えよう</p><p class="text-base" style="font-weight:500;">単一：〜¥5,000万</p><p class="text-base" style="font-weight:500;">ポートフォリオ：¥1.5億〜3億+</p></div>
+    </div>
+  </div>
+</div>
+
+<div id="screen-gym" class="screen">
+  <div class="mobile-frame bg-white">
+    <div class="px-5 py-5" style="background: #3d3554;"><h2 class="text-base tracking-widest" style="font-weight:500; color: #e8e0f0;">🎭 実践練習</h2><p class="text-xs mt-0.5" style="color: #a99bbe; font-weight:300;">実戦さながらの稽古</p></div>
+    <div class="px-5 py-5 space-y-3" style="background: #faf9fb;">
+      <div class="rounded-xl p-4 border" style="background: #f5f2f8; border-color: #e0d8ec;"><p class="text-sm mb-3" style="font-weight:500; color: #4a3d5e;">シナリオを選択：</p><div class="space-y-2">
+        <div class="bg-white rounded-lg p-3.5 border border-ink-100"><div class="flex items-center justify-between"><div><p class="text-sm text-ink-700" style="font-weight:500;">🏭 製造業 CIO</p><p class="text-xs text-ink-400" style="font-weight:300;">大手自動車メーカー</p></div><span class="text-xs px-2 py-0.5 rounded border" style="background: #fef9ed; border-color: #f0e4c4; color: #8a7345;">普通</span></div></div>
+        <div class="bg-white rounded-lg p-3.5 border-2" style="border-color: #8b7bb5;"><div class="flex items-center justify-between"><div><p class="text-sm text-ink-700" style="font-weight:500;">🏦 銀行 技術担当VP</p><p class="text-xs text-ink-400" style="font-weight:300;">Celonis導入済み</p></div><span class="text-xs px-2 py-0.5 rounded border" style="background: #fef2f2; border-color: #fecaca; color: #b45555;">難しい</span></div></div>
+        <div class="bg-white rounded-lg p-3.5 border border-ink-100"><div class="flex items-center justify-between"><div><p class="text-sm text-ink-700" style="font-weight:500;">💼 CFO 予算レビュー</p><p class="text-xs text-ink-400" style="font-weight:300;">「なぜ新しいツール？」</p></div><span class="text-xs px-2 py-0.5 rounded border" style="background: #fef2f2; border-color: #fecaca; color: #b45555;">難しい</span></div></div>
+        <div class="bg-white rounded-lg p-3.5 border border-ink-100"><div class="flex items-center justify-between"><div><p class="text-sm text-ink-700" style="font-weight:500;">🎲 ランダム</p><p class="text-xs text-ink-400" style="font-weight:300;">お任せ</p></div><span class="text-xs px-2 py-0.5 rounded bg-ink-50 text-ink-400 border border-ink-100">？？？</span></div></div>
+      </div></div>
+      <div class="bg-white rounded-xl p-4 border border-ink-100"><p class="text-xs text-ink-400 mb-2" style="font-weight:400;">実践中のシナリオ</p><div class="msg-ai px-4 py-3 text-sm mb-2"><p class="text-xs text-ink-400 mb-1.5" style="font-weight:300;">🏦 田中様 — みずほフィナンシャル</p><p class="text-ink-600" style="font-weight:300;">「Celonisでプロセスマイニングをやっています。別のツールを導入する理由は？」</p></div><div class="flex justify-end"><div class="msg-user px-4 py-3 max-w-[80%] text-sm">田中様、Celonisは素晴らしい投資ですね...</div></div></div>
+    </div>
+  </div>
+</div>
+
+<div id="screen-score" class="screen">
+  <div class="mobile-frame bg-white">
+    <div class="px-5 py-5" style="background: #3d3554;"><h2 class="text-base tracking-widest" style="font-weight:500; color: #e8e0f0;">📊 スコアカード</h2><p class="text-xs mt-0.5" style="color: #a99bbe; font-weight:300;">銀行VP — Celonisシナリオ</p></div>
+    <div class="px-5 py-5 space-y-4" style="background: #faf9fb;">
+      <div class="text-center py-3"><div class="inline-flex items-center justify-center w-16 h-16 rounded-full text-white text-xl shadow-sm" style="background: linear-gradient(135deg, #7ba88e, #5a8a6b); font-weight:600;">B+</div><p class="text-sm text-ink-400 mt-2.5" style="font-weight:300;">良い内容です。もう少し大きく考えましょう。</p></div>
+      <div class="space-y-3">
+        <div><div class="flex justify-between text-sm mb-1.5"><span class="text-ink-500" style="font-weight:300;">💡 ビジネス価値</span><span style="color: #5a8a6b; font-weight:400;">✅ 優秀</span></div><div class="score-bar bg-ink-100 w-full"><div class="score-bar" style="width:85%; background: #7ba88e;"></div></div></div>
+        <div><div class="flex justify-between text-sm mb-1.5"><span class="text-ink-500" style="font-weight:300;">❓ ヒアリング</span><span style="color: #5a8a6b; font-weight:400;">✅ 良好</span></div><div class="score-bar bg-ink-100 w-full"><div class="score-bar" style="width:75%; background: #7ba88e;"></div></div></div>
+        <div><div class="flex justify-between text-sm mb-1.5"><span class="text-ink-500" style="font-weight:300;">🎯 製品提案</span><span style="color: #5a8a6b; font-weight:400;">✅ 良好</span></div><div class="score-bar bg-ink-100 w-full"><div class="score-bar" style="width:80%; background: #7ba88e;"></div></div></div>
+        <div><div class="flex justify-between text-sm mb-1.5"><span class="text-ink-500" style="font-weight:300;">🥊 反論対応</span><span style="color: #8a7345; font-weight:400;">⚠️ まあまあ</span></div><div class="score-bar bg-ink-100 w-full"><div class="score-bar" style="width:55%; background: #c9b87a;"></div></div></div>
+        <div><div class="flex justify-between text-sm mb-1.5"><span class="text-ink-500" style="font-weight:300;">📐 案件規模</span><span style="color: #b45555; font-weight:400;">❌ 小さい</span></div><div class="score-bar bg-ink-100 w-full"><div class="score-bar" style="width:30%; background: #c97a7a;"></div></div></div>
+        <div><div class="flex justify-between text-sm mb-1.5"><span class="text-ink-500" style="font-weight:300;">🔗 クロスセル</span><span style="color: #8a7345; font-weight:400;">⚠️ 見逃し</span></div><div class="score-bar bg-ink-100 w-full"><div class="score-bar" style="width:40%; background: #c9b87a;"></div></div></div>
+      </div>
+      <div class="bg-white rounded-xl p-4 border border-ink-100"><p class="text-sm mb-2.5" style="font-weight:500; color: #4a5568;">💡 コーチのコメント</p><ul class="text-xs text-ink-500 space-y-2.5" style="font-weight:300;"><li class="flex gap-2"><span class="text-ink-300 shrink-0">―</span><span>「競合ではなく補完」の切り口は正解</span></li><li class="flex gap-2"><span class="text-ink-300 shrink-0">―</span><span><span style="font-weight:500;">見逃し：</span>コンプライアンス → Signavio + Tricentis</span></li><li class="flex gap-2"><span class="text-ink-300 shrink-0">―</span><span><span style="font-weight:500;">もっと大きく：</span>¥7,500万スタート、¥2億拡大パスを</span></li></ul></div>
+      <div class="flex gap-2"><button class="flex-1 text-white rounded-xl py-3 text-sm" style="background: #3d3554; font-weight:400;">🔄 もう一度</button><button class="flex-1 bg-white text-ink-600 rounded-xl py-3 text-sm border border-ink-200" style="font-weight:400;">👀 模範解答</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showScreen(name) {
+  document.querySelectorAll('#screen-coach, #screen-challenge, #screen-navigator, #screen-crosssell, #screen-gym, #screen-score').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('#mobile-nav .nav-pill').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.getElementById('btn-' + name).classList.add('active');
+}
+function showDesktopScreen(name) {
+  document.querySelectorAll('[id^="dscreen-"]').forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
+  document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+  var el = document.getElementById('dscreen-' + name);
+  el.classList.add('active');
+  el.style.display = 'flex';
+  document.getElementById('dbtn-' + name).classList.add('active');
+}
+function setView(mode) {
+  document.body.classList.remove('mobile-mode', 'desktop-mode');
+  document.body.classList.add(mode + '-mode');
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + mode).classList.add('active');
+  document.getElementById('mobile-nav').style.display = mode === 'mobile' ? 'flex' : 'none';
+}
+</script>
+</body>
+</html>
