@@ -192,8 +192,18 @@ export default function Debrief() {
             className="w-full px-3 py-2 rounded-lg border border-[var(--ink-200)] text-[13px] text-[var(--ink-800)] bg-[var(--washi)] focus:outline-none focus:border-[var(--sage)] resize-y"
             style={{ lineHeight: 1.7 }}
           />
-          <div className="flex items-center justify-between mt-3">
-            <div className="flex gap-2">
+          <div className="flex items-center justify-between mt-3 flex-wrap gap-2">
+            <div className="flex gap-2 flex-wrap">
+              {/* Clear */}
+              {notes.trim() && (
+                <button
+                  onClick={() => setNotes('')}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[12px] border border-[var(--ink-200)] text-[var(--ink-500)] hover:bg-[var(--ink-50)] transition-colors"
+                  style={{ fontWeight: 400 }}
+                >
+                  ✕ {t('account.clear') || 'Clear'}
+                </button>
+              )}
               {/* File upload */}
               <input
                 ref={fileInputRef}
