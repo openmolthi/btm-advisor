@@ -59,6 +59,8 @@ export function useSpeechRecognition({ lang = 'jp', onResult, autoSend = true, a
       setIsListening(true)
     }
 
+    let sentAlready = false
+
     recognition.onresult = (event) => {
       let finalTranscript = ''
       let interimTranscript = ''
@@ -79,7 +81,8 @@ export function useSpeechRecognition({ lang = 'jp', onResult, autoSend = true, a
       clearAutoSendTimer()
       if (autoSend && fullText.trim()) {
         autoSendTimerRef.current = setTimeout(() => {
-          if (onResultRef.current && fullText.trim()) {
+          if (!sentAlready && onResultRef.current && fullText.trim()) {
+            sentAlready = true
             onResultRef.current(fullText.trim())
             setTranscript('')
           }
