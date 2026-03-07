@@ -52,48 +52,31 @@ export default function Layout({ activeTab, onTabChange, onDrillOpen, children }
         <div className="px-3 py-2 border-b border-[var(--ink-200)]">
           <button
             onClick={() => setAccountOpen(true)}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all hover:bg-[var(--sage-tint)] border border-[var(--ink-200)]"
+            className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all border ${
+              hasContext
+                ? 'hover:bg-[var(--sage-tint)] border-[var(--ink-200)]'
+                : 'border-[var(--sage)] hover:bg-[var(--sage-tint)] animate-pulse-subtle'
+            }`}
             style={{ background: hasContext ? 'var(--sage-tint)' : 'var(--surface)' }}
           >
             <Building2 size={16} className="text-[var(--sage-dark)]" />
-            <span className="text-[13px] text-[var(--ink-800)] flex-1 text-left" style={{ fontWeight: 500 }}>
-              {t('account.title')}
-            </span>
+            <div className="flex-1 text-left">
+              <span className="text-[13px] text-[var(--ink-800)] block" style={{ fontWeight: 500 }}>
+                {hasContext ? t('account.title') : t('account.startHere')}
+              </span>
+              {!hasContext && (
+                <span className="text-[10px] text-[var(--sage-dark)]" style={{ fontWeight: 400 }}>
+                  {t('account.startHereDesc')}
+                </span>
+              )}
+            </div>
             {hasContext && (
               <span className="w-2 h-2 rounded-full bg-[var(--sage)]" />
             )}
           </button>
         </div>
 
-        {/* Daily Drill button */}
-        <div className="px-3 py-2 border-b border-[var(--ink-200)]">
-          <button
-            onClick={onDrillOpen}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all hover:bg-[var(--sage-tint)] border border-[var(--ink-200)]"
-            style={{ background: drillDone ? 'var(--success-bg)' : 'var(--sage-tint)' }}
-          >
-            <Zap size={16} className="text-[var(--sage-dark)]" />
-            <span className="text-[13px] text-[var(--ink-800)] flex-1 text-left" style={{ fontWeight: 500 }}>
-              {t('drill.title')}
-            </span>
-            {!drillDone && (
-              <span
-                className="text-[10px] px-1.5 py-0.5 rounded border"
-                style={{ background: 'var(--streak-bg)', borderColor: 'var(--streak-border)', color: 'var(--streak-text)', fontWeight: 600 }}
-              >
-                {t('drill.notDone')}
-              </span>
-            )}
-            {drillDone && (
-              <span
-                className="text-[10px] px-1.5 py-0.5 rounded border"
-                style={{ background: 'var(--success-bg)', borderColor: 'var(--success-border)', color: 'var(--success-text)', fontWeight: 600 }}
-              >
-                {t('drill.done')}
-              </span>
-            )}
-          </button>
-        </div>
+        {/* Daily Drill — small, unintrusive */}
 
         {/* Navigation */}
         <nav className="flex-1 py-3 px-2">
@@ -123,8 +106,18 @@ export default function Layout({ activeTab, onTabChange, onDrillOpen, children }
           </div>
         </nav>
 
-        {/* Footer with theme & language toggle */}
+        {/* Footer with drill + theme + language */}
         <div className="px-4 py-3 border-t border-[var(--ink-200)]">
+          <button
+            onClick={onDrillOpen}
+            className="flex items-center gap-2 px-2 py-1.5 rounded-lg text-[11px] text-[var(--ink-500)] hover:bg-[var(--ink-200)] hover:text-[var(--ink-700)] transition-colors w-full mb-0.5"
+          >
+            <Zap size={14} className={drillDone ? 'text-[var(--success-text)]' : ''} />
+            <span style={{ fontWeight: 400 }}>{t('drill.title')}</span>
+            {drillDone && <span className="text-[9px]">✓</span>}
+          </button>
+        </div>
+        <div className="px-4 pb-3">
           <button
             onClick={toggleTheme}
             className="flex items-center gap-2 px-2 py-1.5 rounded-lg text-[11px] text-[var(--ink-500)] hover:bg-[var(--ink-200)] hover:text-[var(--ink-700)] transition-colors w-full mb-0.5"
@@ -218,11 +211,13 @@ export default function Layout({ activeTab, onTabChange, onDrillOpen, children }
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => setAccountOpen(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] border border-[var(--ink-200)] hover:bg-[var(--ink-50)] transition-colors"
-              style={{ color: company ? 'var(--sage-dark)' : 'var(--ink-500)', fontWeight: 500, background: company ? 'var(--sage-tint)' : 'transparent' }}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] border transition-colors ${
+                company ? 'border-[var(--ink-200)] hover:bg-[var(--ink-50)]' : 'border-[var(--sage)] animate-pulse-subtle'
+              }`}
+              style={{ color: company ? 'var(--sage-dark)' : 'var(--sage-dark)', fontWeight: 500, background: company ? 'var(--sage-tint)' : 'transparent' }}
             >
               <Building2 size={14} />
-              {company ? company.slice(0, 12) : t('account.set')}
+              {company ? company.slice(0, 12) : t('account.startHere')}
             </button>
             <button onClick={toggleLang} className="p-1.5 rounded-lg hover:bg-[var(--ink-100)]">
               <Globe size={16} className="text-[var(--ink-500)]" />

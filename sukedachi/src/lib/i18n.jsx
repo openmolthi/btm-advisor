@@ -308,7 +308,7 @@ const translations = {
   'japan.news.fetch': { jp: 'ニュースを取得', en: 'Fetch Latest News' },
   'japan.news.loading': { jp: '取得中...', en: 'Fetching...' },
   'japan.news.sources': {
-    jp: 'Nikkei Asia・NHK World・Nippon.com・Japan Times から取得',
+    jp: '日経新聞・NHKニュース・ITmedia・Nippon.com から取得',
     en: 'From Nikkei Asia · NHK World · Nippon.com · Japan Times',
   },
   'japan.news.empty': {
@@ -324,6 +324,8 @@ const translations = {
   // Account context
   'account.title': { jp: 'ターゲット顧客を設定', en: 'Account Setup' },
   'account.set': { jp: '顧客設定', en: 'Account' },
+  'account.startHere': { jp: '🚀 ここから開始', en: '🚀 Start Here' },
+  'account.startHereDesc': { jp: 'まずターゲット顧客を設定', en: 'Set up your target account first' },
   'account.company': { jp: '企業名', en: 'Company Name' },
   'account.companyPlaceholder': { jp: '例: トヨタ自動車', en: 'e.g. Toyota Motor' },
   'account.industry': { jp: '業種', en: 'Industry' },

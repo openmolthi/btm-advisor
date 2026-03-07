@@ -48,32 +48,19 @@ const JAPAN_THEMES = [
   },
 ]
 
-// RSS feed sources — respected Japanese news in English
-const RSS_FEEDS = [
-  {
-    id: 'nikkei',
-    name: 'Nikkei Asia',
-    url: 'https://asia.nikkei.com/rss/feed/nar',
-    icon: '📊',
-  },
-  {
-    id: 'nhk',
-    name: 'NHK World',
-    url: 'https://www3.nhk.or.jp/rj/podcast/rss/english.xml',
-    icon: '📺',
-  },
-  {
-    id: 'nippon',
-    name: 'Nippon.com',
-    url: 'https://www.nippon.com/en/rss/latestdata_en.xml',
-    icon: '🗾',
-  },
-  {
-    id: 'japantimes',
-    name: 'Japan Times',
-    url: 'https://www.japantimes.co.jp/feed/',
-    icon: '📰',
-  },
+// RSS feed sources — bilingual (JP originals + EN)
+const RSS_FEEDS_JP = [
+  { id: 'nikkei-jp', name: '日経新聞', url: 'https://assets.wor.jp/rss/rdf/nikkei/news.rdf', icon: '📊' },
+  { id: 'nhk-jp', name: 'NHKニュース', url: 'https://www.nhk.or.jp/rss/news/cat0.xml', icon: '📺' },
+  { id: 'itmedia', name: 'ITmedia', url: 'https://rss.itmedia.co.jp/rss/2.0/itmedia_all.xml', icon: '💻' },
+  { id: 'nippon-jp', name: 'Nippon.com', url: 'https://www.nippon.com/ja/rss/latestdata_ja.xml', icon: '🗾' },
+]
+
+const RSS_FEEDS_EN = [
+  { id: 'nikkei', name: 'Nikkei Asia', url: 'https://asia.nikkei.com/rss/feed/nar', icon: '📊' },
+  { id: 'nhk', name: 'NHK World', url: 'https://www3.nhk.or.jp/rj/podcast/rss/english.xml', icon: '📺' },
+  { id: 'nippon', name: 'Nippon.com', url: 'https://www.nippon.com/en/rss/latestdata_en.xml', icon: '🗾' },
+  { id: 'japantimes', name: 'Japan Times', url: 'https://www.japantimes.co.jp/feed/', icon: '📰' },
 ]
 
 // CORS proxy for static site RSS fetching
@@ -232,7 +219,7 @@ function NewsItem({ article, pitchHook }) {
 }
 
 export default function JapanContext() {
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const account = useAccount()
   const [expandedTheme, setExpandedTheme] = useState(null)
   const [news, setNews] = useState([])
@@ -247,7 +234,8 @@ export default function JapanContext() {
     setError(null)
     const allArticles = []
 
-    const fetchPromises = RSS_FEEDS.map(async (feed) => {
+    const feeds = lang === 'jp' ? RSS_FEEDS_JP : RSS_FEEDS_EN
+    const fetchPromises = feeds.map(async (feed) => {
       try {
         const proxyUrl = CORS_PROXY + encodeURIComponent(feed.url)
         const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(10000) })
@@ -293,7 +281,7 @@ export default function JapanContext() {
     setNews(filtered.slice(0, 12))
     setLastFetched(new Date())
     setLoading(false)
-  }, [t])
+  }, [t, lang])
 
   const handleAiCurate = useCallback(async () => {
     if (!hasApiKey() || news.length === 0) return

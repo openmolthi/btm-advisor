@@ -42,23 +42,26 @@ export default function AccountSetup({ open, onClose }) {
     try {
       const apiKey = localStorage.getItem('btm-suite-gemini-key') || localStorage.getItem('sukedachi-gemini-key') || ''
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            contents: [{ role: 'user', parts: [{ text: `Company: "${company}". Return JSON only, no markdown. Pick industry from: ${INDUSTRIES.join(', ')}. Pick 1-3 pains from: ${PAIN_OPTIONS.join(', ')}.\n\nFormat: {"industry": "...", "pains": ["..."]}` }] }],
-            generationConfig: { temperature: 0.3, maxOutputTokens: 256 },
+            contents: [{ role: 'user', parts: [{ text: `Company: "${company}". Respond with ONLY a JSON object (no markdown, no backticks, no explanation). Pick industry from this exact list: ${INDUSTRIES.join(', ')}. Pick 1-3 pains from this exact list: ${PAIN_OPTIONS.join(', ')}.\n\nRespond ONLY: {"industry": "...", "pains": ["..."]}` }] }],
+            generationConfig: { temperature: 0.2, maxOutputTokens: 256, responseMimeType: 'application/json' },
           }),
         }
       )
       if (!res.ok) {
-        setAiError(`API error: ${res.status}`)
+        const errBody = await res.text().catch(() => '')
+        setAiError(`API error ${res.status}: ${errBody.slice(0, 100)}`)
         setAiLoading(false)
         return
       }
       const data = await res.json()
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+      let text = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+      // Strip markdown code fences if present
+      text = text.replace(/```json?\s*/gi, '').replace(/```/g, '').trim()
       const match = text.match(/\{[\s\S]*\}/)
       if (match) {
         const parsed = JSON.parse(match[0])
@@ -67,8 +70,11 @@ export default function AccountSetup({ open, onClose }) {
           const valid = parsed.pains.filter(p => PAIN_OPTIONS.includes(p))
           if (valid.length) setPains(valid)
         }
+        if (!parsed.industry && !parsed.pains?.length) {
+          setAiError('Could not match suggestions to options')
+        }
       } else {
-        setAiError('No suggestion returned')
+        setAiError(`Unexpected response: ${text.slice(0, 80)}`)
       }
     } catch (err) {
       setAiError(err.message || 'AI error')
