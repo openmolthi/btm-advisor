@@ -49,13 +49,21 @@ export default function AccountSetup({ open, onClose }) {
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: 'You are an SAP industry analyst. Return ONLY valid JSON, no markdown, no code fences, no explanation.' }] },
             contents: [{ role: 'user', parts: [{ text: `Given the company "${company}", pick the most relevant industry and 1-3 pain points.
-
 Industry options: ${INDUSTRIES.join(' | ')}
-Pain options: ${PAIN_OPTIONS.join(' | ')}
-
-Return ONLY this JSON:
-{"industry":"CHOICE","pains":["CHOICE1","CHOICE2"]}` }] }],
-            generationConfig: { temperature: 0.2, maxOutputTokens: 256 },
+Pain options: ${PAIN_OPTIONS.join(' | ')}` }] }],
+            generationConfig: {
+              temperature: 0.2,
+              maxOutputTokens: 256,
+              responseMimeType: 'application/json',
+              responseSchema: {
+                type: 'OBJECT',
+                properties: {
+                  industry: { type: 'STRING' },
+                  pains: { type: 'ARRAY', items: { type: 'STRING' } },
+                },
+                required: ['industry', 'pains'],
+              },
+            },
           }),
         }
       )
