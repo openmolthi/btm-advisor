@@ -139,12 +139,14 @@ Return JSON: {"industry":"one word like automotive, manufacturing, etc","pains":
       if (parsed) {
         console.log('[AI Suggest] parsed:', parsed)
         const matchedIndustry = fuzzyMatchIndustry(parsed.industry)
-        if (matchedIndustry) setIndustry(matchedIndustry)
+        if (matchedIndustry) {
+          setIndustry(matchedIndustry)
+        } else if (parsed.industry) {
+          // Not in our list — set to その他 but store the raw industry for context
+          setIndustry('その他')
+        }
         const matchedPains = fuzzyMatchPains(parsed.pains || [])
         if (matchedPains.length) setPains(matchedPains)
-        if (!matchedIndustry && !matchedPains.length) {
-          setAiError(`Could not map: ${JSON.stringify(parsed).slice(0, 80)}`)
-        }
       } else {
         const allText = allParts.map(p => p.text || '').join(' ')
         setAiError(`Parse failed: ${allText.slice(0, 80)}`)

@@ -239,10 +239,18 @@ ${accountCtx}`
               {t('battlecards.aiTailor')}
             </button>
             {aiResponse && (
-              <div className="mt-3 p-3 rounded-lg bg-[var(--sage-tint)] border border-[var(--sage-light)] max-h-[400px] overflow-y-auto">
-                <p className="text-[13px] text-[var(--ink-700)] whitespace-pre-wrap" style={{ fontWeight: 400, lineHeight: 1.7 }}>
-                  {aiResponse}
-                </p>
+              <div className="mt-3 rounded-xl border border-[var(--ink-200)] overflow-hidden" style={{ background: 'var(--washi)' }}>
+                <div className="px-3 py-2 border-b border-[var(--ink-100)] flex items-center gap-2" style={{ background: 'var(--surface)' }}>
+                  <Sparkles size={13} className="text-[var(--sage)]" />
+                  <span className="text-[12px] text-[var(--sage-dark)]" style={{ fontWeight: 600 }}>
+                    {account.company ? `${account.company}向けカスタマイズ` : 'AI Tailored Response'}
+                  </span>
+                </div>
+                <div className="p-3 max-h-[50vh] overflow-y-auto">
+                  <div className="text-[13px] text-[var(--ink-700)] whitespace-pre-wrap prose-sm" style={{ fontWeight: 400, lineHeight: 1.8 }}>
+                    {aiResponse}
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -254,7 +262,7 @@ ${accountCtx}`
 
 export default function Battlecards() {
   const { t, lang } = useI18n()
-  const [showEn, setShowEn] = useState(lang === 'en')
+  const showEn = lang === 'en'
 
   return (
     <div className="flex flex-col h-full">
@@ -271,14 +279,7 @@ export default function Battlecards() {
               </p>
             </div>
           </div>
-          <button
-            onClick={() => setShowEn(!showEn)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] border border-[var(--ink-200)] text-[var(--ink-600)] hover:bg-[var(--ink-50)] transition-colors"
-            style={{ fontWeight: 400 }}
-          >
-            <Globe size={14} />
-            {showEn ? '日本語' : 'English'}
-          </button>
+          {/* Language follows global setting */}
         </div>
       </div>
 

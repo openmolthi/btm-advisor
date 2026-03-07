@@ -236,8 +236,16 @@ export default function JapanContext() {
     const langPref = lang === 'jp' ? 'Japanese' : 'English'
 
     const query = companyName
-      ? `Find the latest 8-10 news articles about "${companyName}"${industryCtx} related to digital transformation, SAP, ERP, IT modernization, process improvement, or technology strategy in Japan. Focus on business and technology news.`
-      : `Find the latest 8-10 news articles about Japan digital transformation, SAP, ERP modernization, enterprise technology, and business process improvement.`
+      ? `Find 6-8 recent news articles specifically about "${companyName}"${industryCtx} related to:
+- Digital transformation, IT strategy, ERP/SAP migration
+- Process automation, supply chain optimization, operational efficiency  
+- Technology investments, cloud adoption, data strategy
+DO NOT include general news (crime, politics, sports, entertainment). ONLY business/technology news about ${companyName}.`
+      : `Find 6-8 recent news articles about enterprise digital transformation in Japan:
+- SAP, ERP modernization, S/4HANA migration
+- Process mining, enterprise architecture, test automation
+- Business process improvement, DX initiatives
+DO NOT include general news. ONLY business/technology news.`
 
     try {
       const res = await fetch(
