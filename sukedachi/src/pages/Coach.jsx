@@ -13,11 +13,12 @@ import { useAccount, buildAccountContextString } from '../contexts/AccountContex
 function SkeletonLoader() {
   return (
     <div className="flex justify-start">
-      <div className="max-w-[70%] px-5 py-4 rounded-2xl border border-[var(--ink-200)] shadow-sm" style={{ background: 'var(--surface)' }}>
-        <div className="space-y-3">
-          <div className="skeleton h-4 w-[85%]" />
-          <div className="skeleton h-4 w-[70%]" />
-          <div className="skeleton h-4 w-[60%]" />
+      <div className="px-4 py-3 rounded-2xl border border-[var(--ink-200)] shadow-sm flex items-center gap-2" style={{ background: 'var(--surface)' }}>
+        <span className="text-lg animate-bounce" style={{ animationDelay: '0ms' }}>⚔️</span>
+        <div className="flex gap-1.5 items-center">
+          <span className="w-1.5 h-1.5 rounded-full bg-[var(--sage)] animate-bounce" style={{ animationDelay: '0ms' }} />
+          <span className="w-1.5 h-1.5 rounded-full bg-[var(--sage)] animate-bounce" style={{ animationDelay: '150ms' }} />
+          <span className="w-1.5 h-1.5 rounded-full bg-[var(--sage)] animate-bounce" style={{ animationDelay: '300ms' }} />
         </div>
       </div>
     </div>

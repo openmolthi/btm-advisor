@@ -123,12 +123,11 @@ export const CROSSSELL_SCENARIOS = [
     play: 'SP1',
   },
   {
-    trigger: '「すでにCelonisを導入しています」',
-    flow: ['signavio'],
-    coexist: 'Celonis',
-    description: 'Celonisは問題発見。Signavioは改善設計とガバナンス。競合ではなく補完関係。',
-    dealSize: '¥3,000万〜5,000万',
-    play: 'SP2',
+    trigger: '「プロセスの属人化が止まらない」',
+    flow: ['signavio', 'walkme'],
+    description: 'Signavioでプロセスを可視化・標準化し、WalkMeで定着化。属人化を組織的に解消。',
+    dealSize: '¥4,000万〜7,000万',
+    play: 'SP2, SP6',
   },
   {
     trigger: '「AIエージェントの管理に困っています」',
@@ -153,10 +152,10 @@ export const GYM_SCENARIOS = [
   {
     id: 'banking-vp',
     title: '🏦 銀行 技術担当VP',
-    subtitle: 'コンプライアンス重視、Celonis導入済み',
+    subtitle: 'コンプライアンス重視、レガシー刷新検討中',
     difficulty: '難しい',
-    persona: '田中様 — メガバンク 技術担当VP。既にCelonisでプロセスマイニングを実施中。',
-    opening: 'すでにCelonisでプロセスマイニングをやっています。今さらSAPからまた別のツールを導入する理由がわかりませんが、何が違うのですか？',
+    persona: '田中様 — メガバンク 技術担当VP。レガシーシステムの刷新とコンプライアンス強化を検討中。',
+    opening: '当行はレガシーシステムの刷新を検討していますが、規制対応が最優先です。SAPのBTMポートフォリオがコンプライアンスとリスク管理にどう役立つか、具体的に教えてください。',
     relevantPlays: ['SP2', 'SP4'],
   },
   {
@@ -204,7 +203,7 @@ export const COACH_CHIPS = [
   'S/4移行でSynitiが必要な理由',
   'Tricentisの30秒ピッチ',
   'SP1の説明をして',
-  'Celonisとの違いは？',
+  'WalkMeの価値は？',
   '日本市場でのBPMの可能性',
 ]
 
@@ -212,7 +211,7 @@ export const COACH_CHIPS = [
 export const CHALLENGE_CHIPS = [
   '🙄「BPMに市場はない」',
   '🤷「EAはただのパワポ」',
-  '😤「Celonisに勝てない」',
+  '😤「プロセスマイニングは高すぎる」',
   '🤔「テストは技術の話」',
   '😑「Synitiなんて聞いたことない」',
 ]

@@ -8,6 +8,8 @@ const translations = {
   'nav.settings': { jp: '設定', en: 'Settings' },
   'nav.subtitle': { jp: 'BTMポートフォリオコーチ', en: 'BTM Portfolio Coach' },
   'nav.footer': { jp: 'SAP BTM ポートフォリオ', en: 'SAP BTM Portfolio' },
+  'nav.home': { jp: 'ホーム', en: 'Home' },
+  'nav.advisor': { jp: 'BTM Advisor', en: 'BTM Advisor' },
 
   // Coach page
   'coach.learn': { jp: '学ぶ', en: 'Learn' },

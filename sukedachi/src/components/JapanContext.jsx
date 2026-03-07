@@ -349,23 +349,26 @@ ${headlines}
 Respond as JSON: {"hooks": ["hook1", "hook2", ...]}`
 
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            systemInstruction: { parts: [{ text: 'Return ONLY valid JSON. No markdown, no code fences.' }] },
             contents: [{ role: 'user', parts: [{ text: prompt }] }],
             generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
           }),
         }
       )
       const data = await res.json()
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
-      const match = text.match(/\{[\s\S]*"hooks"[\s\S]*\}/)
-      if (match) {
-        const parsed = JSON.parse(match[0])
+      const allParts = data.candidates?.[0]?.content?.parts || []
+      let text = allParts.map(p => p.text || '').join('\n').replace(/```json?\s*/gi, '').replace(/```/g, '').trim()
+      let parsed = null
+      try { parsed = JSON.parse(text) } catch {}
+      if (!parsed) { const m = text.match(/\{[\s\S]*"hooks"[\s\S]*\}/); if (m) try { parsed = JSON.parse(m[0]) } catch {} }
+      if (parsed?.hooks) {
         const hooks = {}
-        parsed.hooks?.forEach((hook, i) => { if (i < news.length) hooks[i] = hook })
+        parsed.hooks.forEach((hook, i) => { if (i < news.length) hooks[i] = hook })
         setPitchHooks(hooks)
       }
     } catch { /* ignore */ }

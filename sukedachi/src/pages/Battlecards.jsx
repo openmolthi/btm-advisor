@@ -239,7 +239,7 @@ ${accountCtx}`
               {t('battlecards.aiTailor')}
             </button>
             {aiResponse && (
-              <div className="mt-3 p-3 rounded-lg bg-[var(--sage-tint)] border border-[var(--sage-light)]">
+              <div className="mt-3 p-3 rounded-lg bg-[var(--sage-tint)] border border-[var(--sage-light)] max-h-[400px] overflow-y-auto">
                 <p className="text-[13px] text-[var(--ink-700)] whitespace-pre-wrap" style={{ fontWeight: 400, lineHeight: 1.7 }}>
                   {aiResponse}
                 </p>

@@ -15,11 +15,12 @@ import { showToast } from '../lib/useToast'
 function SkeletonLoader() {
   return (
     <div className="flex justify-start">
-      <div className="max-w-[70%] px-5 py-4 rounded-2xl bg-surface border border-[var(--ink-200)] shadow-sm">
-        <div className="space-y-3">
-          <div className="skeleton h-4 w-[85%]" />
-          <div className="skeleton h-4 w-[65%]" />
-          <div className="skeleton h-4 w-[50%]" />
+      <div className="px-4 py-3 rounded-2xl bg-surface border border-[var(--ink-200)] shadow-sm flex items-center gap-2">
+        <span className="text-lg animate-bounce" style={{ animationDelay: '0ms' }}>🥋</span>
+        <div className="flex gap-1.5 items-center">
+          <span className="w-1.5 h-1.5 rounded-full bg-[var(--sage)] animate-bounce" style={{ animationDelay: '0ms' }} />
+          <span className="w-1.5 h-1.5 rounded-full bg-[var(--sage)] animate-bounce" style={{ animationDelay: '150ms' }} />
+          <span className="w-1.5 h-1.5 rounded-full bg-[var(--sage)] animate-bounce" style={{ animationDelay: '300ms' }} />
         </div>
       </div>
     </div>
@@ -853,19 +854,19 @@ export default function Dojo() {
             </div>
 
             {/* Portfolio play reminder */}
-            <div className="mt-5 rounded-xl p-5 text-center border border-[var(--ink-700)]" style={{ background: 'var(--ink-800)' }}>
-              <p className="text-[12px] text-[var(--ink-400)] mb-2" style={{ letterSpacing: '0.05em', fontWeight: 400 }}>
+            <div className="mt-5 rounded-xl p-5 text-center border-2 border-[var(--sage)]" style={{ background: 'var(--sage-tint)' }}>
+              <p className="text-[12px] text-[var(--sage-dark)] mb-2" style={{ letterSpacing: '0.05em', fontWeight: 600 }}>
                 {t('dojo.thinkBig')}
               </p>
               <div className="flex flex-col md:flex-row md:justify-center gap-4 md:gap-12">
-                <p className="text-[15px] text-white" style={{ fontWeight: 500 }}>
+                <p className="text-[15px] text-[var(--ink-800)]" style={{ fontWeight: 500 }}>
                   {t('dojo.singleProduct')}
                 </p>
-                <p className="text-[15px] text-white" style={{ fontWeight: 500 }}>
+                <p className="text-[15px] text-[var(--ink-800)]" style={{ fontWeight: 600 }}>
                   {t('dojo.portfolio')}
                 </p>
               </div>
-              <p className="text-[12px] text-[var(--ink-400)] mt-3" style={{ fontWeight: 400 }}>
+              <p className="text-[12px] text-[var(--ink-500)] mt-3" style={{ fontWeight: 400 }}>
                 {t('dojo.alwaysLook')}
               </p>
             </div>
