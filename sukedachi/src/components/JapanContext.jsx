@@ -226,11 +226,66 @@ export default function JapanContext() {
   const [pitchHooks, setPitchHooks] = useState({})
   const [curateLoading, setCurateLoading] = useState(false)
 
-  const fetchNews = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    const allArticles = []
+  const fetchNewsAI = useCallback(async () => {
+    // Use Gemini + Google Search grounding for company-specific news
+    const apiKey = localStorage.getItem('btm-suite-gemini-key') || localStorage.getItem('sukedachi-gemini-key') || ''
+    if (!apiKey) return null
 
+    const companyName = account.company || ''
+    const industryCtx = account.industry ? ` (${account.industry})` : ''
+    const langPref = lang === 'jp' ? 'Japanese' : 'English'
+
+    const query = companyName
+      ? `Find the latest 8-10 news articles about "${companyName}"${industryCtx} related to digital transformation, SAP, ERP, IT modernization, process improvement, or technology strategy in Japan. Focus on business and technology news.`
+      : `Find the latest 8-10 news articles about Japan digital transformation, SAP, ERP modernization, enterprise technology, and business process improvement.`
+
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: `You are a business news researcher. Return ONLY a JSON array of news items. Each item must have: title, link (real URL), source (publication name), description (1-2 sentence summary), pubDate (ISO date string or empty). Use ${langPref} for titles and descriptions. No markdown, no code fences.` }] },
+            contents: [{ role: 'user', parts: [{ text: query }] }],
+            tools: [{ google_search: {} }],
+            generationConfig: { temperature: 0.3, maxOutputTokens: 4096 },
+          }),
+        }
+      )
+      if (!res.ok) return null
+      const data = await res.json()
+      const allParts = data.candidates?.[0]?.content?.parts || []
+      let text = allParts.filter(p => !p.thought).map(p => p.text || '').join('\n').trim()
+      if (!text) text = allParts.map(p => p.text || '').join('\n').trim()
+      console.log('[News AI] raw:', text.slice(0, 200))
+
+      // Parse JSON array
+      text = text.replace(/```json?\s*/gi, '').replace(/```/g, '').trim()
+      let articles = null
+      try { articles = JSON.parse(text) } catch {}
+      if (!articles) {
+        const m = text.match(/\[[\s\S]*\]/)
+        if (m) try { articles = JSON.parse(m[0]) } catch {}
+      }
+      if (Array.isArray(articles) && articles.length > 0) {
+        return articles.map(a => ({
+          title: a.title || '',
+          link: a.link || a.url || '#',
+          source: a.source || 'Web',
+          description: a.description || a.summary || '',
+          pubDate: a.pubDate || a.date || '',
+        })).filter(a => a.title)
+      }
+      return null
+    } catch (err) {
+      console.error('[News AI] error:', err)
+      return null
+    }
+  }, [account, lang])
+
+  const fetchNewsRSS = useCallback(async () => {
+    const allArticles = []
     const feeds = lang === 'jp' ? RSS_FEEDS_JP : RSS_FEEDS_EN
     const fetchPromises = feeds.map(async (feed) => {
       try {
@@ -239,46 +294,44 @@ export default function JapanContext() {
         if (!res.ok) return []
         const text = await res.text()
         return parseRSS(text, feed.name)
-      } catch {
-        // Silently skip failed feeds
-        return []
-      }
+      } catch { return [] }
     })
-
     const results = await Promise.allSettled(fetchPromises)
     for (const result of results) {
-      if (result.status === 'fulfilled' && result.value) {
-        allArticles.push(...result.value)
+      if (result.status === 'fulfilled' && result.value) allArticles.push(...result.value)
+    }
+    const scored = allArticles.map(a => ({ ...a, _score: relevanceScore(a.title, a.description), _date: a.pubDate ? new Date(a.pubDate).getTime() : 0 }))
+    const filtered = scored.filter(a => a._score >= 1)
+    filtered.sort((a, b) => b._score !== a._score ? b._score - a._score : b._date - a._date)
+    return filtered.slice(0, 12)
+  }, [lang])
+
+  const fetchNews = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    setPitchHooks({})
+
+    // Try AI-powered search first (uses Google Search grounding)
+    if (hasApiKey()) {
+      const aiArticles = await fetchNewsAI()
+      if (aiArticles && aiArticles.length > 0) {
+        setNews(aiArticles)
+        setLastFetched(new Date())
+        setLoading(false)
+        return
       }
     }
 
-    if (allArticles.length === 0) {
+    // Fallback to RSS
+    const rssArticles = await fetchNewsRSS()
+    if (rssArticles.length > 0) {
+      setNews(rssArticles)
+      setLastFetched(new Date())
+    } else {
       setError(t('japan.news.noResults'))
-      setLoading(false)
-      return
     }
-
-    // Score and sort by relevance, then recency
-    const scored = allArticles.map(a => ({
-      ...a,
-      _score: relevanceScore(a.title, a.description),
-      _date: a.pubDate ? new Date(a.pubDate).getTime() : 0,
-    }))
-
-    // Filter out negative-scored (irrelevant) and zero-scored articles
-    const filtered = scored.filter(a => a._score >= 1)
-
-    filtered.sort((a, b) => {
-      // Primary: relevance score (desc), secondary: date (desc)
-      if (b._score !== a._score) return b._score - a._score
-      return b._date - a._date
-    })
-
-    // Take top 12 most relevant
-    setNews(filtered.slice(0, 12))
-    setLastFetched(new Date())
     setLoading(false)
-  }, [t, lang])
+  }, [t, fetchNewsAI, fetchNewsRSS])
 
   const handleAiCurate = useCallback(async () => {
     if (!hasApiKey() || news.length === 0) return
@@ -366,7 +419,7 @@ Respond as JSON: {"hooks": ["hook1", "hook2", ...]}`
         </div>
 
         <p className="text-[11px] text-[var(--ink-400)] mb-3" style={{ fontWeight: 400 }}>
-          {t('japan.news.sources')}
+          {hasApiKey() ? (account.company ? `🔍 ${account.company} — AI search` : '🔍 AI-powered search') : t('japan.news.sources')}
         </p>
 
         {error && (
