@@ -66,18 +66,23 @@ Return ONLY this JSON:
         return
       }
       const data = await res.json()
-      // Gemini 2.5 models may return thinking in earlier parts — only use non-thought parts
+      // Gemini 2.5 may split response across multiple parts (thinking + answer)
       const allParts = data.candidates?.[0]?.content?.parts || []
-      let text = allParts.filter(p => !p.thought).map(p => p.text || '').join('\n').trim()
-      console.log('[AI Suggest] raw response:', text, 'parts:', allParts.length)
-      // Strip markdown code fences if present
-      text = text.replace(/```json?\s*/gi, '').replace(/```/g, '').trim()
-      // Try to parse as JSON directly first, then regex fallback
+      console.log('[AI Suggest] parts:', JSON.stringify(allParts.map(p => ({ thought: p.thought, text: (p.text||'').slice(0,80) }))))
+      // Try each part individually for valid JSON, then try all combined
       let parsed = null
-      try { parsed = JSON.parse(text) } catch {}
+      for (const part of allParts) {
+        if (!part.text) continue
+        let clean = part.text.replace(/```json?\s*/gi, '').replace(/```/g, '').trim()
+        try { parsed = JSON.parse(clean); break } catch {}
+        const m = clean.match(/\{[\s\S]*\}/)
+        if (m) try { parsed = JSON.parse(m[0]); break } catch {}
+      }
       if (!parsed) {
-        const match = text.match(/\{[\s\S]*\}/)
-        if (match) try { parsed = JSON.parse(match[0]) } catch {}
+        // Fallback: join all text and try
+        let text = allParts.map(p => p.text || '').join('\n').replace(/```json?\s*/gi, '').replace(/```/g, '').trim()
+        try { parsed = JSON.parse(text) } catch {}
+        if (!parsed) { const m = text.match(/\{[\s\S]*\}/); if (m) try { parsed = JSON.parse(m[0]) } catch {} }
       }
       if (parsed) {
         if (parsed.industry) {
