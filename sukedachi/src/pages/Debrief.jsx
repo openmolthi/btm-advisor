@@ -83,16 +83,10 @@ export default function Debrief() {
         }
       }
       // Append final transcript to notes
-      if (finalTranscript || interim) {
+      if (transcript) {
         setNotes(prev => {
           const base = prev.replace(/\n\[🎤.*\]$/, '')
-          return base + (base ? '\n' : '') + (finalTranscript || '') + (interim ? ` [🎤 ${interim}]` : '')
-        })
-        finalTranscript = ''
-      } else if (interim) {
-        setNotes(prev => {
-          const base = prev.replace(/\n\[🎤.*\]$/, '')
-          return base + `\n[🎤 ${interim}]`
+          return base + (base ? '\n' : '') + transcript + (interim ? ` [🎤 ${interim}]` : '')
         })
       }
     }
@@ -102,7 +96,6 @@ export default function Debrief() {
       setIsRecording(false)
       // Clean up interim markers
       setNotes(prev => prev.replace(/\n\[🎤.*\]$/, ''))
-    }
 
     recognitionRef.current = recognition
     recognition.start()
