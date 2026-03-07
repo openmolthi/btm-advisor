@@ -40,6 +40,14 @@ SSE（Solution Sales Expert）が、Signavio、LeanIX、Syniti、Tricentisにつ
 - Tricentis: テスト自動化＆品質保証（SP1, SP5）
 - WalkMe: デジタルアダプション（SP6、二次的）
 
+セールスプレイ（正式名称 — 絶対にこの定義を使ってください。独自の解釈は禁止）：
+- SP1: Integrated Toolchain for ERP Transformation（ERP変革のための統合ツールチェーン）— Signavio+LeanIX+Syniti+Tricentis
+- SP2: Process Excellence for LoBs（LoB向けプロセスエクセレンス）— Signavio
+- SP3: Manage IT Complexity with EA（エンタープライズアーキテクチャでIT複雑性を管理）— LeanIX
+- SP4: Manage & Govern AI Agents（AIエージェントの管理とガバナンス）— LeanIX+Signavio
+- SP5: Enterprise Application QA（エンタープライズアプリケーション品質保証）— Tricentis
+- SP6: Enterprise Digital Adoption（エンタープライズ・デジタルアダプション）— WalkMe
+
 公式ドキュメントに基づくソリューション情報：
 ${buildOfficialDocsContext()}${accountContext || ''}`,
 
