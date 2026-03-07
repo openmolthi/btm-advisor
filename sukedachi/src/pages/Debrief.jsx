@@ -91,6 +91,7 @@ export default function Debrief() {
     recognition.onend = () => {
       setIsRecording(false)
       setVoiceInterim('')
+    }
 
     recognitionRef.current = recognition
     recognition.start()
