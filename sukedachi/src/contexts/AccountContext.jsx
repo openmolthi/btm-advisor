@@ -65,5 +65,12 @@ export function buildAccountContextString(account) {
   if (account.industry) parts.push(`業種: ${account.industry}`)
   if (account.pains?.length) parts.push(`課題: ${account.pains.join(', ')}`)
   if (account.bom?.length) parts.push(`関連製品: ${account.bom.join(', ')}`)
-  return `\n\n【アカウントコンテキスト】\n${parts.join('\n')}`
+  return `\n\n【ターゲット顧客コンテキスト — 必ず以下に基づいて回答をカスタマイズしてください】
+${parts.join('\n')}
+
+重要な指示: 上記の顧客情報に基づき、すべての回答・提案・例をこの顧客に特化してください。
+- ${account.company ? `「${account.company}」の事業・業界特性を踏まえて具体的に説明` : ''}
+- ${account.industry ? `${account.industry}業界の課題・トレンド・用語を使って説明` : ''}
+- ${account.pains?.length ? `顧客の課題（${account.pains.join('、')}）に直接結びつけて説明` : ''}
+- 汎用的な回答ではなく、この顧客のために書かれたかのように回答してください`
 }

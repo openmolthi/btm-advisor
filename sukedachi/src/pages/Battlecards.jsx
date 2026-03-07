@@ -142,11 +142,19 @@ function BattleCard({ card, lang, showEn }) {
     try {
       const apiKey = localStorage.getItem('btm-suite-gemini-key') || localStorage.getItem('sukedachi-gemini-key') || ''
       const accountCtx = buildAccountContextString(account)
-      const prompt = `お客様の反論「${card.objection.jp}」に対して、以下のアカウント情報を踏まえたカスタマイズされた切り返しを作成してください。
+      const companyRef = account.company ? `「${account.company}」` : 'このお客様'
+      const industryRef = account.industry ? `（${account.industry}）` : ''
+      const painRef = account.pains?.length ? `\n顧客の課題: ${account.pains.join('、')}` : ''
+      const prompt = `お客様の反論「${card.objection.jp}」に対して、${companyRef}${industryRef}に特化した切り返しを作成してください。
 
-反論への回答、リフレーム、価値提案、ネクストステップを含めてください。
+以下を含めてください：
+1. 反論への直接回答 — ${companyRef}の業界・事業に即した具体例で
+2. リフレーム — ${companyRef}のビジネス課題に紐づけて視点を変える
+3. 価値提案 — ${companyRef}が得られる具体的なROI・成果（業界ベンチマーク活用）
+4. ネクストステップ — ${companyRef}に適した次のアクション提案
+${painRef}
 ${displayLang === 'en' ? '英語で回答。' : '日本語で回答。'}
-${accountCtx || '（アカウント情報なし — 汎用的な回答を生成）'}`
+${accountCtx}`
 
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:streamGenerateContent?key=${apiKey}&alt=sse`,
