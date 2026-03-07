@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Play, RotateCcw, ArrowLeft, Trophy, Target, MessageSquare, Lightbulb, Scale, Link2, Plus, Pencil, Trash2, X, WifiOff, Share2, Copy } from 'lucide-react'
 import ChatMessage from '../components/ChatMessage'
 import ChatInput from '../components/ChatInput'
+import VoiceMic from '../components/VoiceMic'
 import { GYM_SCENARIOS, CROSSSELL_SCENARIOS, PRODUCTS } from '../lib/constants'
 import { sendMessage, parseScorecard, hasApiKey } from '../lib/api'
 import { useI18n } from '../lib/i18n'
@@ -389,7 +390,10 @@ function ScenarioBuilderForm({ onSave, onCancel, editingScenario }) {
 
       {/* Scenario Name */}
       <div>
-        <label className={labelClass} style={{ fontWeight: 500 }}>{t('dojo.scenarioName')}</label>
+        <div className="flex items-center justify-between">
+          <label className={labelClass} style={{ fontWeight: 500 }}>{t('dojo.scenarioName')}</label>
+          <VoiceMic onResult={(text) => setForm(f => ({ ...f, name: f.name + (f.name ? ' ' : '') + text }))} />
+        </div>
         <input
           type="text"
           value={form.name}
@@ -448,7 +452,10 @@ function ScenarioBuilderForm({ onSave, onCancel, editingScenario }) {
 
       {/* Situation */}
       <div>
-        <label className={labelClass} style={{ fontWeight: 500 }}>{t('dojo.situation')}</label>
+        <div className="flex items-center justify-between">
+          <label className={labelClass} style={{ fontWeight: 500 }}>{t('dojo.situation')}</label>
+          <VoiceMic onResult={(text) => setForm(f => ({ ...f, situation: f.situation + (f.situation ? ' ' : '') + text }))} />
+        </div>
         <textarea
           value={form.situation}
           onChange={e => setForm({ ...form, situation: e.target.value })}
@@ -748,6 +755,7 @@ export default function Dojo() {
           placeholder={t('dojo.placeholder')}
           variant="gym"
           disabled={loading || !isOnline}
+          showMic={true}
         />
       </div>
     )
