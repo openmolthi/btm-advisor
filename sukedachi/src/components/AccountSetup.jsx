@@ -5,16 +5,83 @@ import { useAccount } from '../contexts/AccountContext'
 import { hasApiKey } from '../lib/api'
 
 const INDUSTRIES = [
-  '製造業', '自動車', '金融・保険', '小売・流通',
-  '通信・IT', '公共・インフラ', 'ヘルスケア', 'その他',
+  '製造業', '自動車', '化学', '金融・保険', '小売・流通',
+  '通信・IT', '公共・インフラ', 'ヘルスケア・製薬',
+  'エネルギー・ユーティリティ', '物流・運輸', 'メディア・エンタメ',
+  '建設・不動産', '食品・飲料', 'その他',
 ]
 
 const PAIN_OPTIONS = [
-  'S/4HANA移行の遅延', 'M&A後IT統合', 'テスト工数増大',
-  'プロセス属人化', 'データ品質低下', 'シャドーIT', 'レガシー技術的負債',
+  'ERP移行・S/4HANA化',
+  'プロセス可視化・標準化',
+  'アプリケーション最適化・合理化',
+  'M&A後IT統合',
+  'テスト自動化・品質',
+  'データ品質・ガバナンス',
+  'レガシー技術的負債',
+  'デジタル変革推進',
 ]
 
+// Keyword map: AI response keyword → our pain option
+const PAIN_KEYWORDS = {
+  'erp': 'ERP移行・S/4HANA化', 's/4': 'ERP移行・S/4HANA化', 's4': 'ERP移行・S/4HANA化', 'hana': 'ERP移行・S/4HANA化', 'migration': 'ERP移行・S/4HANA化', '移行': 'ERP移行・S/4HANA化',
+  'process': 'プロセス可視化・標準化', 'プロセス': 'プロセス可視化・標準化', '可視化': 'プロセス可視化・標準化', '標準化': 'プロセス可視化・標準化', 'transparency': 'プロセス可視化・標準化', 'excellence': 'プロセス可視化・標準化',
+  'application': 'アプリケーション最適化・合理化', 'rationalization': 'アプリケーション最適化・合理化', 'modernization': 'アプリケーション最適化・合理化', '最適化': 'アプリケーション最適化・合理化', '合理化': 'アプリケーション最適化・合理化', 'landscape': 'アプリケーション最適化・合理化',
+  'm&a': 'M&A後IT統合', 'merger': 'M&A後IT統合', 'acquisition': 'M&A後IT統合', '統合': 'M&A後IT統合',
+  'test': 'テスト自動化・品質', 'quality': 'テスト自動化・品質', 'テスト': 'テスト自動化・品質', '品質': 'テスト自動化・品質',
+  'data': 'データ品質・ガバナンス', 'データ': 'データ品質・ガバナンス', 'governance': 'データ品質・ガバナンス', 'ガバナンス': 'データ品質・ガバナンス',
+  'legacy': 'レガシー技術的負債', 'レガシー': 'レガシー技術的負債', 'technical debt': 'レガシー技術的負債', '負債': 'レガシー技術的負債',
+  'digital': 'デジタル変革推進', 'transformation': 'デジタル変革推進', 'dx': 'デジタル変革推進', 'デジタル': 'デジタル変革推進', '変革': 'デジタル変革推進',
+}
+
+const INDUSTRY_KEYWORDS = {
+  '製造': '製造業', 'manufacturing': '製造業',
+  '自動車': '自動車', 'automotive': '自動車', 'car': '自動車', 'vehicle': '自動車',
+  '化学': '化学', 'chemical': '化学',
+  '金融': '金融・保険', 'banking': '金融・保険', 'finance': '金融・保険', 'insurance': '金融・保険', '保険': '金融・保険',
+  '小売': '小売・流通', 'retail': '小売・流通', '流通': '小売・流通', 'consumer': '小売・流通',
+  '通信': '通信・IT', 'telecom': '通信・IT', 'it': '通信・IT', 'tech': '通信・IT', 'software': '通信・IT',
+  '公共': '公共・インフラ', 'public': '公共・インフラ', 'government': '公共・インフラ', 'infrastructure': '公共・インフラ',
+  'ヘルスケア': 'ヘルスケア・製薬', 'health': 'ヘルスケア・製薬', 'pharma': 'ヘルスケア・製薬', '製薬': 'ヘルスケア・製薬', 'life science': 'ヘルスケア・製薬',
+  'エネルギー': 'エネルギー・ユーティリティ', 'energy': 'エネルギー・ユーティリティ', 'utility': 'エネルギー・ユーティリティ', 'oil': 'エネルギー・ユーティリティ', 'gas': 'エネルギー・ユーティリティ',
+  '物流': '物流・運輸', 'logistics': '物流・運輸', 'transport': '物流・運輸', '運輸': '物流・運輸',
+  'メディア': 'メディア・エンタメ', 'media': 'メディア・エンタメ', 'entertainment': 'メディア・エンタメ',
+  '建設': '建設・不動産', 'construction': '建設・不動産', 'real estate': '建設・不動産', '不動産': '建設・不動産',
+  '食品': '食品・飲料', 'food': '食品・飲料', 'beverage': '食品・飲料', '飲料': '食品・飲料',
+}
+
 const BOM_OPTIONS = ['Signavio', 'LeanIX', 'Syniti', 'Tricentis', 'WalkMe']
+
+function fuzzyMatchIndustry(aiIndustry) {
+  if (!aiIndustry) return ''
+  const lower = aiIndustry.toLowerCase()
+  // Direct match first
+  const direct = INDUSTRIES.find(i => i === aiIndustry)
+  if (direct) return direct
+  // Keyword match
+  for (const [keyword, industry] of Object.entries(INDUSTRY_KEYWORDS)) {
+    if (lower.includes(keyword.toLowerCase())) return industry
+  }
+  // Partial match
+  const partial = INDUSTRIES.find(i => lower.includes(i.toLowerCase()) || i.toLowerCase().includes(lower))
+  return partial || ''
+}
+
+function fuzzyMatchPains(aiPains) {
+  if (!aiPains?.length) return []
+  const matched = new Set()
+  for (const painText of aiPains) {
+    const lower = painText.toLowerCase()
+    // Direct match
+    const direct = PAIN_OPTIONS.find(o => o === painText)
+    if (direct) { matched.add(direct); continue }
+    // Keyword match
+    for (const [keyword, pain] of Object.entries(PAIN_KEYWORDS)) {
+      if (lower.includes(keyword.toLowerCase())) { matched.add(pain); break }
+    }
+  }
+  return [...matched]
+}
 
 export default function AccountSetup({ open, onClose }) {
   const { t } = useI18n()
@@ -24,87 +91,63 @@ export default function AccountSetup({ open, onClose }) {
   } = useAccount()
 
   const [aiLoading, setAiLoading] = useState(false)
+  const [aiError, setAiError] = useState('')
 
   const toggleChip = (value, list, setter) => {
     setter(list.includes(value) ? list.filter(v => v !== value) : [...list, value])
   }
 
-  const [aiError, setAiError] = useState('')
-
   const handleAiFill = async () => {
     if (!company) return
-    if (!hasApiKey()) {
-      setAiError(t('account.noKey'))
-      return
-    }
+    if (!hasApiKey()) { setAiError(t('account.noKey')); return }
     setAiLoading(true)
     setAiError('')
     try {
       const apiKey = localStorage.getItem('btm-suite-gemini-key') || localStorage.getItem('sukedachi-gemini-key') || ''
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            systemInstruction: { parts: [{ text: 'You are an SAP industry analyst. Return ONLY valid JSON, no markdown, no code fences, no explanation.' }] },
-            contents: [{ role: 'user', parts: [{ text: `Given the company "${company}", pick the most relevant industry and 1-3 pain points.
-Industry options: ${INDUSTRIES.join(' | ')}
-Pain options: ${PAIN_OPTIONS.join(' | ')}` }] }],
-            generationConfig: {
-              temperature: 0.2,
-              maxOutputTokens: 256,
-              responseMimeType: 'application/json',
-              responseSchema: {
-                type: 'OBJECT',
-                properties: {
-                  industry: { type: 'STRING' },
-                  pains: { type: 'ARRAY', items: { type: 'STRING' } },
-                },
-                required: ['industry', 'pains'],
-              },
-            },
+            systemInstruction: { parts: [{ text: 'You are an SAP industry analyst. Return ONLY a JSON object. No markdown, no explanation, no code fences.' }] },
+            contents: [{ role: 'user', parts: [{ text: `Company: "${company}". What industry are they in, and what are their likely IT/business pain points relevant to SAP?
+Return JSON: {"industry":"one word like automotive, manufacturing, etc","pains":["pain1","pain2"]}` }] }],
+            generationConfig: { temperature: 0.1, maxOutputTokens: 200 },
           }),
         }
       )
       if (!res.ok) {
-        const errBody = await res.text().catch(() => '')
-        setAiError(`API error ${res.status}: ${errBody.slice(0, 100)}`)
+        setAiError(`API error ${res.status}`)
         setAiLoading(false)
         return
       }
       const data = await res.json()
-      // Gemini 2.5 may split response across multiple parts (thinking + answer)
       const allParts = data.candidates?.[0]?.content?.parts || []
-      console.log('[AI Suggest] parts:', JSON.stringify(allParts.map(p => ({ thought: p.thought, text: (p.text||'').slice(0,80) }))))
-      // Try each part individually for valid JSON, then try all combined
+      console.log('[AI Suggest] raw parts:', JSON.stringify(allParts))
+
+      // Extract JSON from any part
       let parsed = null
       for (const part of allParts) {
         if (!part.text) continue
-        let clean = part.text.replace(/```json?\s*/gi, '').replace(/```/g, '').trim()
+        const clean = part.text.replace(/```json?\s*/gi, '').replace(/```/g, '').trim()
         try { parsed = JSON.parse(clean); break } catch {}
         const m = clean.match(/\{[\s\S]*\}/)
         if (m) try { parsed = JSON.parse(m[0]); break } catch {}
       }
-      if (!parsed) {
-        // Fallback: join all text and try
-        let text = allParts.map(p => p.text || '').join('\n').replace(/```json?\s*/gi, '').replace(/```/g, '').trim()
-        try { parsed = JSON.parse(text) } catch {}
-        if (!parsed) { const m = text.match(/\{[\s\S]*\}/); if (m) try { parsed = JSON.parse(m[0]) } catch {} }
-      }
+
       if (parsed) {
-        if (parsed.industry) {
-          // Fuzzy match industry — or just set it directly if it's a valid string
-          const found = INDUSTRIES.find(i => parsed.industry.includes(i) || i.includes(parsed.industry))
-          if (found) setIndustry(found)
-          else setIndustry(parsed.industry) // Accept AI's answer even if not in list
-        }
-        if (parsed.pains?.length) {
-          const mapped = parsed.pains.map(p => PAIN_OPTIONS.find(o => o === p || p.includes(o) || o.includes(p))).filter(Boolean)
-          if (mapped.length) setPains([...new Set(mapped)])
+        console.log('[AI Suggest] parsed:', parsed)
+        const matchedIndustry = fuzzyMatchIndustry(parsed.industry)
+        if (matchedIndustry) setIndustry(matchedIndustry)
+        const matchedPains = fuzzyMatchPains(parsed.pains || [])
+        if (matchedPains.length) setPains(matchedPains)
+        if (!matchedIndustry && !matchedPains.length) {
+          setAiError(`Could not map: ${JSON.stringify(parsed).slice(0, 80)}`)
         }
       } else {
-        setAiError(`Unexpected response: ${text.slice(0, 100)}`)
+        const allText = allParts.map(p => p.text || '').join(' ')
+        setAiError(`Parse failed: ${allText.slice(0, 80)}`)
       }
     } catch (err) {
       setAiError(err.message || 'AI error')
