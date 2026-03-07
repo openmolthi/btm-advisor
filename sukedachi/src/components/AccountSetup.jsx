@@ -42,17 +42,18 @@ export default function AccountSetup({ open, onClose }) {
     try {
       const apiKey = localStorage.getItem('btm-suite-gemini-key') || localStorage.getItem('sukedachi-gemini-key') || ''
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            systemInstruction: { parts: [{ text: 'You are an SAP industry analyst. Return ONLY valid JSON, no markdown, no code fences, no explanation.' }] },
             contents: [{ role: 'user', parts: [{ text: `Given the company "${company}", pick the most relevant industry and 1-3 pain points.
 
 Industry options: ${INDUSTRIES.join(' | ')}
 Pain options: ${PAIN_OPTIONS.join(' | ')}
 
-Reply with ONLY this JSON, nothing else:
+Return ONLY this JSON:
 {"industry":"CHOICE","pains":["CHOICE1","CHOICE2"]}` }] }],
             generationConfig: { temperature: 0.2, maxOutputTokens: 256 },
           }),
@@ -65,8 +66,10 @@ Reply with ONLY this JSON, nothing else:
         return
       }
       const data = await res.json()
-      let text = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
-      console.log('[AI Suggest] raw response:', text)
+      // Gemini 2.5 models may return thinking in parts[0], so collect ALL text parts
+      const allParts = data.candidates?.[0]?.content?.parts || []
+      let text = allParts.map(p => p.text || '').join('\n').trim()
+      console.log('[AI Suggest] raw response:', text, 'parts count:', allParts.length)
       // Strip markdown code fences if present
       text = text.replace(/```json?\s*/gi, '').replace(/```/g, '').trim()
       // Try to extract JSON
