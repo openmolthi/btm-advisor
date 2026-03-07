@@ -4,6 +4,8 @@ import Coach from './pages/Coach'
 import Navigator from './pages/Navigator'
 import ValueMap from './pages/ValueMap'
 import Dojo from './pages/Dojo'
+import Debrief from './pages/Debrief'
+import Battlecards from './pages/Battlecards'
 import Settings from './pages/Settings'
 import DailyDrill, { DrillPrompt } from './pages/DailyDrill'
 import ToastContainer from './components/Toast'
@@ -43,6 +45,10 @@ export default function App() {
         return <ValueMap />
       case 'dojo':
         return <Dojo />
+      case 'debrief':
+        return <Debrief />
+      case 'battlecards':
+        return <Battlecards />
       case 'settings':
         return <Settings />
       default:

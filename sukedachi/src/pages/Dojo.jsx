@@ -5,6 +5,7 @@ import ChatInput from '../components/ChatInput'
 import { GYM_SCENARIOS, CROSSSELL_SCENARIOS, PRODUCTS } from '../lib/constants'
 import { sendMessage, parseScorecard, hasApiKey } from '../lib/api'
 import { useI18n } from '../lib/i18n'
+import { useAccount, buildAccountContextString } from '../contexts/AccountContext'
 import { trackDojo } from '../lib/progressTracker'
 import { getScenarios, saveScenario, updateScenario, deleteScenario, toGymScenario } from '../lib/scenarioBuilder'
 import { useOnlineStatus } from '../lib/useOnlineStatus'
@@ -570,6 +571,8 @@ export default function Dojo() {
   const scrollRef = useRef(null)
   const { t, lang } = useI18n()
   const { isOnline } = useOnlineStatus()
+  const account = useAccount()
+  const accountContext = buildAccountContextString(account)
 
   const allGymScenarios = [
     ...GYM_SCENARIOS,
@@ -602,6 +605,7 @@ export default function Dojo() {
           mode: 'gym',
           scenario: selectedScenario,
           lang,
+          accountContext,
           onChunk: (text) => setStreamingText(text),
         }
       )

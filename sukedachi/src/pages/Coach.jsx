@@ -8,6 +8,7 @@ import { useI18n } from '../lib/i18n'
 import { trackCoachMessage } from '../lib/progressTracker'
 import { useOnlineStatus } from '../lib/useOnlineStatus'
 import { showToast } from '../lib/useToast'
+import { useAccount, buildAccountContextString } from '../contexts/AccountContext'
 
 function SkeletonLoader() {
   return (
@@ -32,6 +33,8 @@ export default function Coach() {
   const scrollRef = useRef(null)
   const { t, lang } = useI18n()
   const { isOnline } = useOnlineStatus()
+  const account = useAccount()
+  const accountContext = buildAccountContextString(account)
 
   // Voice settings from localStorage
   const voiceInputEnabled = localStorage.getItem('sukedachi-voice-input') !== 'false'
@@ -96,6 +99,7 @@ export default function Coach() {
         {
           mode,
           lang,
+          accountContext,
           onChunk: (text) => setStreamingText(text),
         }
       )

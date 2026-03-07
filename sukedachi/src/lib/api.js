@@ -18,7 +18,7 @@ export function hasApiKey() {
 
 // System prompts per mode
 export const SYSTEM_PROMPTS = {
-  learn: (lang) => `あなたは「助太刀」— SAP BTMポートフォリオの営業コーチです。
+  learn: (lang, accountContext) => `あなたは「助太刀」— SAP BTMポートフォリオの営業コーチです。
 SSE（Solution Sales Expert）が、Signavio、LeanIX、Syniti、Tricentisについて学ぶのを助けます。
 
 回答のルール：
@@ -40,9 +40,9 @@ SSE（Solution Sales Expert）が、Signavio、LeanIX、Syniti、Tricentisにつ
 - WalkMe: デジタルアダプション（SP6、二次的）
 
 公式ドキュメントに基づくソリューション情報：
-${buildOfficialDocsContext()}`,
+${buildOfficialDocsContext()}${accountContext || ''}`,
 
-  challenge: (lang) => `あなたは「助太刀」のチャレンジモードです。
+  challenge: (lang, accountContext) => `あなたは「助太刀」のチャレンジモードです。
 懐疑的な同僚やお客様の役を演じ、SSEの確信を鍛えます。
 
 ルール：
@@ -51,9 +51,9 @@ ${buildOfficialDocsContext()}`,
 - データや市場動向で反論を裏付ける
 - 最後に「あなたの番」と促して、SSEに考えさせる
 - 厳しすぎず、学びになるトーンで
-- 実際によくある社内の反対意見を使う`,
+- 実際によくある社内の反対意見を使う${accountContext || ''}`,
 
-  gym: (scenario, lang) => `あなたは助太刀の実践練習（道場）モードです。
+  gym: (scenario, lang, accountContext) => `あなたは助太刀の実践練習（道場）モードです。
 以下のお客様役を演じてください：
 
 ${scenario.persona}
@@ -64,7 +64,7 @@ ${scenario.persona}
 - 簡単には納得しないが、敵対的でもない
 - 5〜10回のやり取りの後、会話を自然に終了
 - 終了時にJSON形式でスコアを返す：
-{"scores": {"value": 0-100, "discovery": 0-100, "product": 0-100, "objection": 0-100, "dealSize": 0-100, "crossSell": 0-100}, "feedback": "コーチのコメント"}`,
+{"scores": {"value": 0-100, "discovery": 0-100, "product": 0-100, "objection": 0-100, "dealSize": 0-100, "crossSell": 0-100}, "feedback": "コーチのコメント"}${accountContext || ''}`,
 }
 
 /**
@@ -74,7 +74,7 @@ ${scenario.persona}
  * @returns {Promise<string>} AI response
  */
 export async function sendMessage(messages, options = {}) {
-  const { mode = 'learn', scenario = null, onChunk = null, lang = 'jp' } = options
+  const { mode = 'learn', scenario = null, onChunk = null, lang = 'jp', accountContext = '' } = options
 
   const apiKey = getApiKey()
   if (!apiKey) {
@@ -84,8 +84,8 @@ export async function sendMessage(messages, options = {}) {
   }
 
   const systemPrompt = mode === 'gym' && scenario
-    ? SYSTEM_PROMPTS.gym(scenario, lang)
-    : (SYSTEM_PROMPTS[mode] || SYSTEM_PROMPTS.learn)(lang)
+    ? SYSTEM_PROMPTS.gym(scenario, lang, accountContext)
+    : (SYSTEM_PROMPTS[mode] || SYSTEM_PROMPTS.learn)(lang, accountContext)
 
   // Convert messages to Gemini format
   const geminiContents = []

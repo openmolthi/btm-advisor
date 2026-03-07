@@ -1,14 +1,19 @@
-import { MessageCircle, Compass, Map, Swords, Settings, Globe, WifiOff, Moon, Sun, Zap, Home, ExternalLink } from 'lucide-react'
+import { useState } from 'react'
+import { MessageCircle, Compass, Map, Swords, Settings, Globe, WifiOff, Moon, Sun, Zap, Home, ExternalLink, FileText, ShieldCheck, Building2 } from 'lucide-react'
 import { useI18n } from '../lib/i18n'
 import { useOnlineStatus } from '../lib/useOnlineStatus'
 import { useTheme } from '../lib/useTheme'
 import { isDrillCompletedToday } from '../lib/progressTracker'
+import { useAccount } from '../contexts/AccountContext'
+import AccountSetup from './AccountSetup'
 
 const NAV_ITEMS = [
   { id: 'coach', labelKey: 'nav.coach', icon: MessageCircle },
   { id: 'navigator', labelKey: 'nav.navigator', icon: Compass },
   { id: 'valuemap', labelKey: 'nav.valuemap', icon: Map },
   { id: 'dojo', labelKey: 'nav.dojo', icon: Swords },
+  { id: 'debrief', labelKey: 'nav.debrief', icon: FileText },
+  { id: 'battlecards', labelKey: 'nav.battlecards', icon: ShieldCheck },
   { id: 'settings', labelKey: 'nav.settings', icon: Settings },
 ]
 
@@ -17,6 +22,8 @@ export default function Layout({ activeTab, onTabChange, onDrillOpen, children }
   const { isOnline } = useOnlineStatus()
   const { isDark, toggleTheme } = useTheme()
   const drillDone = isDrillCompletedToday()
+  const { hasContext } = useAccount()
+  const [accountOpen, setAccountOpen] = useState(false)
 
   const toggleLang = () => setLang(lang === 'jp' ? 'en' : 'jp')
 
@@ -39,6 +46,23 @@ export default function Layout({ activeTab, onTabChange, onDrillOpen, children }
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Account Context button */}
+        <div className="px-3 py-2 border-b border-[var(--ink-200)]">
+          <button
+            onClick={() => setAccountOpen(true)}
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all hover:bg-[var(--sage-tint)] border border-[var(--ink-200)]"
+            style={{ background: hasContext ? 'var(--sage-tint)' : 'var(--surface)' }}
+          >
+            <Building2 size={16} className="text-[var(--sage-dark)]" />
+            <span className="text-[13px] text-[var(--ink-800)] flex-1 text-left" style={{ fontWeight: 500 }}>
+              {t('account.title')}
+            </span>
+            {hasContext && (
+              <span className="w-2 h-2 rounded-full bg-[var(--sage)]" />
+            )}
+          </button>
         </div>
 
         {/* Daily Drill button */}
@@ -180,6 +204,8 @@ export default function Layout({ activeTab, onTabChange, onDrillOpen, children }
           })}
         </div>
       </div>
+
+      <AccountSetup open={accountOpen} onClose={() => setAccountOpen(false)} />
 
       {/* Main Content — constrained width */}
       <main className="flex-1 flex flex-col min-h-0 pb-20 md:pb-0 overflow-hidden">

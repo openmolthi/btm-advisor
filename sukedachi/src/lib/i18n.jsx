@@ -321,6 +321,41 @@ const translations = {
   },
   'japan.news.lastFetched': { jp: '最終取得', en: 'Last fetched' },
 
+  // Account context
+  'account.title': { jp: 'アカウント設定', en: 'Account Setup' },
+  'account.company': { jp: '企業名', en: 'Company Name' },
+  'account.companyPlaceholder': { jp: '例: トヨタ自動車', en: 'e.g. Toyota Motor' },
+  'account.industry': { jp: '業種', en: 'Industry' },
+  'account.selectIndustry': { jp: '業種を選択', en: 'Select industry' },
+  'account.pains': { jp: '課題', en: 'Pain Points' },
+  'account.bom': { jp: '関連製品', en: 'Related Products' },
+  'account.aiFill': { jp: 'AI提案', en: 'AI Suggest' },
+  'account.save': { jp: '保存', en: 'Save' },
+  'account.clear': { jp: 'クリア', en: 'Clear' },
+
+  // Debrief page
+  'nav.debrief': { jp: '振り返り', en: 'Debrief' },
+  'debrief.title': { jp: '振り返り', en: 'Debrief' },
+  'debrief.subtitle': { jp: '会議メモからフォローアップとSAメモを自動生成', en: 'Auto-generate follow-up email and SA memo from meeting notes' },
+  'debrief.notesLabel': { jp: '会議メモ', en: 'Meeting Notes' },
+  'debrief.notesPlaceholder': { jp: '会議メモをペーストしてください...', en: 'Paste your meeting notes here...' },
+  'debrief.generate': { jp: '生成', en: 'Generate' },
+  'debrief.output': { jp: '生成結果', en: 'Generated Output' },
+
+  // Battlecards page
+  'nav.battlecards': { jp: '切返し', en: 'Battlecards' },
+  'battlecards.title': { jp: '切返しカード', en: 'Battlecards' },
+  'battlecards.subtitle': { jp: 'よくある反論への切り返し', en: 'Counter common objections' },
+  'battlecards.rebuttal': { jp: '切り返し', en: 'Rebuttal' },
+  'battlecards.reframe': { jp: 'リフレーム', en: 'Reframe' },
+  'battlecards.valueTie': { jp: '価値提案', en: 'Value Tie-in' },
+  'battlecards.nextStep': { jp: 'ネクストステップ', en: 'Next Step' },
+  'battlecards.aiTailor': { jp: 'AIカスタマイズ', en: 'AI Tailor' },
+
+  // AI News curation
+  'japan.news.aiCurate': { jp: 'AIキュレーション', en: 'AI Curate' },
+  'japan.news.aiCurating': { jp: 'キュレーション中...', en: 'Curating...' },
+
   // Product domains (for i18n product cards)
   'product.signavio.domain': { jp: 'プロセスマイニング＆マネジメント', en: 'Process Mining & Management' },
   'product.leanix.domain': { jp: 'エンタープライズ・アーキテクチャ管理', en: 'Enterprise Architecture Management' },

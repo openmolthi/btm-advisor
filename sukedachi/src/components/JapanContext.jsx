@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react'
-import { Newspaper, RefreshCw, ExternalLink, ChevronDown, ChevronUp, TrendingUp } from 'lucide-react'
+import { Newspaper, RefreshCw, ExternalLink, ChevronDown, ChevronUp, TrendingUp, Sparkles } from 'lucide-react'
 import { useI18n } from '../lib/i18n'
+import { useAccount, buildAccountContextString } from '../contexts/AccountContext'
+import { hasApiKey } from '../lib/api'
 
 // Expanded Japan context data with rich content
 const JAPAN_THEMES = [
@@ -159,7 +161,7 @@ function ThemeCard({ theme, t, expanded, onToggle }) {
   )
 }
 
-function NewsItem({ article }) {
+function NewsItem({ article, pitchHook }) {
   const date = article.pubDate
     ? new Date(article.pubDate).toLocaleDateString('en-GB', {
         day: 'numeric', month: 'short', year: 'numeric',
@@ -167,44 +169,56 @@ function NewsItem({ article }) {
     : ''
 
   return (
-    <a
-      href={article.link}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block rounded-xl border border-[var(--ink-200)] p-3 hover:bg-[var(--ink-50)] transition-colors group"
-    >
-      <div className="flex items-start gap-2">
-        <div className="flex-1 min-w-0">
-          <p className="text-[13px] text-[var(--ink-800)] group-hover:text-[var(--sage)]" style={{ fontWeight: 500, lineHeight: 1.6 }}>
-            {article.title}
-          </p>
-          {article.description && (
-            <p className="text-[11px] text-[var(--ink-500)] mt-1 line-clamp-2" style={{ fontWeight: 400 }}>
-              {article.description}
+    <div className="rounded-xl border border-[var(--ink-200)] overflow-hidden">
+      <a
+        href={article.link}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block p-3 hover:bg-[var(--ink-50)] transition-colors group"
+      >
+        <div className="flex items-start gap-2">
+          <div className="flex-1 min-w-0">
+            <p className="text-[13px] text-[var(--ink-800)] group-hover:text-[var(--sage)]" style={{ fontWeight: 500, lineHeight: 1.6 }}>
+              {article.title}
             </p>
-          )}
-          <div className="flex items-center gap-2 mt-1.5">
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--washi)] text-[var(--ink-500)]" style={{ fontWeight: 500 }}>
-              {article.source}
-            </span>
-            {date && (
-              <span className="text-[10px] text-[var(--ink-400)]">{date}</span>
+            {article.description && (
+              <p className="text-[11px] text-[var(--ink-500)] mt-1 line-clamp-2" style={{ fontWeight: 400 }}>
+                {article.description}
+              </p>
             )}
+            <div className="flex items-center gap-2 mt-1.5">
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--washi)] text-[var(--ink-500)]" style={{ fontWeight: 500 }}>
+                {article.source}
+              </span>
+              {date && (
+                <span className="text-[10px] text-[var(--ink-400)]">{date}</span>
+              )}
+            </div>
           </div>
+          <ExternalLink size={14} className="text-[var(--ink-300)] group-hover:text-[var(--sage)] flex-shrink-0 mt-1" />
         </div>
-        <ExternalLink size={14} className="text-[var(--ink-300)] group-hover:text-[var(--sage)] flex-shrink-0 mt-1" />
-      </div>
-    </a>
+      </a>
+      {pitchHook && (
+        <div className="px-3 pb-3 pt-1 border-t border-[var(--ink-100)]">
+          <p className="text-[12px] text-[var(--sage-dark)] italic" style={{ fontWeight: 400, lineHeight: 1.6 }}>
+            💡 {pitchHook}
+          </p>
+        </div>
+      )}
+    </div>
   )
 }
 
 export default function JapanContext() {
   const { t } = useI18n()
+  const account = useAccount()
   const [expandedTheme, setExpandedTheme] = useState(null)
   const [news, setNews] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [lastFetched, setLastFetched] = useState(null)
+  const [pitchHooks, setPitchHooks] = useState({})
+  const [curateLoading, setCurateLoading] = useState(false)
 
   const fetchNews = useCallback(async () => {
     setLoading(true)
@@ -255,6 +269,45 @@ export default function JapanContext() {
     setLastFetched(new Date())
     setLoading(false)
   }, [t])
+
+  const handleAiCurate = useCallback(async () => {
+    if (!hasApiKey() || news.length === 0) return
+    setCurateLoading(true)
+    try {
+      const apiKey = localStorage.getItem('btm-suite-gemini-key') || localStorage.getItem('sukedachi-gemini-key') || ''
+      const accountCtx = buildAccountContextString(account)
+      const headlines = news.slice(0, 10).map((a, i) => `${i + 1}. ${a.title}`).join('\n')
+      const prompt = `For each headline below, write a one-line pitch hook connecting it to SAP BTM solutions (Signavio, LeanIX, Syniti, Tricentis, WalkMe). Be specific and actionable.
+${accountCtx ? `\nAccount context: ${accountCtx}` : ''}
+
+Headlines:
+${headlines}
+
+Respond as JSON: {"hooks": ["hook1", "hook2", ...]}`
+
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
+          }),
+        }
+      )
+      const data = await res.json()
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+      const match = text.match(/\{[\s\S]*"hooks"[\s\S]*\}/)
+      if (match) {
+        const parsed = JSON.parse(match[0])
+        const hooks = {}
+        parsed.hooks?.forEach((hook, i) => { if (i < news.length) hooks[i] = hook })
+        setPitchHooks(hooks)
+      }
+    } catch { /* ignore */ }
+    setCurateLoading(false)
+  }, [news, account])
 
   return (
     <div className="mt-5 rounded-2xl border border-[var(--ink-200)] p-5" style={{ background: 'var(--surface)' }}>
@@ -314,9 +367,22 @@ export default function JapanContext() {
 
         {news.length > 0 && (
           <>
+            {hasApiKey() && (
+              <div className="mb-3">
+                <button
+                  onClick={handleAiCurate}
+                  disabled={curateLoading}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] border border-[var(--sage-light)] text-[var(--sage-dark)] hover:bg-[var(--sage-tint)] transition-colors disabled:opacity-50"
+                  style={{ fontWeight: 500 }}
+                >
+                  <Sparkles size={13} className={curateLoading ? 'animate-spin' : ''} />
+                  {curateLoading ? t('japan.news.aiCurating') : t('japan.news.aiCurate')}
+                </button>
+              </div>
+            )}
             <div className="space-y-2">
               {news.map((article, i) => (
-                <NewsItem key={`${article.source}-${i}`} article={article} />
+                <NewsItem key={`${article.source}-${i}`} article={article} pitchHook={pitchHooks[i]} />
               ))}
             </div>
             {lastFetched && (
