@@ -33,6 +33,7 @@ export default function Debrief() {
   const [output, setOutput] = useState('')
   const [loading, setLoading] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
+  const [voiceInterim, setVoiceInterim] = useState('')
   const recognitionRef = useRef(null)
   const fileInputRef = useRef(null)
 
@@ -71,31 +72,25 @@ export default function Debrief() {
     recognition.continuous = true
     recognition.interimResults = true
 
-    let finalTranscript = ''
-
     recognition.onresult = (event) => {
       let interim = ''
       for (let i = event.resultIndex; i < event.results.length; i++) {
         if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript
+          // Append final result directly to notes
+          const text = event.results[i][0].transcript
+          setNotes(prev => prev + (prev ? ' ' : '') + text)
+          setVoiceInterim('')
         } else {
           interim += event.results[i][0].transcript
         }
       }
-      // Append final transcript to notes
-      if (transcript) {
-        setNotes(prev => {
-          const base = prev.replace(/\n\[🎤.*\]$/, '')
-          return base + (base ? '\n' : '') + transcript + (interim ? ` [🎤 ${interim}]` : '')
-        })
-      }
+      if (interim) setVoiceInterim(interim)
     }
 
-    recognition.onerror = () => setIsRecording(false)
+    recognition.onerror = () => { setIsRecording(false); setVoiceInterim('') }
     recognition.onend = () => {
       setIsRecording(false)
-      // Clean up interim markers
-      setNotes(prev => prev.replace(/\n\[🎤.*\]$/, ''))
+      setVoiceInterim('')
 
     recognitionRef.current = recognition
     recognition.start()
@@ -229,6 +224,9 @@ export default function Debrief() {
                 {isRecording ? t('debrief.stopVoice') : t('debrief.voice')}
               </button>
             </div>
+            {voiceInterim && (
+              <span className="text-[11px] text-[var(--ink-400)] italic truncate max-w-[200px]">🎤 {voiceInterim}</span>
+            )}
             <button
               onClick={handleGenerate}
               disabled={!notes.trim() || loading || !hasApiKey()}
