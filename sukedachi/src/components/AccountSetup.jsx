@@ -66,34 +66,32 @@ Return ONLY this JSON:
         return
       }
       const data = await res.json()
-      // Gemini 2.5 models may return thinking in parts[0], so collect ALL text parts
+      // Gemini 2.5 models may return thinking in earlier parts — only use non-thought parts
       const allParts = data.candidates?.[0]?.content?.parts || []
-      let text = allParts.map(p => p.text || '').join('\n').trim()
-      console.log('[AI Suggest] raw response:', text, 'parts count:', allParts.length)
+      let text = allParts.filter(p => !p.thought).map(p => p.text || '').join('\n').trim()
+      console.log('[AI Suggest] raw response:', text, 'parts:', allParts.length)
       // Strip markdown code fences if present
       text = text.replace(/```json?\s*/gi, '').replace(/```/g, '').trim()
-      // Try to extract JSON
-      const match = text.match(/\{[\s\S]*?\}/)
-      if (match) {
-        try {
-          const parsed = JSON.parse(match[0])
-          let matched = false
-          if (parsed.industry) {
-            // Fuzzy match industry
-            const found = INDUSTRIES.find(i => parsed.industry.includes(i) || i.includes(parsed.industry))
-            if (found) { setIndustry(found); matched = true }
-          }
-          if (parsed.pains?.length) {
-            const valid = parsed.pains.filter(p => PAIN_OPTIONS.some(o => o === p || p.includes(o) || o.includes(p)))
-            const mapped = valid.map(p => PAIN_OPTIONS.find(o => o === p || p.includes(o) || o.includes(p)))
-            if (mapped.length) { setPains([...new Set(mapped)]); matched = true }
-          }
-          if (!matched) setAiError(`Could not match: ${JSON.stringify(parsed).slice(0, 80)}`)
-        } catch (parseErr) {
-          setAiError(`JSON parse error: ${match[0].slice(0, 60)}`)
+      // Try to parse as JSON directly first, then regex fallback
+      let parsed = null
+      try { parsed = JSON.parse(text) } catch {}
+      if (!parsed) {
+        const match = text.match(/\{[\s\S]*\}/)
+        if (match) try { parsed = JSON.parse(match[0]) } catch {}
+      }
+      if (parsed) {
+        if (parsed.industry) {
+          // Fuzzy match industry — or just set it directly if it's a valid string
+          const found = INDUSTRIES.find(i => parsed.industry.includes(i) || i.includes(parsed.industry))
+          if (found) setIndustry(found)
+          else setIndustry(parsed.industry) // Accept AI's answer even if not in list
+        }
+        if (parsed.pains?.length) {
+          const mapped = parsed.pains.map(p => PAIN_OPTIONS.find(o => o === p || p.includes(o) || o.includes(p))).filter(Boolean)
+          if (mapped.length) setPains([...new Set(mapped)])
         }
       } else {
-        setAiError(`Unexpected: ${text.slice(0, 100)}`)
+        setAiError(`Unexpected response: ${text.slice(0, 100)}`)
       }
     } catch (err) {
       setAiError(err.message || 'AI error')
