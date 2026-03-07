@@ -275,14 +275,51 @@ const translations = {
   'export.copyScorecard': { jp: 'スコアをコピー', en: 'Copy Score' },
 
   // Japan context items
+  'japan.intro': {
+    jp: 'SAP BTMソリューションにとって、日本市場は今まさに転換点にあります。レガシーシステムの刷新期限、深刻な人手不足、政府主導のDX推進、そして世界有数の製造業基盤 — これらが同時に重なる市場は他にありません。',
+    en: 'The Japan market is at a unique inflection point for SAP BTM solutions. A convergence of legacy modernization deadlines, acute labor shortages, government-driven DX mandates, and a world-class manufacturing base creates an opportunity unlike any other market.',
+  },
   'japan.cliff': { jp: '2025年の崖', en: '2025 Cliff' },
   'japan.cliff.desc': { jp: 'レガシーモダナイゼーションの期限', en: 'Legacy modernization deadline' },
+  'japan.cliff.detail': {
+    jp: 'METIの2018年DXレポートが警告した「2025年の崖」— 日本企業の約8割がレガシーシステムを抱え、2025年以降、年間最大12兆円の経済損失リスク。SAP ECC 6.0のメインストリームサポート終了（2027年）と重なり、S/4HANA移行が急務に。多くの大企業が移行プロジェクトを本格化しており、Signavio（プロセス可視化）、LeanIX（IT資産管理）、Syniti（データ移行）、Tricentis（テスト自動化）の需要が急増中。',
+    en: 'METI\'s 2018 DX Report warned of the "2025 Cliff" — ~80% of Japanese enterprises run legacy systems, risking ¥12 trillion/year in economic losses post-2025. Combined with SAP ECC 6.0 mainstream support ending (2027), S/4HANA migration is urgent. Major enterprises are accelerating migration projects, driving surging demand for Signavio (process visibility), LeanIX (IT landscape), Syniti (data migration), and Tricentis (test automation).',
+  },
   'japan.labor': { jp: '人手不足', en: 'Labor Shortage' },
   'japan.labor.desc': { jp: '自動化への必然的な流れ', en: 'Inevitable push to automation' },
+  'japan.labor.detail': {
+    jp: '日本の労働人口は2040年までに約1,100万人減少の見込み（国立社会保障・人口問題研究所）。IT人材不足は2030年に最大79万人に達すると予測。製造・物流・小売・金融あらゆる業種で自動化・効率化が経営課題の最上位に。プロセスマイニングによる業務可視化、AIエージェントによる定型業務の自動化、テスト自動化による開発効率向上 — BTMソリューションが直接このペインに応える。',
+    en: 'Japan\'s workforce will shrink by ~11 million by 2040 (NIPSSR). IT talent gap projected at 790,000 by 2030. Automation and efficiency are now top-priority board-level issues across manufacturing, logistics, retail, and financial services. Process mining for workflow visibility, AI agents for routine task automation, and test automation for development efficiency — BTM solutions directly address this pain.',
+  },
   'japan.dx': { jp: 'DX推進', en: 'DX Promotion' },
   'japan.dx.desc': { jp: '経団連Society 5.0方針', en: 'Keidanren Society 5.0 policy' },
+  'japan.dx.detail': {
+    jp: '経団連のSociety 5.0構想、デジタル庁の設立（2021年）、そしてDX認定制度により、日本政府は企業のデジタル変革を強力に後押し。2024年のDX白書では、DXに取り組む企業は73.7%に上昇（2021年の55.8%から）。ただし「全社的な変革」に至っている企業はまだ少数。プロセスの可視化・標準化（Signavio）とITアーキテクチャの整理（LeanIX）が、DX推進の基盤として不可欠。',
+    en: 'Keidanren\'s Society 5.0 vision, the Digital Agency (est. 2021), and DX Certification create strong government tailwinds. The 2024 DX White Paper shows 73.7% of companies now pursuing DX (up from 55.8% in 2021), but few have achieved enterprise-wide transformation. Process visibility and standardization (Signavio) and IT architecture rationalization (LeanIX) are essential foundations for DX success.',
+  },
   'japan.manufacturing': { jp: '製造業大国', en: 'Manufacturing Power' },
   'japan.manufacturing.desc': { jp: 'プロセスマイニング最適市場', en: 'Ideal market for process mining' },
+  'japan.manufacturing.detail': {
+    jp: '日本は世界第3位の製造業大国であり、「ものづくり」文化はプロセスの継続的改善（カイゼン）と親和性が極めて高い。トヨタ生産方式に代表される改善文化は、プロセスマイニングのデジタル版と言える。自動車、電機、精密機器、化学 — いずれもエンドツーエンドのプロセス可視化、品質管理、サプライチェーン最適化に大きなニーズがある。Signavioは「デジタルカイゼン」として、LeanIXはIT複雑性の管理ツールとして、製造業のDXを支える。',
+    en: 'Japan is the world\'s 3rd largest manufacturing economy. The "monozukuri" culture of continuous improvement (kaizen) is a natural fit for process mining — it\'s digital kaizen. Automotive, electronics, precision machinery, and chemicals all have massive needs for end-to-end process visibility, quality control, and supply chain optimization. Signavio as "digital kaizen" and LeanIX for IT complexity management are compelling narratives for manufacturing DX.',
+  },
+  // News section
+  'japan.news.title': { jp: '最新ニュース', en: 'Latest News' },
+  'japan.news.fetch': { jp: 'ニュースを取得', en: 'Fetch Latest News' },
+  'japan.news.loading': { jp: '取得中...', en: 'Fetching...' },
+  'japan.news.sources': {
+    jp: 'Nikkei Asia・NHK World・Nippon.com・Japan Times から取得',
+    en: 'From Nikkei Asia · NHK World · Nippon.com · Japan Times',
+  },
+  'japan.news.empty': {
+    jp: 'ボタンを押して日本市場の最新ニュースを取得',
+    en: 'Press the button above to fetch the latest Japan market news',
+  },
+  'japan.news.noResults': {
+    jp: 'ニュースを取得できませんでした。後ほどお試しください。',
+    en: 'Could not fetch news. Please try again later.',
+  },
+  'japan.news.lastFetched': { jp: '最終取得', en: 'Last fetched' },
 
   // Product domains (for i18n product cards)
   'product.signavio.domain': { jp: 'プロセスマイニング＆マネジメント', en: 'Process Mining & Management' },

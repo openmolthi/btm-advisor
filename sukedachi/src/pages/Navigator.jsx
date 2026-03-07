@@ -4,6 +4,7 @@ import { PRODUCTS } from '../lib/constants'
 import { useI18n } from '../lib/i18n'
 import { OFFICIAL_DOCS } from '../data/officialDocs'
 import { showToast } from '../lib/useToast'
+import JapanContext from '../components/JapanContext'
 
 // Rich product data from knowledge files
 const PRODUCT_DATA = {
@@ -85,12 +86,7 @@ const PRODUCT_DATA = {
   },
 }
 
-const JAPAN_CONTEXT_KEYS = [
-  { titleKey: 'japan.cliff', descKey: 'japan.cliff.desc', icon: '⏰' },
-  { titleKey: 'japan.labor', descKey: 'japan.labor.desc', icon: '👥' },
-  { titleKey: 'japan.dx', descKey: 'japan.dx.desc', icon: '🚀' },
-  { titleKey: 'japan.manufacturing', descKey: 'japan.manufacturing.desc', icon: '🏭' },
-]
+// Japan context now handled by JapanContext component
 
 function ProductCard({ product }) {
   const [expanded, setExpanded] = useState(false)
@@ -331,31 +327,8 @@ export default function Navigator() {
           ))}
         </div>
 
-        {/* Japan context */}
-        <div className="mt-5 rounded-2xl border border-[var(--ink-200)] p-5" style={{ background: 'var(--surface)' }}>
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-lg">🇯🇵</span>
-            <h3 className="text-[15px] text-[var(--ink-800)]" style={{ fontWeight: 600 }}>
-              {t('nav.japan.title')}
-            </h3>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {JAPAN_CONTEXT_KEYS.map((item, i) => (
-              <div
-                key={i}
-                className="rounded-xl p-3 text-center bg-[var(--washi)] border border-[var(--ink-200)]"
-              >
-                <span className="text-xl">{item.icon}</span>
-                <p className="text-[13px] text-[var(--ink-800)] mt-1.5" style={{ fontWeight: 500 }}>
-                  {t(item.titleKey)}
-                </p>
-                <p className="text-[11px] text-[var(--ink-500)] mt-0.5" style={{ fontWeight: 400 }}>
-                  {t(item.descKey)}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
+        {/* Japan context — expanded with news */}
+        <JapanContext />
       </div>
     </div>
   )
