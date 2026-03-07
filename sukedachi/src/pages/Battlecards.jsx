@@ -145,25 +145,37 @@ function BattleCard({ card, lang, showEn }) {
       const companyRef = account.company ? `「${account.company}」` : 'このお客様'
       const industryRef = account.industry ? `（${account.industry}）` : ''
       const painRef = account.pains?.length ? `\n顧客の課題: ${account.pains.join('、')}` : ''
-      const prompt = `お客様の反論「${card.objection.jp}」に対して、${companyRef}${industryRef}に特化した切り返しを作成してください。
+      const spDefs = `セールスプレイ定義（正式名称のみ使用）:
+SP1: Integrated Toolchain for ERP Transformation — Signavio+LeanIX+Syniti+Tricentis
+SP2: Process Excellence for LoBs — Signavio
+SP3: Manage IT Complexity with EA — LeanIX
+SP4: Manage & Govern AI Agents — LeanIX+Signavio
+SP5: Enterprise Application QA — Tricentis
+SP6: Enterprise Digital Adoption — WalkMe`
 
-以下を含めてください：
-1. 反論への直接回答 — ${companyRef}の業界・事業に即した具体例で
-2. リフレーム — ${companyRef}のビジネス課題に紐づけて視点を変える
-3. 価値提案 — ${companyRef}が得られる具体的なROI・成果（業界ベンチマーク活用）
-4. ネクストステップ — ${companyRef}に適した次のアクション提案
+      const prompt = `お客様の反論「${card.objection.jp}」に対して、${companyRef}${industryRef}に特化した切り返しを簡潔に作成してください。
+
+以下の4点を簡潔に（各2-3文）：
+🎯 直接回答: ${companyRef}の業界に即した具体例
+🔄 リフレーム: ビジネス課題に紐づけて視点を変える
+💰 価値提案: 具体的なROI・成果
+👉 ネクストステップ: 次のアクション
+
+${spDefs}
 ${painRef}
 ${displayLang === 'en' ? '英語で回答。' : '日本語で回答。'}
+マークダウンは使わないでください。プレーンテキストで簡潔に。
 ${accountCtx}`
 
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:streamGenerateContent?key=${apiKey}&alt=sse`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?key=${apiKey}&alt=sse`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            systemInstruction: { parts: [{ text: 'あなたはSAP BTMポートフォリオの営業コーチです。簡潔で実践的な回答をしてください。マークダウンは使わず、絵文字セクションヘッダーを使ってください。' }] },
             contents: [{ role: 'user', parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
+            generationConfig: { temperature: 0.7, maxOutputTokens: 1024 },
           }),
         }
       )
@@ -196,7 +208,7 @@ ${accountCtx}`
   }
 
   return (
-    <div className="rounded-xl border border-[var(--ink-200)] overflow-hidden" style={{ background: 'var(--surface)' }}>
+    <div className="rounded-xl border border-[var(--ink-200)]" style={{ background: 'var(--surface)' }}>
       <div
         className="p-4 cursor-pointer flex items-start gap-3"
         onClick={() => setExpanded(!expanded)}
