@@ -83,10 +83,10 @@ export default function Debrief() {
         }
       }
       // Append final transcript to notes
-      if (finalTranscript) {
+      if (finalTranscript || interim) {
         setNotes(prev => {
           const base = prev.replace(/\n\[🎤.*\]$/, '')
-          return base + (base ? '\n' : '') + finalTranscript + (interim ? `\n[🎤 ${interim}]` : '')
+          return base + (base ? '\n' : '') + (finalTranscript || '') + (interim ? ` [🎤 ${interim}]` : '')
         })
         finalTranscript = ''
       } else if (interim) {
