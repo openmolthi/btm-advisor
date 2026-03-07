@@ -175,7 +175,7 @@ ${accountCtx}`
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: 'あなたはSAP BTMポートフォリオの営業コーチです。簡潔で実践的な回答をしてください。マークダウンは使わず、絵文字セクションヘッダーを使ってください。' }] },
             contents: [{ role: 'user', parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.7, maxOutputTokens: 1024 },
+            generationConfig: { temperature: 0.7, maxOutputTokens: 1536 },
           }),
         }
       )

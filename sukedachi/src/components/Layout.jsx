@@ -17,6 +17,15 @@ const NAV_ITEMS = [
   { id: 'settings', labelKey: 'nav.settings', icon: Settings },
 ]
 
+// Mobile: 5 primary tabs (no settings — it's in header gear icon)
+const MOBILE_NAV = [
+  { id: 'coach', icon: MessageCircle },
+  { id: 'navigator', icon: Compass },
+  { id: 'dojo', icon: Swords },
+  { id: 'debrief', icon: FileText },
+  { id: 'battlecards', icon: ShieldCheck },
+]
+
 export default function Layout({ activeTab, onTabChange, onDrillOpen, children }) {
   const { t, lang, setLang } = useI18n()
   const { isOnline } = useOnlineStatus()
@@ -168,30 +177,24 @@ export default function Layout({ activeTab, onTabChange, onDrillOpen, children }
 
       {/* Mobile Bottom Tab Bar */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--ink-200)] safe-area-bottom" style={{ background: 'var(--mobile-bar-bg)' }}>
-        <div className="flex justify-around py-2 px-2" style={{ paddingBottom: 'max(8px, env(safe-area-inset-bottom, 8px))' }}>
-          {NAV_ITEMS.map(item => {
+        <div className="flex justify-around py-1.5 px-3" style={{ paddingBottom: 'max(4px, env(safe-area-inset-bottom, 4px))' }}>
+          {MOBILE_NAV.map(item => {
             const Icon = item.icon
             const isActive = activeTab === item.id
             return (
               <button
                 key={item.id}
                 onClick={() => onTabChange(item.id)}
-                className="flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-all min-w-[60px]"
+                className="flex items-center justify-center w-12 h-10 rounded-xl transition-all"
                 style={{
                   background: isActive ? 'var(--sage-tint)' : 'transparent',
                 }}
               >
                 <Icon
                   size={22}
-                  strokeWidth={isActive ? 2 : 1.5}
+                  strokeWidth={isActive ? 2.2 : 1.5}
                   className={isActive ? 'text-[var(--sage-dark)]' : 'text-[var(--ink-400)]'}
                 />
-                <span
-                  className={`text-[10px] ${isActive ? 'text-[var(--sage-dark)]' : 'text-[var(--ink-400)]'}`}
-                  style={{ fontWeight: isActive ? 500 : 400 }}
-                >
-                  {t(item.labelKey)}
-                </span>
               </button>
             )
           })}
@@ -201,7 +204,7 @@ export default function Layout({ activeTab, onTabChange, onDrillOpen, children }
       <AccountSetup open={accountOpen} onClose={() => setAccountOpen(false)} />
 
       {/* Main Content — constrained width */}
-      <main className="flex-1 flex flex-col min-h-0 pb-20 md:pb-0 overflow-hidden">
+      <main className="flex-1 flex flex-col min-h-0 pb-14 md:pb-0 overflow-hidden">
         {/* Mobile top bar */}
         <div className="md:hidden flex items-center justify-between px-4 py-2.5 border-b border-[var(--ink-200)]" style={{ background: 'var(--surface)' }}>
           <div className="flex items-center gap-2">
@@ -219,8 +222,14 @@ export default function Layout({ activeTab, onTabChange, onDrillOpen, children }
               <Building2 size={14} />
               {company ? company.slice(0, 12) : t('account.startHere')}
             </button>
+            <button onClick={() => onTabChange('valuemap')} className="p-1.5 rounded-lg hover:bg-[var(--ink-100)]">
+              <Map size={16} className={activeTab === 'valuemap' ? 'text-[var(--sage)]' : 'text-[var(--ink-500)]'} />
+            </button>
             <button onClick={toggleLang} className="p-1.5 rounded-lg hover:bg-[var(--ink-100)]">
               <Globe size={16} className="text-[var(--ink-500)]" />
+            </button>
+            <button onClick={() => onTabChange('settings')} className="p-1.5 rounded-lg hover:bg-[var(--ink-100)]">
+              <Settings size={16} className={activeTab === 'settings' ? 'text-[var(--sage)]' : 'text-[var(--ink-500)]'} />
             </button>
           </div>
         </div>
