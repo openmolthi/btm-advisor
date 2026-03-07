@@ -47,8 +47,14 @@ export default function AccountSetup({ open, onClose }) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            contents: [{ role: 'user', parts: [{ text: `Company: "${company}". Respond with ONLY a JSON object (no markdown, no backticks, no explanation). Pick industry from this exact list: ${INDUSTRIES.join(', ')}. Pick 1-3 pains from this exact list: ${PAIN_OPTIONS.join(', ')}.\n\nRespond ONLY: {"industry": "...", "pains": ["..."]}` }] }],
-            generationConfig: { temperature: 0.2, maxOutputTokens: 256, responseMimeType: 'application/json' },
+            contents: [{ role: 'user', parts: [{ text: `Given the company "${company}", pick the most relevant industry and 1-3 pain points.
+
+Industry options: ${INDUSTRIES.join(' | ')}
+Pain options: ${PAIN_OPTIONS.join(' | ')}
+
+Reply with ONLY this JSON, nothing else:
+{"industry":"CHOICE","pains":["CHOICE1","CHOICE2"]}` }] }],
+            generationConfig: { temperature: 0.2, maxOutputTokens: 256 },
           }),
         }
       )
@@ -60,21 +66,31 @@ export default function AccountSetup({ open, onClose }) {
       }
       const data = await res.json()
       let text = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+      console.log('[AI Suggest] raw response:', text)
       // Strip markdown code fences if present
       text = text.replace(/```json?\s*/gi, '').replace(/```/g, '').trim()
-      const match = text.match(/\{[\s\S]*\}/)
+      // Try to extract JSON
+      const match = text.match(/\{[\s\S]*?\}/)
       if (match) {
-        const parsed = JSON.parse(match[0])
-        if (parsed.industry && INDUSTRIES.includes(parsed.industry)) setIndustry(parsed.industry)
-        if (parsed.pains?.length) {
-          const valid = parsed.pains.filter(p => PAIN_OPTIONS.includes(p))
-          if (valid.length) setPains(valid)
-        }
-        if (!parsed.industry && !parsed.pains?.length) {
-          setAiError('Could not match suggestions to options')
+        try {
+          const parsed = JSON.parse(match[0])
+          let matched = false
+          if (parsed.industry) {
+            // Fuzzy match industry
+            const found = INDUSTRIES.find(i => parsed.industry.includes(i) || i.includes(parsed.industry))
+            if (found) { setIndustry(found); matched = true }
+          }
+          if (parsed.pains?.length) {
+            const valid = parsed.pains.filter(p => PAIN_OPTIONS.some(o => o === p || p.includes(o) || o.includes(p)))
+            const mapped = valid.map(p => PAIN_OPTIONS.find(o => o === p || p.includes(o) || o.includes(p)))
+            if (mapped.length) { setPains([...new Set(mapped)]); matched = true }
+          }
+          if (!matched) setAiError(`Could not match: ${JSON.stringify(parsed).slice(0, 80)}`)
+        } catch (parseErr) {
+          setAiError(`JSON parse error: ${match[0].slice(0, 60)}`)
         }
       } else {
-        setAiError(`Unexpected response: ${text.slice(0, 80)}`)
+        setAiError(`Unexpected: ${text.slice(0, 100)}`)
       }
     } catch (err) {
       setAiError(err.message || 'AI error')

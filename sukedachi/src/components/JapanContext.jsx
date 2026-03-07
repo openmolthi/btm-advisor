@@ -50,10 +50,7 @@ const JAPAN_THEMES = [
 
 // RSS feed sources — bilingual (JP originals + EN)
 const RSS_FEEDS_JP = [
-  { id: 'nikkei-jp', name: '日経新聞', url: 'https://assets.wor.jp/rss/rdf/nikkei/news.rdf', icon: '📊' },
-  { id: 'nhk-jp', name: 'NHKニュース', url: 'https://www.nhk.or.jp/rss/news/cat0.xml', icon: '📺' },
   { id: 'itmedia', name: 'ITmedia', url: 'https://rss.itmedia.co.jp/rss/2.0/itmedia_all.xml', icon: '💻' },
-  { id: 'nippon-jp', name: 'Nippon.com', url: 'https://www.nippon.com/ja/rss/latestdata_ja.xml', icon: '🗾' },
 ]
 
 const RSS_FEEDS_EN = [
