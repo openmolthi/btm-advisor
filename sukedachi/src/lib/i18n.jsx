@@ -322,7 +322,8 @@ const translations = {
   'japan.news.lastFetched': { jp: '最終取得', en: 'Last fetched' },
 
   // Account context
-  'account.title': { jp: 'アカウント設定', en: 'Account Setup' },
+  'account.title': { jp: 'ターゲット顧客を設定', en: 'Account Setup' },
+  'account.set': { jp: '顧客設定', en: 'Account' },
   'account.company': { jp: '企業名', en: 'Company Name' },
   'account.companyPlaceholder': { jp: '例: トヨタ自動車', en: 'e.g. Toyota Motor' },
   'account.industry': { jp: '業種', en: 'Industry' },
@@ -330,6 +331,7 @@ const translations = {
   'account.pains': { jp: '課題', en: 'Pain Points' },
   'account.bom': { jp: '関連製品', en: 'Related Products' },
   'account.aiFill': { jp: 'AI提案', en: 'AI Suggest' },
+  'account.noKey': { jp: 'APIキーが未設定です。設定画面で入力してください。', en: 'No API key. Set it in Settings first.' },
   'account.save': { jp: '保存', en: 'Save' },
   'account.clear': { jp: 'クリア', en: 'Clear' },
 
@@ -341,6 +343,11 @@ const translations = {
   'debrief.notesPlaceholder': { jp: '会議メモをペーストしてください...', en: 'Paste your meeting notes here...' },
   'debrief.generate': { jp: '生成', en: 'Generate' },
   'debrief.output': { jp: '生成結果', en: 'Generated Output' },
+  'debrief.upload': { jp: 'ファイル', en: 'Upload' },
+  'debrief.voice': { jp: '音声入力', en: 'Voice' },
+  'debrief.stopVoice': { jp: '停止', en: 'Stop' },
+  'debrief.noSpeech': { jp: '音声認識はこのブラウザでサポートされていません', en: 'Speech recognition not supported in this browser' },
+  'debrief.attachedFile': { jp: '添付ファイル', en: 'Attached file' },
 
   // Battlecards page
   'nav.battlecards': { jp: '切返し', en: 'Battlecards' },

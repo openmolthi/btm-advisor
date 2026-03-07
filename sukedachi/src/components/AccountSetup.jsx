@@ -29,22 +29,34 @@ export default function AccountSetup({ open, onClose }) {
     setter(list.includes(value) ? list.filter(v => v !== value) : [...list, value])
   }
 
+  const [aiError, setAiError] = useState('')
+
   const handleAiFill = async () => {
-    if (!company || !hasApiKey()) return
+    if (!company) return
+    if (!hasApiKey()) {
+      setAiError(t('account.noKey'))
+      return
+    }
     setAiLoading(true)
+    setAiError('')
     try {
       const apiKey = localStorage.getItem('btm-suite-gemini-key') || localStorage.getItem('sukedachi-gemini-key') || ''
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            contents: [{ role: 'user', parts: [{ text: `企業名「${company}」について、以下のJSON形式で回答してください。業種は次から選択: ${INDUSTRIES.join(', ')}。課題は次から選択(複数可): ${PAIN_OPTIONS.join(', ')}。\n\n{"industry": "...", "pains": ["...", "..."]}` }] }],
+            contents: [{ role: 'user', parts: [{ text: `Company: "${company}". Return JSON only, no markdown. Pick industry from: ${INDUSTRIES.join(', ')}. Pick 1-3 pains from: ${PAIN_OPTIONS.join(', ')}.\n\nFormat: {"industry": "...", "pains": ["..."]}` }] }],
             generationConfig: { temperature: 0.3, maxOutputTokens: 256 },
           }),
         }
       )
+      if (!res.ok) {
+        setAiError(`API error: ${res.status}`)
+        setAiLoading(false)
+        return
+      }
       const data = await res.json()
       const text = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
       const match = text.match(/\{[\s\S]*\}/)
@@ -55,8 +67,12 @@ export default function AccountSetup({ open, onClose }) {
           const valid = parsed.pains.filter(p => PAIN_OPTIONS.includes(p))
           if (valid.length) setPains(valid)
         }
+      } else {
+        setAiError('No suggestion returned')
       }
-    } catch { /* ignore */ }
+    } catch (err) {
+      setAiError(err.message || 'AI error')
+    }
     setAiLoading(false)
   }
 
@@ -96,19 +112,21 @@ export default function AccountSetup({ open, onClose }) {
                 placeholder={t('account.companyPlaceholder')}
                 className="flex-1 px-3 py-2 rounded-lg border border-[var(--ink-200)] text-[13px] text-[var(--ink-800)] bg-[var(--washi)] focus:outline-none focus:border-[var(--sage)]"
               />
-              {hasApiKey() && (
-                <button
-                  onClick={handleAiFill}
-                  disabled={!company || aiLoading}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[12px] border border-[var(--sage-light)] text-[var(--sage-dark)] hover:bg-[var(--sage-tint)] transition-colors disabled:opacity-40"
-                  style={{ fontWeight: 500 }}
-                >
-                  <Sparkles size={14} className={aiLoading ? 'animate-spin' : ''} />
-                  {t('account.aiFill')}
-                </button>
-              )}
+              <button
+                onClick={handleAiFill}
+                disabled={!company || aiLoading}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[12px] border border-[var(--sage-light)] text-[var(--sage-dark)] hover:bg-[var(--sage-tint)] transition-colors disabled:opacity-40"
+                style={{ fontWeight: 500 }}
+              >
+                <Sparkles size={14} className={aiLoading ? 'animate-spin' : ''} />
+                {t('account.aiFill')}
+              </button>
             </div>
           </div>
+
+          {aiError && (
+            <p className="text-[11px] text-[#c2410c] mt-1">{aiError}</p>
+          )}
 
           {/* Industry */}
           <div>

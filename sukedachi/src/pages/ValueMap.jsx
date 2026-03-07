@@ -20,7 +20,7 @@ function SolutionPill({ name }) {
 // ─── Flash Cards ───────────────────────────────────────────────────────────────
 
 function FlashCards({ lang, t }) {
-  const [cards, setCards] = useState(() => [...VALUE_DRIVERS])
+  const [cards, setCards] = useState(() => [...VALUE_DRIVERS].sort(() => Math.random() - 0.5))
   const [index, setIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
 

@@ -102,21 +102,43 @@ function parseRSS(xmlText, sourceName) {
 }
 
 // Keyword matching for Japan business/tech relevance
-const RELEVANCE_KEYWORDS = [
-  'sap', 'erp', 'legacy', 'digital transformation', 'dx', 'automation',
-  'manufacturing', 'labor', 'workforce', 'shortage', 'ai', 'technology',
-  'enterprise', 'software', 'cloud', 'data', 'process', 'business',
-  'economy', 'industry', 'robot', 'supply chain', 'semiconductor',
-  'startup', 'innovation', 'investment', 'gdp', 'reform', 'regulation',
-  'sustainability', 'carbon', 'energy', 'trade', 'export',
+// High-weight: directly SAP/BTM relevant
+const HIGH_KEYWORDS = [
+  'sap', 'erp', 'legacy system', 'digital transformation', 'dx', 'process mining',
+  'enterprise architecture', 'data migration', 'test automation', 'data quality',
+  'signavio', 'leanix', 'syniti', 'tricentis', 's/4hana', 'cloud erp',
+]
+// Medium-weight: industry/tech relevant
+const MED_KEYWORDS = [
+  'automation', 'manufacturing', 'labor shortage', 'workforce', 'ai ',
+  'enterprise software', 'supply chain', 'semiconductor', 'robot',
+  'factory', 'industry 4.0', 'kaizen', 'monozukuri', 'keidanren',
+  'digital agency', 'society 5.0', 'it modernization', 'cloud',
+]
+// Low-weight: general business
+const LOW_KEYWORDS = [
+  'economy', 'gdp', 'trade', 'export', 'investment', 'reform',
+  'sustainability', 'energy', 'startup', 'innovation', 'regulation',
+]
+// Negative: filter out irrelevant noise
+const NEGATIVE_KEYWORDS = [
+  'assault', 'murder', 'celebrity', 'entertainment', 'movie', 'film',
+  'sport', 'baseball', 'soccer', 'football', 'tennis', 'olympic',
+  'earthquake', 'tsunami', 'typhoon', 'crime', 'arrested', 'scandal',
+  'anime', 'manga', 'music', 'concert', 'festival', 'tourism',
+  'cooking', 'recipe', 'fashion', 'wedding', 'divorce',
 ]
 
 function relevanceScore(title, description) {
   const text = `${title} ${description}`.toLowerCase()
-  let score = 0
-  for (const kw of RELEVANCE_KEYWORDS) {
-    if (text.includes(kw)) score++
+  // Negative filter — if negative keyword found, return -1
+  for (const kw of NEGATIVE_KEYWORDS) {
+    if (text.includes(kw)) return -1
   }
+  let score = 0
+  for (const kw of HIGH_KEYWORDS) { if (text.includes(kw)) score += 3 }
+  for (const kw of MED_KEYWORDS) { if (text.includes(kw)) score += 2 }
+  for (const kw of LOW_KEYWORDS) { if (text.includes(kw)) score += 1 }
   return score
 }
 
@@ -258,14 +280,17 @@ export default function JapanContext() {
       _date: a.pubDate ? new Date(a.pubDate).getTime() : 0,
     }))
 
-    scored.sort((a, b) => {
+    // Filter out negative-scored (irrelevant) and zero-scored articles
+    const filtered = scored.filter(a => a._score >= 1)
+
+    filtered.sort((a, b) => {
       // Primary: relevance score (desc), secondary: date (desc)
       if (b._score !== a._score) return b._score - a._score
       return b._date - a._date
     })
 
-    // Take top 15 most relevant
-    setNews(scored.slice(0, 15))
+    // Take top 12 most relevant
+    setNews(filtered.slice(0, 12))
     setLastFetched(new Date())
     setLoading(false)
   }, [t])

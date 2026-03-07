@@ -22,7 +22,7 @@ export default function Layout({ activeTab, onTabChange, onDrillOpen, children }
   const { isOnline } = useOnlineStatus()
   const { isDark, toggleTheme } = useTheme()
   const drillDone = isDrillCompletedToday()
-  const { hasContext } = useAccount()
+  const { hasContext, company } = useAccount()
   const [accountOpen, setAccountOpen] = useState(false)
 
   const toggleLang = () => setLang(lang === 'jp' ? 'en' : 'jp')
@@ -209,6 +209,26 @@ export default function Layout({ activeTab, onTabChange, onDrillOpen, children }
 
       {/* Main Content — constrained width */}
       <main className="flex-1 flex flex-col min-h-0 pb-20 md:pb-0 overflow-hidden">
+        {/* Mobile top bar */}
+        <div className="md:hidden flex items-center justify-between px-4 py-2.5 border-b border-[var(--ink-200)]" style={{ background: 'var(--surface)' }}>
+          <div className="flex items-center gap-2">
+            <span className="text-base">⚔️</span>
+            <span className="text-[14px] text-[var(--ink-800)] tracking-wide" style={{ fontWeight: 600 }}>助太刀</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setAccountOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] border border-[var(--ink-200)] hover:bg-[var(--ink-50)] transition-colors"
+              style={{ color: company ? 'var(--sage-dark)' : 'var(--ink-500)', fontWeight: 500, background: company ? 'var(--sage-tint)' : 'transparent' }}
+            >
+              <Building2 size={14} />
+              {company ? company.slice(0, 12) : t('account.set')}
+            </button>
+            <button onClick={toggleLang} className="p-1.5 rounded-lg hover:bg-[var(--ink-100)]">
+              <Globe size={16} className="text-[var(--ink-500)]" />
+            </button>
+          </div>
+        </div>
         {/* Offline banner */}
         {!isOnline && (
           <div className="px-4 py-2 border-b flex items-center justify-center gap-2" style={{ background: 'var(--amber-bg)', borderColor: 'var(--amber-border)' }}>
